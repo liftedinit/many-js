@@ -1,0 +1,43 @@
+{
+  "name": "omni-js",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "dependencies": {
+    "@types/crc": "^3.4.0",
+    "@types/jest": "^26.0.24",
+    "@types/node": "^12.20.37",
+    "@types/node-forge": "^0.10.10",
+    "@types/uuid": "^8.3.3",
+    "@typescript-eslint/parser": "^5.7.0",
+    "base32-encode": "^2.0.0",
+    "bip39": "^3.0.4",
+    "cbor": "^8.1.0",
+    "crc": "^3.8.0",
+    "js-sha3": "^0.8.0",
+    "node-forge": "^0.10.0",
+    "typescript": "^4.4.4",
+    "uuid": "^8.3.2",
+    "web-vitals": "^1.1.2"
+  },
+  "scripts": {
+    "test": "jest --rootDir ./src/__tests__",
+    "build": "tsc",
+    "clean": "rm -rf ./dist"
+  },
+  "eslintConfig": {
+    "parser": "@typescript-eslint/parser"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
