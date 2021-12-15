@@ -1,6 +1,7 @@
 # OMNI Library
 
-This folder represents code that should be extracted and published as a separate package.
+This library can be used by JavaScript applications to connect to servers that support the
+Omni Protocol.
 
 ## Usage
 
@@ -25,7 +26,7 @@ omni.message.decode(cbor); // => Object
 Sending and receiving messages.
 
 ```ts
-omni.server.sendEncoded(url, cbor); // => { height: 0, symbols: ["FBT"], hash: Buffer }
-omni.server.send(url, msg); // => { height: 0, ...etc }
-omni.server.send(url, msg, keys); // => { height: 0, ...etc }
+omni.server.sendEncoded(url, cbor); // => Object
+omni.server.send(url, msg); // => Object
+omni.server.send(url, msg, keys); // => Object
 ```
