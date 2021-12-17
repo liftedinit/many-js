@@ -15,7 +15,9 @@ export function encodeEnvelope(payload: Payload, keys: ID) {
   const p = encodeProtectedHeader(publicKey);
   const u = encodeUnprotectedHeader(publicKey);
   const encodedPayload = cbor.encode(new cbor.Tagged(10001, payload));
-  const sig = keys ? signStructure(p, encodedPayload, keys.privateKey) : EMPTY_BUFFER;
+  const sig = keys
+    ? signStructure(p, encodedPayload, keys.privateKey)
+    : EMPTY_BUFFER;
   return cbor.encodeCanonical(new cbor.Tagged(18, [p, u, encodedPayload, sig]));
 }
 
@@ -58,7 +60,12 @@ export function calculateKid(publicKey: Key) {
 }
 
 function signStructure(p: Buffer, payload: Buffer, privateKey: Key) {
-  const message = cbor.encodeCanonical(["Signature1", p, EMPTY_BUFFER, payload]);
+  const message = cbor.encodeCanonical([
+    "Signature1",
+    p,
+    EMPTY_BUFFER,
+    payload,
+  ]);
   const sig = ed25519.sign({ message, privateKey });
   return Buffer.from(sig);
 }
@@ -74,6 +81,8 @@ function decodeCbor(candidate: any): object {
     return decodeBuffer(candidate);
   } else if (isArray(candidate)) {
     return decodeArray(candidate);
+  } else if (isMap(candidate)) {
+    return decodeMap(candidate);
   } else if (isObject(candidate)) {
     return decodeObject(candidate);
   }
@@ -100,8 +109,26 @@ function decodeArray(array: any[]) {
   return array.map((item: any) => decodeCbor(item));
 }
 
+function isMap(candidate: any): boolean {
+  return candidate instanceof Map;
+}
+
+function decodeMap(map: any) {
+  return [...map.entries()].reduce(
+    (obj, [key, val]) => ({
+      ...obj,
+      [key]: decodeCbor(val),
+    }),
+    {}
+  );
+}
+
 function isObject(candidate: any): boolean {
-  return typeof candidate === "object" && !Array.isArray(candidate) && candidate !== null;
+  return (
+    typeof candidate === "object" &&
+    !Array.isArray(candidate) &&
+    candidate !== null
+  );
 }
 
 function decodeObject(object: object) {

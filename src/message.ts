@@ -21,19 +21,21 @@ export interface Message {
   version?: number;
 }
 
-export interface Payload {
-  data: Cbor;
-  from: Tagged | string;
-  id: number | string;
-  method: string;
-  timestamp: Tagged;
-  to: string;
-  version: number;
-}
+// export interface Payload {
+//   data: Cbor;
+//   from: Tagged | string;
+//   id: number | string;
+//   method: string;
+//   timestamp: Tagged;
+//   to: string;
+//   version: number;
+// }
+
+export type Payload = Map<number, any>;
 
 export interface Cose {
   tag: number;
-  value: { data: any };
+  value: { 4: any };
   err: number[];
 }
 
@@ -46,7 +48,7 @@ export function encode(message: Message, keys: ID = null): Cbor {
 
 export function decode(cbor: Cbor) {
   const payload = getPayload(cbor);
-  return (payload as Cose).value.data;
+  return (payload as Cose).value["4"];
 }
 
 function makePayload(
@@ -56,15 +58,30 @@ function makePayload(
   if (!method) {
     throw new Error("Property 'method' is required.");
   }
-  const payload = {
-    to: to ? to : identity.toString(), // ANONYMOUS
-    from: from ? from : new cbor.Tagged(10000, calculateKid(publicKey)),
-    method,
-    data: cbor.encode(data ? JSON.parse(data, reviver) : new ArrayBuffer(0)),
-    version: version ? version : 1,
-    timestamp: new cbor.Tagged(1, timestamp ? timestamp : Math.floor(Date.now() / 1000)),
-    id: id ? id : uuidv4(),
-  };
+  const payload = new Map();
+  payload.set(0, version ? version : 1);
+  payload.set(1, from ? from : new cbor.Tagged(10000, calculateKid(publicKey)));
+  payload.set(2, to ? to : identity.toString()); // ANONYMOUS
+  payload.set(3, method);
+  payload.set(
+    4,
+    cbor.encode(data ? JSON.parse(data, reviver) : new ArrayBuffer(0))
+  );
+  payload.set(
+    5,
+    new cbor.Tagged(1, timestamp ? timestamp : Math.floor(Date.now() / 1000))
+  );
+  // payload.set(6, id ? id : uuidv4());
+
+  // const payload = {
+  //   to: to ? to : identity.toString(), // ANONYMOUS
+  //   from: from ? from : new cbor.Tagged(10000, calculateKid(publicKey)),
+  //   method,
+  //   data: cbor.encode(data ? JSON.parse(data, reviver) : new ArrayBuffer(0)),
+  //   version: version ? version : 1,
+  //   timestamp: new cbor.Tagged(1, timestamp ? timestamp : Math.floor(Date.now() / 1000)),
+  //   id: id ? id : uuidv4(),
+  // };
   return payload;
 }
 

@@ -1,5 +1,4 @@
 /// <reference types="node" />
-import Tagged from "cbor/types/lib/tagged";
 import { Identity as ID } from "./identity";
 export declare type Cbor = Buffer;
 export interface Message {
@@ -11,19 +10,11 @@ export interface Message {
     to?: string;
     version?: number;
 }
-export interface Payload {
-    data: Cbor;
-    from: Tagged | string;
-    id: number | string;
-    method: string;
-    timestamp: Tagged;
-    to: string;
-    version: number;
-}
+export declare type Payload = Map<number, any>;
 export interface Cose {
     tag: number;
     value: {
-        data: any;
+        4: any;
     };
     err: number[];
 }

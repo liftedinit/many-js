@@ -9,7 +9,9 @@ export function encodeEnvelope(payload, keys) {
     const p = encodeProtectedHeader(publicKey);
     const u = encodeUnprotectedHeader(publicKey);
     const encodedPayload = cbor.encode(new cbor.Tagged(10001, payload));
-    const sig = keys ? signStructure(p, encodedPayload, keys.privateKey) : EMPTY_BUFFER;
+    const sig = keys
+        ? signStructure(p, encodedPayload, keys.privateKey)
+        : EMPTY_BUFFER;
     return cbor.encodeCanonical(new cbor.Tagged(18, [p, u, encodedPayload, sig]));
 }
 function encodeProtectedHeader(publicKey) {
@@ -48,7 +50,12 @@ export function calculateKid(publicKey) {
     return Buffer.from(pk, "hex");
 }
 function signStructure(p, payload, privateKey) {
-    const message = cbor.encodeCanonical(["Signature1", p, EMPTY_BUFFER, payload]);
+    const message = cbor.encodeCanonical([
+        "Signature1",
+        p,
+        EMPTY_BUFFER,
+        payload,
+    ]);
     const sig = ed25519.sign({ message, privateKey });
     return Buffer.from(sig);
 }
@@ -63,6 +70,9 @@ function decodeCbor(candidate) {
     }
     else if (isArray(candidate)) {
         return decodeArray(candidate);
+    }
+    else if (isMap(candidate)) {
+        return decodeMap(candidate);
     }
     else if (isObject(candidate)) {
         return decodeObject(candidate);
@@ -86,8 +96,16 @@ function isArray(candidate) {
 function decodeArray(array) {
     return array.map((item) => decodeCbor(item));
 }
+function isMap(candidate) {
+    return candidate instanceof Map;
+}
+function decodeMap(map) {
+    return [...map.entries()].reduce((obj, [key, val]) => (Object.assign(Object.assign({}, obj), { [key]: decodeCbor(val) })), {});
+}
 function isObject(candidate) {
-    return typeof candidate === "object" && !Array.isArray(candidate) && candidate !== null;
+    return (typeof candidate === "object" &&
+        !Array.isArray(candidate) &&
+        candidate !== null);
 }
 function decodeObject(object) {
     return Object.entries(object).reduce((obj, [key, val]) => (Object.assign(Object.assign({}, obj), { [key]: decodeCbor(val) })), {});
