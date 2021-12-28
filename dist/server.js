@@ -31,6 +31,6 @@ export function connect(url) {
     return {
         endpoints: () => send(url, { method: "endpoints" }),
         ledger_info: () => send(url, { method: "ledger.info" }),
-        ledger_balance: (symbols, keys) => send(url, { method: "ledger.balance", data: `[[1, ${symbols}]]` }, keys),
+        ledger_balance: (symbols, keys) => send(url, { method: "ledger.balance", data: new Map([[1, symbols]]) }, keys),
     };
 }

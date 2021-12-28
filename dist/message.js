@@ -1,7 +1,6 @@
 import cbor from "cbor";
 import { calculateKid, encodeEnvelope, getPayload } from "./cose";
 import * as identity from "./identity";
-import { objToMap } from "./utils";
 const ANONYMOUS = Buffer.from([0x00]);
 export function encode(message, keys = null) {
     const publicKey = keys ? keys.publicKey : ANONYMOUS;
@@ -22,7 +21,7 @@ function makePayload({ to, from, method, data, version, timestamp }, publicKey) 
     payload.set(1, from ? from : new cbor.Tagged(10000, calculateKid(publicKey)));
     payload.set(2, to ? to : identity.toString()); // ANONYMOUS
     payload.set(3, method);
-    payload.set(4, cbor.encode(data ? objToMap(JSON.parse(data, reviver)) : new ArrayBuffer(0)));
+    payload.set(4, cbor.encode(data ? data : new ArrayBuffer(0)));
     payload.set(5, new cbor.Tagged(1, timestamp ? timestamp : Math.floor(Date.now() / 1000)));
     return payload;
 }

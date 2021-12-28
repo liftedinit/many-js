@@ -2,7 +2,7 @@
 import { Identity as ID } from "./identity";
 export declare type Cbor = Buffer;
 export interface Message {
-    data?: string;
+    data?: any;
     from?: string;
     id?: number | string;
     method: string;
