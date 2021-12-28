@@ -21,3 +21,12 @@ export async function send(
   // @TODO: Verify response
   return decode(reply);
 }
+
+export function connect(url: string) {
+  return {
+    endpoints: () => send(url, { method: "endpoints" }),
+    ledger_info: () => send(url, { method: "ledger.info" }),
+    ledger_balance: (symbols: string[], keys: ID) =>
+      send(url, { method: "ledger.balance", data: `[[1, ${symbols}]]` }, keys),
+  };
+}
