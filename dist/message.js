@@ -1,6 +1,7 @@
 import cbor from "cbor";
 import { calculateKid, encodeEnvelope, getPayload } from "./cose";
 import * as identity from "./identity";
+import { objToMap } from "./utils";
 const ANONYMOUS = Buffer.from([0x00]);
 export function encode(message, keys = null) {
     const publicKey = keys ? keys.publicKey : ANONYMOUS;
@@ -12,7 +13,7 @@ export function decode(cbor) {
     const payload = getPayload(cbor);
     return payload.value["4"];
 }
-function makePayload({ to, from, method, data, version, timestamp, id }, publicKey) {
+function makePayload({ to, from, method, data, version, timestamp }, publicKey) {
     if (!method) {
         throw new Error("Property 'method' is required.");
     }
@@ -21,18 +22,8 @@ function makePayload({ to, from, method, data, version, timestamp, id }, publicK
     payload.set(1, from ? from : new cbor.Tagged(10000, calculateKid(publicKey)));
     payload.set(2, to ? to : identity.toString()); // ANONYMOUS
     payload.set(3, method);
-    payload.set(4, cbor.encode(data ? JSON.parse(data, reviver) : new ArrayBuffer(0)));
+    payload.set(4, cbor.encode(data ? objToMap(JSON.parse(data, reviver)) : new ArrayBuffer(0)));
     payload.set(5, new cbor.Tagged(1, timestamp ? timestamp : Math.floor(Date.now() / 1000)));
-    // payload.set(6, id ? id : uuidv4());
-    // const payload = {
-    //   to: to ? to : identity.toString(), // ANONYMOUS
-    //   from: from ? from : new cbor.Tagged(10000, calculateKid(publicKey)),
-    //   method,
-    //   data: cbor.encode(data ? JSON.parse(data, reviver) : new ArrayBuffer(0)),
-    //   version: version ? version : 1,
-    //   timestamp: new cbor.Tagged(1, timestamp ? timestamp : Math.floor(Date.now() / 1000)),
-    //   id: id ? id : uuidv4(),
-    // };
     return payload;
 }
 function reviver(key, value) {

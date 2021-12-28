@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { calculateKid, encodeEnvelope, getPayload } from "./cose";
 import * as identity from "./identity";
+import { objToMap } from "./utils";
 
 import { Key, Identity as ID } from "./identity";
 
@@ -20,16 +21,6 @@ export interface Message {
   to?: string;
   version?: number;
 }
-
-// export interface Payload {
-//   data: Cbor;
-//   from: Tagged | string;
-//   id: number | string;
-//   method: string;
-//   timestamp: Tagged;
-//   to: string;
-//   version: number;
-// }
 
 export type Payload = Map<number, any>;
 
@@ -52,7 +43,7 @@ export function decode(cbor: Cbor) {
 }
 
 function makePayload(
-  { to, from, method, data, version, timestamp, id }: Message,
+  { to, from, method, data, version, timestamp }: Message,
   publicKey: Key
 ): Payload {
   if (!method) {
@@ -65,23 +56,12 @@ function makePayload(
   payload.set(3, method);
   payload.set(
     4,
-    cbor.encode(data ? JSON.parse(data, reviver) : new ArrayBuffer(0))
+    cbor.encode(data ? objToMap(JSON.parse(data, reviver)) : new ArrayBuffer(0))
   );
   payload.set(
     5,
     new cbor.Tagged(1, timestamp ? timestamp : Math.floor(Date.now() / 1000))
   );
-  // payload.set(6, id ? id : uuidv4());
-
-  // const payload = {
-  //   to: to ? to : identity.toString(), // ANONYMOUS
-  //   from: from ? from : new cbor.Tagged(10000, calculateKid(publicKey)),
-  //   method,
-  //   data: cbor.encode(data ? JSON.parse(data, reviver) : new ArrayBuffer(0)),
-  //   version: version ? version : 1,
-  //   timestamp: new cbor.Tagged(1, timestamp ? timestamp : Math.floor(Date.now() / 1000)),
-  //   id: id ? id : uuidv4(),
-  // };
   return payload;
 }
 
