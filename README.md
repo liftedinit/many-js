@@ -26,7 +26,15 @@ omni.message.decode(cbor); // => Object
 Sending and receiving messages.
 
 ```ts
-omni.server.sendEncoded(url, cbor); // => Object
-omni.server.send(url, msg); // => Object
-omni.server.send(url, msg, keys); // => Object
+omni.server.sendEncoded(url, cbor); // => Encoded Response
+omni.server.send(url, msg); // => Decoded Response
+omni.server.send(url, msg, keys); // => Decoded Response
+```
+
+Alternative syntax for sending and receiving messages.
+
+```ts
+const server = omni.server.connect(url);
+server.endpoints(); // => Decoded and Parsed Response
+server.ledgerInfo(); // => Decoded and Parsed Response
 ```
