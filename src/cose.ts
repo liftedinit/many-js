@@ -2,7 +2,7 @@ import cbor from "cbor";
 import { pki } from "node-forge";
 import { sha3_224 } from "js-sha3";
 
-import { Identity as ID, Key } from "./identity";
+import { Key, KeyPair } from "./keys";
 import { Payload } from "./message";
 
 const ANONYMOUS = Buffer.from([0x00]);
@@ -10,7 +10,7 @@ const EMPTY_BUFFER = new ArrayBuffer(0);
 
 const ed25519 = pki.ed25519;
 
-export function encodeEnvelope(payload: Payload, keys: ID) {
+export function encodeEnvelope(payload: Payload, keys?: KeyPair) {
   const publicKey = keys ? keys.publicKey : ANONYMOUS;
   const p = encodeProtectedHeader(publicKey);
   const u = encodeUnprotectedHeader(publicKey);
@@ -35,7 +35,7 @@ function encodeUnprotectedHeader(publicKey: Key) {
   return unprotectedHeader;
 }
 
-function encodeCoseKey(publicKey: Key) {
+export function encodeCoseKey(publicKey: Key) {
   const coseKey = new Map();
   coseKey.set(1, 1); // kty: OKP
   coseKey.set(3, -8); // alg: EdDSA
@@ -45,7 +45,8 @@ function encodeCoseKey(publicKey: Key) {
   coseKey.set(-2, publicKey); // x: publicKey
   return cbor.encodeCanonical([coseKey]);
 }
-export function calculateKid(publicKey: Key) {
+
+function calculateKid(publicKey: Key) {
   if (Buffer.compare(publicKey, ANONYMOUS) === 0) {
     return ANONYMOUS;
   }

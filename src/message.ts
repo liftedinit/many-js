@@ -1,12 +1,9 @@
 import cbor from "cbor";
-import Tagged from "cbor/types/lib/tagged";
-import { v4 as uuidv4 } from "uuid";
 
-import { calculateKid, encodeEnvelope, getPayload } from "./cose";
+import { encodeCoseKey, encodeEnvelope, getPayload } from "./cose";
 import * as identity from "./identity";
-import { objToMap } from "./utils";
 
-import { Key, Identity as ID } from "./identity";
+import { Key, KeyPair } from "./keys";
 
 const ANONYMOUS = Buffer.from([0x00]);
 
@@ -30,7 +27,7 @@ export interface Cose {
   err: number[];
 }
 
-export function encode(message: Message, keys: ID = null): Cbor {
+export function encode(message: Message, keys?: KeyPair): Cbor {
   const publicKey = keys ? keys.publicKey : ANONYMOUS;
   const payload = makePayload(message, publicKey);
   const envelope = encodeEnvelope(payload, keys);
@@ -51,7 +48,10 @@ function makePayload(
   }
   const payload = new Map();
   payload.set(0, version ? version : 1);
-  payload.set(1, from ? from : new cbor.Tagged(10000, calculateKid(publicKey)));
+  payload.set(
+    1,
+    from ? from : new cbor.Tagged(10000, encodeCoseKey(publicKey))
+  );
   payload.set(2, to ? to : identity.toString()); // ANONYMOUS
   payload.set(3, method);
   payload.set(4, cbor.encode(data ? data : new ArrayBuffer(0)));

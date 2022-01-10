@@ -5,11 +5,17 @@ Omni Protocol.
 
 ## Usage
 
+Generating key pairs;
+
+```ts
+omni.keys.fromSeedWords(string); // => KeyPair
+omni.keys.fromPem(string); // => KeyPair
+```
+
 Managing identities.
 
 ```ts
-omni.identity.fromSeedWords(string); // => KeyPair
-omni.identity.fromPem(string); // => KeyPair
+omni.identity.fromPublicKey(key); // => COSE Key
 omni.identity.toString(keys); // => "ow7aekyjtsx2hmeadrua5cpitgy7pykjkok3gyth3ggsio4zwa"
 omni.identity.toHex(keys); // => "01e736fc9624ff8ca7956189b6c1b66f55f533ed362ca48c884cd20065";
 ```
