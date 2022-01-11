@@ -1,13 +1,8 @@
-import { Cbor } from "./message";
-export declare type Key = Uint8Array;
-export interface KeyPair {
-    publicKey: Key;
-    privateKey: Key;
-}
-export declare type Identity = KeyPair | null;
-export declare function getSeedWords(): string;
-export declare function fromSeedWords(mnemonic: string): Identity;
-export declare function fromPem(pem: string): Identity;
-export declare function toString(keys?: Identity): string;
-export declare function toHex(keys?: Identity): string;
-export declare function toCoseKey(keys?: Identity): Cbor;
+/// <reference types="node" />
+import { Key } from "./keys";
+export declare type Identity = Buffer;
+export declare function fromPublicKey(key: Key): Identity;
+export declare function fromString(string: string): Identity;
+export declare function toString(identity?: Identity): string;
+export declare function fromHex(hex: string): Identity;
+export declare function toHex(identity?: Identity): string;

@@ -1,23 +1,20 @@
-import base32 from "base32-encode";
-import cbor from "cbor";
+import base32Decode from "base32-decode";
+import base32Encode from "base32-encode";
 import crc from "crc";
 
 import { Key } from "./keys";
-import { encodeCoseKey } from "./cose";
+import { toIdentity } from "./cose";
 
-export type Identity = Buffer; // COSE Key
+export type Identity = Buffer;
 
 export function fromPublicKey(key: Key): Identity {
-  return encodeCoseKey(key);
-}
-
-export function toPublicKey(identity: Identity): Key {
-  const [coseKey] = cbor.decode(identity);
-  return coseKey.get(-2);
+  return toIdentity(key);
 }
 
 export function fromString(string: string): Identity {
-  throw new Error("Not implemented.");
+  const base32Identity = string.slice(1, -2).toUpperCase();
+  const identity = base32Decode(base32Identity, "RFC4648");
+  return Buffer.from(identity);
 }
 
 export function toString(identity?: Identity): string {
@@ -28,8 +25,8 @@ export function toString(identity?: Identity): string {
   checksum.writeUInt16BE(crc.crc16(identity), 0);
 
   const leader = "o";
-  const base32Identity = base32(identity, "RFC4648").slice(0, -1);
-  const base32Checksum = base32(checksum, "RFC4648").slice(0, 2);
+  const base32Identity = base32Encode(identity, "RFC4648").slice(0, -1);
+  const base32Checksum = base32Encode(checksum, "RFC4648").slice(0, 2);
   return (leader + base32Identity + base32Checksum).toLowerCase();
 }
 

@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { Identity as ID } from "./identity";
+import { KeyPair } from "./keys";
 export declare type Cbor = Buffer;
 export interface Message {
     data?: any;
@@ -18,6 +18,6 @@ export interface Cose {
     };
     err: number[];
 }
-export declare function encode(message: Message, keys?: ID): Cbor;
+export declare function encode(message: Message, keys?: KeyPair): Cbor;
 export declare function decode(cbor: Cbor): any;
 export declare function toJSON(buffer: Cbor): string;

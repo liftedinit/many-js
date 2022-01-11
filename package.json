@@ -10,6 +10,7 @@
     "@types/node-forge": "^0.10.10",
     "@types/uuid": "^8.3.3",
     "@typescript-eslint/parser": "^5.7.0",
+    "base32-decode": "^1.0.0",
     "base32-encode": "^2.0.0",
     "bip39": "^3.0.4",
     "cbor": "^8.1.0",

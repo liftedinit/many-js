@@ -7,6 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+import { toString } from "./identity";
 import { decode, encode } from "./message";
 export function sendEncoded(url, cbor) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -19,7 +20,7 @@ export function sendEncoded(url, cbor) {
         return Buffer.from(buffer);
     });
 }
-export function send(url, message, keys = null) {
+export function send(url, message, keys) {
     return __awaiter(this, void 0, void 0, function* () {
         const cbor = encode(message, keys);
         const reply = yield sendEncoded(url, cbor);
@@ -29,8 +30,30 @@ export function send(url, message, keys = null) {
 }
 export function connect(url) {
     return {
-        endpoints: () => send(url, { method: "endpoints" }),
-        ledger_info: () => send(url, { method: "ledger.info" }),
-        ledger_balance: (symbols, keys) => send(url, { method: "ledger.balance", data: new Map([[1, symbols]]) }, keys),
+        call: (method, args, keys) => call(url, method, args, keys),
+        // Legacy - REMOVE when Albert is using new methods below
+        ledger_info: () => call(url, "ledger.info"),
+        ledger_balance: (symbols, keys) => call(url, "ledger.balance", new Map([[1, symbols]]), keys),
+        // Base
+        endpoints: (prefix) => call(url, "endpoints", { prefix }),
+        heartbeat: () => call(url, "heartbeat"),
+        status: () => call(url, "status"),
+        echo: (message) => call(url, "echo", message),
+        // Blockchain
+        blockchainInfo: () => call(url, "blockchain.info"),
+        blockchainBlockAt: (height) => call(url, "blockchain.blockAt", height),
+        // Ledger
+        ledgerBalance: (symbols, keys) => call(url, "ledger.balance", new Map([[1, symbols]]), keys),
+        ledgerBurn: () => { },
+        ledgerInfo: () => call(url, "ledger.info"),
+        ledgerMint: () => { },
+        ledgerSend: (to, amount, symbol, keys) => call(url, "ledger.send", new Map([
+            [1, toString(to)],
+            [2, amount],
+            [3, symbol],
+        ]), keys),
     };
+}
+function call(url, method, args, keys) {
+    return send(url, { method, data: args }, keys);
 }

@@ -60,6 +60,8 @@ function calculateKid(publicKey: Key) {
   return Buffer.from(pk, "hex");
 }
 
+export const toIdentity = calculateKid;
+
 function signStructure(p: Buffer, payload: Buffer, privateKey: Key) {
   const message = cbor.encodeCanonical([
     "Signature1",
@@ -77,7 +79,7 @@ export function getPayload(buffer: Buffer): object {
   return decodeCbor(payload);
 }
 
-function decodeCbor(candidate: any): object {
+export function decodeCbor(candidate: any): object {
   if (isBuffer(candidate)) {
     return decodeBuffer(candidate);
   } else if (isArray(candidate)) {

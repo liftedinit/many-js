@@ -26,7 +26,7 @@ function encodeUnprotectedHeader(publicKey) {
     const unprotectedHeader = new Map();
     return unprotectedHeader;
 }
-function encodeCoseKey(publicKey) {
+export function encodeCoseKey(publicKey) {
     const coseKey = new Map();
     coseKey.set(1, 1); // kty: OKP
     coseKey.set(3, -8); // alg: EdDSA
@@ -36,7 +36,7 @@ function encodeCoseKey(publicKey) {
     coseKey.set(-2, publicKey); // x: publicKey
     return cbor.encodeCanonical([coseKey]);
 }
-export function calculateKid(publicKey) {
+function calculateKid(publicKey) {
     if (Buffer.compare(publicKey, ANONYMOUS) === 0) {
         return ANONYMOUS;
     }
@@ -49,6 +49,7 @@ export function calculateKid(publicKey) {
     const pk = "01" + sha3_224(cbor.encodeCanonical(kid));
     return Buffer.from(pk, "hex");
 }
+export const toIdentity = calculateKid;
 function signStructure(p, payload, privateKey) {
     const message = cbor.encodeCanonical([
         "Signature1",
@@ -64,7 +65,7 @@ export function getPayload(buffer) {
     const payload = cose[2];
     return decodeCbor(payload);
 }
-function decodeCbor(candidate) {
+export function decodeCbor(candidate) {
     if (isBuffer(candidate)) {
         return decodeBuffer(candidate);
     }

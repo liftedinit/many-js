@@ -1,9 +1,21 @@
-import { Identity as ID } from "./identity";
+import { Identity } from "./identity";
+import { KeyPair } from "./keys";
 import { Cbor, Message } from "./message";
 export declare function sendEncoded(url: string, cbor: Cbor): Promise<Cbor>;
-export declare function send(url: string, message: Message, keys?: ID): Promise<any>;
+export declare function send(url: string, message: Message, keys?: KeyPair): Promise<any>;
 export declare function connect(url: string): {
-    endpoints: () => Promise<any>;
+    call: (method: string, args?: any, keys?: KeyPair | undefined) => Promise<any>;
     ledger_info: () => Promise<any>;
-    ledger_balance: (symbols: string[], keys: ID) => Promise<any>;
+    ledger_balance: (symbols: string[], keys: KeyPair) => Promise<any>;
+    endpoints: (prefix?: string | undefined) => Promise<any>;
+    heartbeat: () => Promise<any>;
+    status: () => Promise<any>;
+    echo: (message: any) => Promise<any>;
+    blockchainInfo: () => Promise<any>;
+    blockchainBlockAt: (height: number) => Promise<any>;
+    ledgerBalance: (symbols: string[], keys: KeyPair) => Promise<any>;
+    ledgerBurn: () => void;
+    ledgerInfo: () => Promise<any>;
+    ledgerMint: () => void;
+    ledgerSend: (to: Identity, amount: bigint, symbol: string, keys: KeyPair) => Promise<any>;
 };
