@@ -1,10 +1,9 @@
 import cbor from "cbor";
-import { encodeCoseKey, encodeEnvelope, getPayload } from "./cose";
+import { encodeEnvelope, getPayload } from "./cose";
 import * as identity from "./identity";
-const ANONYMOUS = Buffer.from([0x00]);
 export function encode(message, keys) {
-    const publicKey = keys ? keys.publicKey : ANONYMOUS;
-    const payload = makePayload(message, publicKey);
+    const sender = keys ? identity.fromPublicKey(keys.publicKey) : undefined;
+    const payload = makePayload(message, sender);
     const envelope = encodeEnvelope(payload, keys);
     return envelope;
 }
@@ -12,26 +11,19 @@ export function decode(cbor) {
     const payload = getPayload(cbor);
     return payload.value["4"];
 }
-function makePayload({ to, from, method, data, version, timestamp }, publicKey) {
+function makePayload({ to, from, method, data, version, timestamp }, sender) {
     if (!method) {
         throw new Error("Property 'method' is required.");
     }
+    const now = Math.floor(Date.now() / 1000);
     const payload = new Map();
     payload.set(0, version ? version : 1);
-    payload.set(1, from ? from : new cbor.Tagged(10000, encodeCoseKey(publicKey)));
+    payload.set(1, from ? from : identity.toString(sender));
     payload.set(2, to ? to : identity.toString()); // ANONYMOUS
     payload.set(3, method);
     payload.set(4, cbor.encode(data ? data : new ArrayBuffer(0)));
-    payload.set(5, new cbor.Tagged(1, timestamp ? timestamp : Math.floor(Date.now() / 1000)));
+    payload.set(5, new cbor.Tagged(1, timestamp ? timestamp : now));
     return payload;
-}
-function reviver(key, value) {
-    switch (true) {
-        case typeof value === "string" && /^\d+n$/.test(value): // "1000n"
-            return BigInt(value.slice(0, -1));
-        default:
-            return value;
-    }
 }
 export function toJSON(buffer) {
     const cose = cbor.decodeAllSync(buffer);

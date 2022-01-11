@@ -4,7 +4,6 @@ export declare type Cbor = Buffer;
 export interface Message {
     data?: any;
     from?: string;
-    id?: number | string;
     method: string;
     timestamp?: number;
     to?: string;

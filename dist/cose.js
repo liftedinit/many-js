@@ -7,7 +7,7 @@ const ed25519 = pki.ed25519;
 export function encodeEnvelope(payload, keys) {
     const publicKey = keys ? keys.publicKey : ANONYMOUS;
     const p = encodeProtectedHeader(publicKey);
-    const u = encodeUnprotectedHeader(publicKey);
+    const u = encodeUnprotectedHeader();
     const encodedPayload = cbor.encode(new cbor.Tagged(10001, payload));
     const sig = keys
         ? signStructure(p, encodedPayload, keys.privateKey)
@@ -22,7 +22,7 @@ function encodeProtectedHeader(publicKey) {
     const p = cbor.encodeCanonical(protectedHeader);
     return p;
 }
-function encodeUnprotectedHeader(publicKey) {
+function encodeUnprotectedHeader() {
     const unprotectedHeader = new Map();
     return unprotectedHeader;
 }
