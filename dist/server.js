@@ -31,27 +31,46 @@ export function send(url, message, keys) {
 export function connect(url) {
     return {
         call: (method, args, keys) => call(url, method, args, keys),
-        // Legacy - REMOVE when Albert is using new methods below
-        ledger_info: () => call(url, "ledger.info"),
-        ledger_balance: (symbols, keys) => call(url, "ledger.balance", new Map([[1, symbols]]), keys),
         // Base
         endpoints: (prefix) => call(url, "endpoints", { prefix }),
         heartbeat: () => call(url, "heartbeat"),
         status: () => call(url, "status"),
         echo: (message) => call(url, "echo", message),
-        // Blockchain
-        blockchainInfo: () => call(url, "blockchain.info"),
-        blockchainBlockAt: (height) => call(url, "blockchain.blockAt", height),
-        // Ledger
-        ledgerBalance: (symbols, keys) => call(url, "ledger.balance", new Map([[1, symbols]]), keys),
-        ledgerBurn: () => { },
-        ledgerInfo: () => call(url, "ledger.info"),
-        ledgerMint: () => { },
-        ledgerSend: (to, amount, symbol, keys) => call(url, "ledger.send", new Map([
+        // ABCI
+        abciBeginBlock: () => {
+            throw new Error("Not implemented");
+        },
+        abciCommit: () => {
+            throw new Error("Not implemented");
+        },
+        abciEndBlock: () => {
+            throw new Error("Not implemented");
+        },
+        abciInfo: () => {
+            throw new Error("Not implemented");
+        },
+        abciInit: () => {
+            throw new Error("Not implemented");
+        },
+        // Account
+        accountBalance: (symbols, keys) => call(url, "account.balance", new Map([[1, symbols]]), keys),
+        accountBurn: () => {
+            throw new Error("Not implemented");
+        },
+        accountInfo: (keys) => call(url, "account.info", keys),
+        accountMint: () => {
+            throw new Error("Not implemented");
+        },
+        accountSend: (to, amount, symbol, keys) => call(url, "account.send", new Map([
             [1, toString(to)],
             [2, amount],
             [3, symbol],
         ]), keys),
+        // Ledger
+        ledgerInfo: () => call(url, "ledger.info"),
+        ledgerList: () => {
+            throw new Error("Not implemented");
+        },
     };
 }
 function call(url, method, args, keys) {
