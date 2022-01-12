@@ -32,9 +32,9 @@ export function encode(message: Message, keys?: KeyPair): Cbor {
   return envelope;
 }
 
-export function decode(cbor: Cbor) {
-  const payload = getPayload(cbor);
-  return (payload as Cose).value["4"];
+export function decode(cbor: Cbor): any {
+  const payload = getPayload(cbor) as any;
+  return payload ? payload["4"] : {};
 }
 
 function makePayload(

@@ -7,6 +7,10 @@ import { toIdentity } from "./cose";
 
 export type Identity = Buffer;
 
+export function fromBuffer(buffer: Uint8Array): Identity {
+  return buffer as Identity;
+}
+
 export function fromPublicKey(key: Key): Identity {
   return toIdentity(key);
 }

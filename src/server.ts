@@ -25,8 +25,7 @@ export async function send(
 
 export function connect(url: string) {
   return {
-    call: (method: string, args?: any, keys?: KeyPair) =>
-      call(url, method, args, keys),
+    call,
 
     // Base
     endpoints: (prefix?: string) => call(url, "endpoints", { prefix }),
@@ -57,7 +56,7 @@ export function connect(url: string) {
     accountBurn: () => {
       throw new Error("Not implemented");
     },
-    accountInfo: (keys: KeyPair) => call(url, "account.info", keys),
+    accountInfo: (keys?: KeyPair) => call(url, "account.info", {}, keys),
     accountMint: () => {
       throw new Error("Not implemented");
     },
@@ -86,6 +85,19 @@ export function connect(url: string) {
   };
 }
 
-function call(url: string, method: string, args?: any, keys?: KeyPair) {
+function isKeyPair(keys: unknown): keys is KeyPair {
+  return typeof keys == "object"
+    && keys !== null
+    && keys.hasOwnProperty("privateKey")
+    && keys.hasOwnProperty("publicKey");
+}
+
+function call(url: string, method: string, keys?: KeyPair): Promise<any>;
+function call(url: string, method: string, args?: any, keys?: KeyPair): Promise<any>;
+function call(url: string, method: string, args?: any, keys?: KeyPair): Promise<any> {
+  if (!keys && isKeyPair(args)) {
+    keys = args;
+    args = undefined;
+  }
   return send(url, { method, data: args }, keys);
 }

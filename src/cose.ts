@@ -77,7 +77,7 @@ function signStructure(p: Buffer, payload: Buffer, privateKey: Key) {
 
 // Add a decoder for tag 10000 (Identity) to cbor
 const decoders = {
-  10000: x => fromBuffer(x)
+  10000: (x: Uint8Array) => fromBuffer(x)
 };
 
 interface SerializedOmniError {
@@ -92,19 +92,27 @@ export class OmniError extends Error {
   }
 }
 
-export function getPayload(buffer: Buffer): object {
+function mapToObject(m?: Map<any, any>): Object | null {
+  return m
+    ? Array.from(m).reduce((acc, [key, value]) => Object.assign(acc, { [key]: value }), {})
+    : null;
+}
+
+export function getPayload(buffer: Buffer): object | null {
   const cose = cbor.decodeFirstSync(buffer, { tags: decoders }).value;
-  const payload = cbor.decodeFirstSync(cose[2]).value;
+  const payload: Map<number, any> = cbor.decodeFirstSync(cose[2]).value;
 
   // If it's an error, throw it.
-  if (typeof payload[4] == "object") {
-    throw new OmniError(payload[4]);
+  const body = payload.get(4);
+  if (typeof body == "object" && !Buffer.isBuffer(body)) {
+    throw new OmniError(mapToObject(body) as SerializedOmniError);
   }
 
   // Decode the body part of the response.
   // TODO: this is opaque blob and networks might return non-CBOR data here, so
   // careful.
-  payload[4] = cbor.decodeFirstSync(payload[4], { tags: decoders }).value;
+  payload.set(4, mapToObject(cbor.decodeFirstSync(body, { tags: decoders })));
 
-  return payload;
+  // Transform it into an object for simplicity.
+  return mapToObject(payload);
 }
