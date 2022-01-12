@@ -129,6 +129,7 @@ function decodeMap(map: any) {
 function isObject(candidate: unknown): candidate is Object {
   return (
     candidate !== null
+    && typeof candidate === "object"
     && Object.getPrototypeOf(candidate) == Object.prototype
   );
 }
