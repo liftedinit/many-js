@@ -126,11 +126,10 @@ function decodeMap(map: any) {
   );
 }
 
-function isObject(candidate: any): boolean {
+function isObject(candidate: unknown): candidate is Object {
   return (
-    typeof candidate === "object" &&
-    !Array.isArray(candidate) &&
     candidate !== null
+    && Object.getPrototypeOf(candidate) == Object.prototype
   );
 }
 
