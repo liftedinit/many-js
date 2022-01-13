@@ -5,6 +5,8 @@ import { sha3_224 } from "js-sha3";
 import { Key, KeyPair } from "./keys";
 import { Payload } from "./message";
 
+import { fromBuffer } from "./identity";
+
 const ANONYMOUS = Buffer.from([0x00]);
 const EMPTY_BUFFER = new ArrayBuffer(0);
 
@@ -73,73 +75,44 @@ function signStructure(p: Buffer, payload: Buffer, privateKey: Key) {
   return Buffer.from(sig);
 }
 
-export function getPayload(buffer: Buffer): object {
-  const cose = cbor.decodeFirstSync(buffer).value;
-  const payload = cose[2];
-  return decodeCbor(payload);
+// Add a decoder for tag 10000 (Identity) to cbor
+const decoders = {
+  10000: (x: Uint8Array) => fromBuffer(x)
+};
+
+interface SerializedOmniError {
+  "0"?: number,
+  "1"?: string,
+  "2"?: { [field: string]: string },
 }
 
-export function decodeCbor(candidate: any): object {
-  if (isBuffer(candidate)) {
-    return decodeBuffer(candidate);
-  } else if (isArray(candidate)) {
-    return decodeArray(candidate);
-  } else if (isMap(candidate)) {
-    return decodeMap(candidate);
-  } else if (isObject(candidate)) {
-    return decodeObject(candidate);
-  }
-  return candidate;
-}
-
-function isBuffer(candidate: any): boolean {
-  return candidate instanceof Buffer;
-}
-
-function decodeBuffer(buffer: Buffer) {
-  try {
-    return decodeCbor(cbor.decodeFirstSync(buffer)); // CBOR
-  } catch (e) {
-    return buffer; // Some other Buffer
+export class OmniError extends Error {
+  constructor(error: SerializedOmniError) {
+    super(`OmniError(${error["0"]}) message="${error["1"]}" fields=${JSON.stringify(error["2"])}`);
   }
 }
 
-function isArray(candidate: any): boolean {
-  return Array.isArray(candidate);
+function mapToObject(m?: Map<any, any>): Object | null {
+  return m
+    ? Array.from(m).reduce((acc, [key, value]) => Object.assign(acc, { [key]: value }), {})
+    : null;
 }
 
-function decodeArray(array: any[]) {
-  return array.map((item: any) => decodeCbor(item));
-}
+export function getPayload(buffer: Buffer): object | null {
+  const cose = cbor.decodeFirstSync(buffer, { tags: decoders }).value;
+  const payload: Map<number, any> = cbor.decodeFirstSync(cose[2]).value;
 
-function isMap(candidate: any): boolean {
-  return candidate instanceof Map;
-}
+  // If it's an error, throw it.
+  const body = payload.get(4);
+  if (typeof body == "object" && !Buffer.isBuffer(body)) {
+    throw new OmniError(mapToObject(body) as SerializedOmniError);
+  }
 
-function decodeMap(map: any) {
-  return [...map.entries()].reduce(
-    (obj, [key, val]) => ({
-      ...obj,
-      [key]: decodeCbor(val),
-    }),
-    {}
-  );
-}
+  // Decode the body part of the response.
+  // TODO: this is opaque blob and networks might return non-CBOR data here, so
+  // careful.
+  payload.set(4, mapToObject(cbor.decodeFirstSync(body, { tags: decoders })));
 
-function isObject(candidate: unknown): candidate is Object {
-  return (
-    candidate !== null
-    && typeof candidate === "object"
-    && Object.getPrototypeOf(candidate) == Object.prototype
-  );
-}
-
-function decodeObject(object: object) {
-  return Object.entries(object).reduce(
-    (obj, [key, val]) => ({
-      ...obj,
-      [key]: decodeCbor(val),
-    }),
-    {}
-  );
+  // Transform it into an object for simplicity.
+  return mapToObject(payload);
 }

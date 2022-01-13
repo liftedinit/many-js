@@ -30,7 +30,7 @@ export function send(url, message, keys) {
 }
 export function connect(url) {
     return {
-        call: (method, args, keys) => call(url, method, args, keys),
+        call,
         // Base
         endpoints: (prefix) => call(url, "endpoints", { prefix }),
         heartbeat: () => call(url, "heartbeat"),
@@ -57,7 +57,7 @@ export function connect(url) {
         accountBurn: () => {
             throw new Error("Not implemented");
         },
-        accountInfo: (keys) => call(url, "account.info", keys),
+        accountInfo: (keys) => call(url, "account.info", {}, keys),
         accountMint: () => {
             throw new Error("Not implemented");
         },
@@ -73,6 +73,16 @@ export function connect(url) {
         },
     };
 }
+function isKeyPair(keys) {
+    return typeof keys == "object"
+        && keys !== null
+        && keys.hasOwnProperty("privateKey")
+        && keys.hasOwnProperty("publicKey");
+}
 function call(url, method, args, keys) {
+    if (!keys && isKeyPair(args)) {
+        keys = args;
+        args = undefined;
+    }
     return send(url, { method, data: args }, keys);
 }

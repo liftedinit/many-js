@@ -9,7 +9,7 @@ export function encode(message, keys) {
 }
 export function decode(cbor) {
     const payload = getPayload(cbor);
-    return payload.value["4"];
+    return payload ? payload["4"] : {};
 }
 function makePayload({ to, from, method, data, version, timestamp }, sender) {
     if (!method) {

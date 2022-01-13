@@ -2,6 +2,9 @@ import base32Decode from "base32-decode";
 import base32Encode from "base32-encode";
 import crc from "crc";
 import { toIdentity } from "./cose";
+export function fromBuffer(buffer) {
+    return buffer;
+}
 export function fromPublicKey(key) {
     return toIdentity(key);
 }
