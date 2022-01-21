@@ -13,6 +13,10 @@ interface SerializedOmniError {
     };
 }
 export declare class OmniError extends Error {
+    code: Number;
+    fields: {
+        [field: string]: string;
+    };
     constructor(error: SerializedOmniError);
 }
 export declare function getPayload(buffer: Buffer): object | null;

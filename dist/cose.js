@@ -67,7 +67,24 @@ const decoders = {
 };
 export class OmniError extends Error {
     constructor(error) {
-        super(`OmniError(${error["0"]}) message="${error["1"]}" fields=${JSON.stringify(error["2"])}`);
+        // Error messages replace `{NAME}` with error["2"].name
+        const { "0": code, "1": message, "2": fields } = error;
+        if (message === undefined) {
+            super(`OmniError(${code || 0}) message=${JSON.stringify(message)} fields=${JSON.stringify(fields)}`);
+        }
+        else {
+            const re = /\{\{|\}\}|\{[^\}\s]*\}/g;
+            super(message.replace(re, (fieldName) => {
+                switch (fieldName) {
+                    case '{{': return '{';
+                    case '}}': return '}';
+                    default:
+                        return fields && fields[fieldName.slice(1, -1)] || '';
+                }
+            }));
+        }
+        this.code = code || 0;
+        this.fields = fields || {};
     }
 }
 function mapToObject(m) {
