@@ -22,6 +22,7 @@ export declare function connect(url: string): {
     ledgerInfo: () => Promise<any>;
     ledgerList: () => never;
     ledgerBalance: (identity: Identity, symbol: string, keys: KeyPair) => Promise<any>;
+    endpointsList: () => Promise<any>;
 };
 declare function call(url: string, method: string, keys?: KeyPair): Promise<any>;
 declare function call(url: string, method: string, args?: any, keys?: KeyPair): Promise<any>;
