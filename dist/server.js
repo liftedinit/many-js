@@ -59,9 +59,11 @@ export function connect(url) {
         ]), keys),
         // Ledger
         ledgerInfo: () => call(url, "ledger.info"),
-        ledgerList: () => {
-            throw new Error("Not implemented");
-        },
+        ledgerList: (limit, order, filter) => call(url, "ledger.list", new Map([
+            [0, limit],
+            [1, order],
+            [2, filter]
+        ])),
         ledgerBalance: (identity, symbol, keys) => call(url, "ledger.balance", new Map([
             [0, toString(identity)],
             [1, symbol]
@@ -73,7 +75,8 @@ export function connect(url) {
             throw new Error("Not implemented");
         },
         // Endpoints
-        endpointsList: () => call(url, "endpoints")
+        endpointsList: () => call(url, "endpoints"),
+        // Transaction
     };
 }
 function isKeyPair(keys) {

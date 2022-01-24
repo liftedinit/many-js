@@ -1,6 +1,7 @@
 import { Identity, toString } from "./identity";
 import { KeyPair } from "./keys";
 import { Cbor, Message, decode, encode } from "./message";
+import { Order } from "./types";
 
 export async function sendEncoded(url: string, cbor: Cbor): Promise<Cbor> {
   const response = await fetch(url, {
@@ -69,9 +70,21 @@ export function connect(url: string) {
 
     // Ledger
     ledgerInfo: () => call(url, "ledger.info"),
-    ledgerList: () => {
-      throw new Error("Not implemented");
-    },
+    ledgerList: (
+      limit?: number, 
+      order?: Order, 
+      filter?: any
+    ) => 
+      call(
+        url,
+        "ledger.list",
+        new Map([
+          [0, limit],
+          [1, order],
+          [2, filter]
+        ])
+      ),
+      
     ledgerBalance: (identity: Identity, symbol: string, keys: KeyPair) => call(url, "ledger.balance", new Map([
       [0, toString(identity)],
       [1, symbol]
@@ -85,7 +98,9 @@ export function connect(url: string) {
       throw new Error("Not implemented");
     },
     // Endpoints
-    endpointsList: () => call(url, "endpoints")
+    endpointsList: () => call(url, "endpoints"),
+    // Transaction
+    
   };
 }
 
