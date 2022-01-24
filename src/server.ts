@@ -49,18 +49,8 @@ export function connect(url: string) {
     abciInit: () => {
       throw new Error("Not implemented");
     },
-
-    // Account
-    accountBalance: (symbols: string[], keys: KeyPair) =>
-      call(url, "account.balance", new Map([[1, symbols]]), keys),
-    accountBurn: () => {
-      throw new Error("Not implemented");
-    },
-    accountInfo: (keys?: KeyPair) => call(url, "account.info", {}, keys),
-    accountMint: () => {
-      throw new Error("Not implemented");
-    },
-    accountSend: (
+    
+    ledgerSend: (
       to: Identity,
       amount: bigint,
       symbol: string,
@@ -86,6 +76,14 @@ export function connect(url: string) {
       [0, toString(identity)],
       [1, symbol]
     ]), keys),
+
+    ledgerBurn: () => {
+      throw new Error("Not implemented");
+    },
+
+    ledgertMint: () => {
+      throw new Error("Not implemented");
+    },
     // Endpoints
     endpointsList: () => call(url, "endpoints")
   };

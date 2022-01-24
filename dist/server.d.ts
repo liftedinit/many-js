@@ -14,14 +14,12 @@ export declare function connect(url: string): {
     abciEndBlock: () => never;
     abciInfo: () => never;
     abciInit: () => never;
-    accountBalance: (symbols: string[], keys: KeyPair) => Promise<any>;
-    accountBurn: () => never;
-    accountInfo: (keys?: KeyPair | undefined) => Promise<any>;
-    accountMint: () => never;
-    accountSend: (to: Identity, amount: bigint, symbol: string, keys: KeyPair) => Promise<any>;
+    ledgerSend: (to: Identity, amount: bigint, symbol: string, keys: KeyPair) => Promise<any>;
     ledgerInfo: () => Promise<any>;
     ledgerList: () => never;
     ledgerBalance: (identity: Identity, symbol: string, keys: KeyPair) => Promise<any>;
+    ledgerBurn: () => never;
+    ledgertMint: () => never;
     endpointsList: () => Promise<any>;
 };
 declare function call(url: string, method: string, keys?: KeyPair): Promise<any>;
