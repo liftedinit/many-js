@@ -21,6 +21,7 @@ export declare function connect(url: string): {
     accountSend: (to: Identity, amount: bigint, symbol: string, keys: KeyPair) => Promise<any>;
     ledgerInfo: () => Promise<any>;
     ledgerList: () => never;
+    ledgerBalance: (identity: Identity | undefined, symbol: string, keys: KeyPair) => Promise<any>;
 };
 declare function call(url: string, method: string, keys?: KeyPair): Promise<any>;
 declare function call(url: string, method: string, args?: any, keys?: KeyPair): Promise<any>;

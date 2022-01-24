@@ -68,7 +68,7 @@ export function connect(url: string) {
     ) =>
       call(
         url,
-        "account.send",
+        "ledger.send",
         new Map<number, any>([
           [1, toString(to)],
           [2, amount],
@@ -82,6 +82,10 @@ export function connect(url: string) {
     ledgerList: () => {
       throw new Error("Not implemented");
     },
+    ledgerBalance: (identity: Identity, symbol: string, keys: KeyPair) => call(url, "ledger.balance", new Map([
+      [0, toString(identity)],
+      [1, symbol]
+    ]), keys),
   };
 }
 
