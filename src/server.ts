@@ -86,6 +86,8 @@ export function connect(url: string) {
       [0, toString(identity)],
       [1, symbol]
     ]), keys),
+    // Endpoints
+    endpointsList: () => call(url, "endpoints")
   };
 }
 
