@@ -59,6 +59,7 @@ export function connect(url) {
         ]), keys),
         // Ledger
         ledgerInfo: () => call(url, "ledger.info"),
+        ledgerTransactions: () => call(url, "ledger.transaction"),
         ledgerList: (limit, order, filter) => call(url, "ledger.list", new Map([
             [0, limit],
             [1, order],
