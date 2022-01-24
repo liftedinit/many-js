@@ -61,7 +61,7 @@ export function connect(url) {
         accountMint: () => {
             throw new Error("Not implemented");
         },
-        accountSend: (to, amount, symbol, keys) => call(url, "account.send", new Map([
+        accountSend: (to, amount, symbol, keys) => call(url, "ledger.send", new Map([
             [1, toString(to)],
             [2, amount],
             [3, symbol],
@@ -71,6 +71,10 @@ export function connect(url) {
         ledgerList: () => {
             throw new Error("Not implemented");
         },
+        ledgerBalance: (identity, symbol, keys) => call(url, "ledger.balance", new Map([
+            [0, toString(identity)],
+            [1, symbol]
+        ]), keys),
     };
 }
 function isKeyPair(keys) {
