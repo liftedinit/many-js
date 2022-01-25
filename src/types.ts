@@ -1,8 +1,8 @@
 
 export enum TransactionType {
-  transactionSend = 0,
-  transactionMint = 1,
-  transactionBurn = 2
+  send = 0,
+  mint = 1,
+  burn = 2
 }
 
 export enum Order {

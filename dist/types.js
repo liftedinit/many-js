@@ -1,8 +1,8 @@
 export var TransactionType;
 (function (TransactionType) {
-    TransactionType[TransactionType["transactionSend"] = 0] = "transactionSend";
-    TransactionType[TransactionType["transactionMint"] = 1] = "transactionMint";
-    TransactionType[TransactionType["transactionBurn"] = 2] = "transactionBurn";
+    TransactionType[TransactionType["send"] = 0] = "send";
+    TransactionType[TransactionType["mint"] = 1] = "mint";
+    TransactionType[TransactionType["burn"] = 2] = "burn";
 })(TransactionType || (TransactionType = {}));
 export var Order;
 (function (Order) {
