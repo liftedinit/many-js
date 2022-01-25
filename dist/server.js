@@ -60,11 +60,7 @@ export function connect(url) {
         // Ledger
         ledgerInfo: () => call(url, "ledger.info"),
         ledgerTransactions: () => call(url, "ledger.transaction"),
-        ledgerList: (limit, order, filter) => call(url, "ledger.list", new Map([
-            [0, limit],
-            [1, order],
-            [2, filter]
-        ])),
+        ledgerList: (argument) => call(url, "ledger.list", new Map(argument)),
         ledgerBalance: (identity, symbol, keys) => call(url, "ledger.balance", new Map([
             [0, toString(identity)],
             [1, symbol]

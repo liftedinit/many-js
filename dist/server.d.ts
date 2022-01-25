@@ -1,7 +1,6 @@
 import { Identity } from "./identity";
 import { KeyPair } from "./keys";
 import { Cbor, Message } from "./message";
-import { Order } from "./types";
 export declare function sendEncoded(url: string, cbor: Cbor): Promise<Cbor>;
 export declare function send(url: string, message: Message, keys?: KeyPair): Promise<any>;
 export declare function connect(url: string): {
@@ -18,7 +17,7 @@ export declare function connect(url: string): {
     ledgerSend: (to: Identity, amount: bigint, symbol: string, keys: KeyPair) => Promise<any>;
     ledgerInfo: () => Promise<any>;
     ledgerTransactions: () => Promise<any>;
-    ledgerList: (limit?: number | undefined, order?: Order | undefined, filter?: any) => Promise<any>;
+    ledgerList: (argument?: any) => Promise<any>;
     ledgerBalance: (identity: Identity, symbol: string, keys: KeyPair) => Promise<any>;
     ledgerBurn: () => never;
     ledgertMint: () => never;
