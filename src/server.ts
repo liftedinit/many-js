@@ -70,7 +70,7 @@ export function connect(url: string) {
 
     // Ledger
     ledgerInfo: () => call(url, "ledger.info"),
-    ledgerTransactions: () => call(url, "ledger.transaction"),
+    ledgerTransactions: () => call(url, "ledger.transactions"),
     ledgerList: (
       argument?: any
     ) => 
