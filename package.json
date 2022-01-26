@@ -25,7 +25,8 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
-    "clean": "rm -rf ./dist"
+    "clean": "rm -rf ./dist",
+    "postinstall": "tsc"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser"
