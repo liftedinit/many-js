@@ -18,7 +18,7 @@ export declare function connect(url: string): {
     ledgerInfo: () => Promise<any>;
     ledgerTransactions: () => Promise<any>;
     ledgerList: (argument?: any) => Promise<any>;
-    ledgerBalance: (identity: Identity, symbol: string, keys: KeyPair) => Promise<any>;
+    ledgerBalance: (identity: Identity, symbol: Identity, keys: KeyPair) => Promise<any>;
     ledgerBurn: () => never;
     ledgertMint: () => never;
     endpointsList: () => Promise<any>;
