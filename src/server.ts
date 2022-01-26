@@ -82,7 +82,7 @@ export function connect(url: string) {
 
     ledgerBalance: (identity: Identity, symbol: Identity, keys: KeyPair) => call(url, "ledger.balance", new Map<number, any>([
       [0, toString(identity)],
-      [1, symbol]
+      [1, toString(symbol)]
     ]), keys),
 
     ledgerBurn: () => {
