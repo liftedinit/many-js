@@ -54,7 +54,7 @@ export function connect(url: string) {
     ledgerSend: (
       to: Identity,
       amount: bigint,
-      symbol: string,
+      symbol: Identity,
       keys: KeyPair
     ) =>
       call(

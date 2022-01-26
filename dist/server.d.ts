@@ -14,7 +14,7 @@ export declare function connect(url: string): {
     abciEndBlock: () => never;
     abciInfo: () => never;
     abciInit: () => never;
-    ledgerSend: (to: Identity, amount: bigint, symbol: string, keys: KeyPair) => Promise<any>;
+    ledgerSend: (to: Identity, amount: bigint, symbol: Identity, keys: KeyPair) => Promise<any>;
     ledgerInfo: () => Promise<any>;
     ledgerTransactions: () => Promise<any>;
     ledgerList: (argument?: any) => Promise<any>;
