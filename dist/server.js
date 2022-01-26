@@ -55,7 +55,7 @@ export function connect(url) {
         ledgerSend: (to, amount, symbol, keys) => call(url, "ledger.send", new Map([
             [1, toString(to)],
             [2, amount],
-            [3, symbol],
+            [3, toString(symbol)],
         ]), keys),
         // Ledger
         ledgerInfo: () => call(url, "ledger.info"),
@@ -63,7 +63,7 @@ export function connect(url) {
         ledgerList: (argument) => call(url, "ledger.list", new Map(argument)),
         ledgerBalance: (identity, symbol, keys) => call(url, "ledger.balance", new Map([
             [0, toString(identity)],
-            [1, toString(symbol)]
+            [1, symbol]
         ]), keys),
         ledgerBurn: () => {
             throw new Error("Not implemented");
