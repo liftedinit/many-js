@@ -29,7 +29,7 @@ export function toString(identity?: Identity): string {
   checksum.writeUInt16BE(crc.crc16(identity), 0);
 
   const leader = "o";
-  const base32Identity = base32Encode(identity, "RFC4648").slice(0, -1);
+  const base32Identity = base32Encode(identity, "RFC4648", {padding: false});
   const base32Checksum = base32Encode(checksum, "RFC4648").slice(0, 2);
   return (leader + base32Identity + base32Checksum).toLowerCase();
 }
