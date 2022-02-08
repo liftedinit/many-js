@@ -7,8 +7,18 @@ import { toIdentity } from "./cose";
 
 export type Identity = Buffer;
 
+const ANONYMOUS = Buffer.from([0x00]);
+
+export function anonymous(): Identity {
+  return ANONYMOUS;
+}
+
 export function fromBuffer(buffer: Uint8Array): Identity {
-  return buffer as Identity;
+  return Buffer.from(buffer);
+}
+
+export function toBuffer(identity?: Identity): Buffer {
+  return identity as Buffer;
 }
 
 export function fromPublicKey(key: Key): Identity {
@@ -16,13 +26,16 @@ export function fromPublicKey(key: Key): Identity {
 }
 
 export function fromString(string: string): Identity {
+  if (string === "oaa") {
+    return ANONYMOUS;
+  }
   const base32Identity = string.slice(1, -2).toUpperCase();
   const identity = base32Decode(base32Identity, "RFC4648");
   return Buffer.from(identity);
 }
 
 export function toString(identity?: Identity): string {
-  if (!identity) {
+  if (!identity || identity === ANONYMOUS) {
     return "oaa";
   }
   const checksum = Buffer.allocUnsafe(3);
@@ -43,4 +56,15 @@ export function toHex(identity?: Identity): string {
     return "00";
   }
   return identity.toString("hex");
+}
+
+export function subresource(identity: Identity, id: number): Identity {
+  let bytes = Buffer.from(identity.slice(0, 29));
+  bytes[0] = 0x80 + ((id & 0x7f000000) >> 24);
+  const subresourceBytes = Buffer.from([
+    (id & 0x00ff0000) >> 16,
+    (id & 0x0000ff00) >> 8,
+    id & 0x000000ff,
+  ]);
+  return Buffer.concat([bytes, subresourceBytes]);
 }
