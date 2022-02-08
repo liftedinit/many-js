@@ -73,24 +73,4 @@ describe("identity", () => {
     expect(alice).toStrictEqual(bob);
     expect(identity.subresource(bob, 2)).toStrictEqual(charlie);
   });
-
-  // test("fromPublicKey", () => {
-  //   expect(identity.fromPublicKey(publicKey)).toStrictEqual(id);
-  // });
-  //
-  // test("fromString", () => {
-  //   expect(identity.fromString(stringId)).toStrictEqual(id);
-  // });
-  //
-  // test("toString", () => {
-  //   expect(identity.toString(id)).toStrictEqual(stringId);
-  // });
-  //
-  // test("fromHex", () => {
-  //   expect(identity.fromHex(hexId)).toStrictEqual(id);
-  // });
-  //
-  // test("toHex", () => {
-  //   expect(identity.toHex(id)).toStrictEqual(hexId);
-  // });
 });
