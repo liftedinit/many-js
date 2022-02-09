@@ -77,13 +77,13 @@ function signStructure(p: Buffer, payload: Buffer, privateKey: Key) {
 
 // Add a decoder for tag 10000 (Identity) to cbor
 const decoders = {
-  10000: (x: Uint8Array) => fromBuffer(x)
+  10000: (x: Uint8Array) => fromBuffer(x),
 };
 
 interface SerializedOmniError {
-  "0"?: number,
-  "1"?: string,
-  "2"?: { [field: string]: string },
+  "0"?: number;
+  "1"?: string;
+  "2"?: { [field: string]: string };
 }
 
 export class OmniError extends Error {
@@ -94,17 +94,25 @@ export class OmniError extends Error {
     // Error messages replace `{NAME}` with error["2"].name
     const { "0": code, "1": message, "2": fields } = error;
     if (message === undefined) {
-      super(`OmniError(${code || 0}) message=${JSON.stringify(message)} fields=${JSON.stringify(fields)}`);
+      super(
+        `OmniError(${code || 0}) message=${JSON.stringify(
+          message
+        )} fields=${JSON.stringify(fields)}`
+      );
     } else {
       const re = /\{\{|\}\}|\{[^\}\s]*\}/g;
-      super(message.replace(re, (fieldName) => {
-        switch (fieldName) {
-          case '{{': return '{';
-          case '}}': return '}';
-          default:
-            return fields && fields[fieldName.slice(1, -1)] || '';
-        }
-      }));
+      super(
+        message.replace(re, (fieldName) => {
+          switch (fieldName) {
+            case "{{":
+              return "{";
+            case "}}":
+              return "}";
+            default:
+              return (fields && fields[fieldName.slice(1, -1)]) || "";
+          }
+        })
+      );
     }
 
     this.code = code || 0;
@@ -114,7 +122,10 @@ export class OmniError extends Error {
 
 function mapToObject(m?: Map<any, any>): Object | null {
   return m
-    ? Array.from(m).reduce((acc, [key, value]) => Object.assign(acc, { [key]: value }), {})
+    ? Array.from(m).reduce(
+        (acc, [key, value]) => Object.assign(acc, { [key]: value }),
+        {}
+      )
     : null;
 }
 
