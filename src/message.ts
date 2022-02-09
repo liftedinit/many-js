@@ -55,21 +55,15 @@ function makePayload(
   return payload;
 }
 
-export function toJSON(buffer: Cbor): string {
-  const cose = cbor.decodeAllSync(buffer);
+export function toJSON(cbor: Cbor): string {
+  const cose = getPayload(cbor) as any;
   return JSON.stringify(cose, replacer, 2);
 }
 
 function replacer(key: string, value: any) {
   switch (true) {
     case value?.type === "Buffer": {
-      // Cbor
-      const buffer = Buffer.from(value.data);
-      try {
-        return cbor.decodeAllSync(buffer);
-      } catch (e) {
-        return buffer.toString("hex");
-      }
+      return Buffer.from(value.data).toString("hex");
     }
 
     case value instanceof Map: // Map()
