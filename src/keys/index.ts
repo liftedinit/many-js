@@ -15,15 +15,23 @@ export function getSeedWords(): string {
 }
 
 export function fromSeedWords(mnemonic: string): KeyPair {
-  const seed = bip39.mnemonicToSeedSync(mnemonic).slice(0, 32);
+  const sanitized = mnemonic.trim().split(/\s+/g).join(" ");
+  if (!bip39.validateMnemonic(sanitized)) {
+    throw new Error("Invalid Seed Words");
+  }
+  const seed = bip39.mnemonicToSeedSync(sanitized).slice(0, 32);
   const keys = ed25519.generateKeyPair({ seed });
   return keys;
 }
 
 export function fromPem(pem: string): KeyPair {
-  const der = forge.pem.decode(pem)[0].body;
-  const asn1 = forge.asn1.fromDer(der.toString());
-  const { privateKeyBytes } = ed25519.privateKeyFromAsn1(asn1);
-  const keys = ed25519.generateKeyPair({ seed: privateKeyBytes });
-  return keys;
+  try {
+    const der = forge.pem.decode(pem)[0].body;
+    const asn1 = forge.asn1.fromDer(der.toString());
+    const { privateKeyBytes } = ed25519.privateKeyFromAsn1(asn1);
+    const keys = ed25519.generateKeyPair({ seed: privateKeyBytes });
+    return keys;
+  } catch (e) {
+    throw new Error("Invalid PEM");
+  }
 }
