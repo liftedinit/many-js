@@ -1,6 +1,6 @@
-import { Identity, toString } from "./identity";
-import { KeyPair } from "./keys";
-import { Cbor, Message, decode, encode } from "./message";
+import { Identity } from "../identity";
+import { KeyPair } from "../keys";
+import { Cbor, Message, decode, encode } from "../message";
 
 export async function sendEncoded(url: string, cbor: Cbor): Promise<Cbor> {
   const response = await fetch(url, {
@@ -70,7 +70,7 @@ export function connect(url: string) {
         url,
         "account.send",
         new Map<number, any>([
-          [1, toString(to)],
+          [1, to.toString()],
           [2, amount],
           [3, symbol],
         ]),
@@ -86,15 +86,27 @@ export function connect(url: string) {
 }
 
 function isKeyPair(keys: unknown): keys is KeyPair {
-  return typeof keys == "object"
-    && keys !== null
-    && keys.hasOwnProperty("privateKey")
-    && keys.hasOwnProperty("publicKey");
+  return (
+    typeof keys == "object" &&
+    keys !== null &&
+    keys.hasOwnProperty("privateKey") &&
+    keys.hasOwnProperty("publicKey")
+  );
 }
 
 function call(url: string, method: string, keys?: KeyPair): Promise<any>;
-function call(url: string, method: string, args?: any, keys?: KeyPair): Promise<any>;
-function call(url: string, method: string, args?: any, keys?: KeyPair): Promise<any> {
+function call(
+  url: string,
+  method: string,
+  args?: any,
+  keys?: KeyPair
+): Promise<any>;
+function call(
+  url: string,
+  method: string,
+  args?: any,
+  keys?: KeyPair
+): Promise<any> {
   if (!keys && isKeyPair(args)) {
     keys = args;
     args = undefined;

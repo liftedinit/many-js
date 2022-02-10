@@ -2,10 +2,10 @@ import cbor from "cbor";
 import { pki } from "node-forge";
 import { sha3_224 } from "js-sha3";
 
-import { Key, KeyPair } from "./keys";
-import { Payload } from "./message";
-
-import { fromBuffer } from "./identity";
+import { Identity } from "../identity";
+import { Key, KeyPair } from "../keys";
+import { OmniError, SerializedOmniError } from "./error";
+import { Payload } from "../message";
 
 const ANONYMOUS = Buffer.from([0x00]);
 const EMPTY_BUFFER = new ArrayBuffer(0);
@@ -77,48 +77,8 @@ function signStructure(p: Buffer, payload: Buffer, privateKey: Key) {
 
 // Add a decoder for tag 10000 (Identity) to cbor
 const decoders = {
-  10000: (x: Uint8Array) => fromBuffer(x),
+  10000: (x: Uint8Array) => Identity.fromBuffer(x),
 };
-
-interface SerializedOmniError {
-  "0"?: number;
-  "1"?: string;
-  "2"?: { [field: string]: string };
-}
-
-export class OmniError extends Error {
-  public code: Number;
-  public fields: { [field: string]: string };
-
-  constructor(error: SerializedOmniError) {
-    // Error messages replace `{NAME}` with error["2"].name
-    const { "0": code, "1": message, "2": fields } = error;
-    if (message === undefined) {
-      super(
-        `OmniError(${code || 0}) message=${JSON.stringify(
-          message
-        )} fields=${JSON.stringify(fields)}`
-      );
-    } else {
-      const re = /\{\{|\}\}|\{[^\}\s]*\}/g;
-      super(
-        message.replace(re, (fieldName) => {
-          switch (fieldName) {
-            case "{{":
-              return "{";
-            case "}}":
-              return "}";
-            default:
-              return (fields && fields[fieldName.slice(1, -1)]) || "";
-          }
-        })
-      );
-    }
-
-    this.code = code || 0;
-    this.fields = fields || {};
-  }
-}
 
 function mapToObject(m?: Map<any, any>): Object | null {
   return m

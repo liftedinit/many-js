@@ -1,4 +1,4 @@
-import * as message from "./message";
+import * as message from "../message";
 
 describe("message", () => {
   test("encode", () => {

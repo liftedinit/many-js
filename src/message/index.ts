@@ -1,10 +1,10 @@
 import cbor from "cbor";
 
 import { encodeEnvelope, getPayload } from "./cose";
-import * as identity from "./identity";
+import * as identity from "../identity";
 
-import { KeyPair } from "./keys";
-import { Identity } from "./identity";
+import { KeyPair } from "../keys";
+import { Identity } from "../identity";
 
 export type Cbor = Buffer;
 
@@ -26,7 +26,7 @@ export interface Cose {
 }
 
 export function encode(message: Message, keys?: KeyPair): Cbor {
-  const sender = keys ? identity.fromPublicKey(keys.publicKey) : undefined;
+  const sender = keys ? Identity.fromPublicKey(keys.publicKey) : undefined;
   const payload = makePayload(message, sender);
   const envelope = encodeEnvelope(payload, keys);
   return envelope;
@@ -46,9 +46,10 @@ function makePayload(
   }
   const now = Math.floor(Date.now() / 1000);
   const payload = new Map();
+  const senderIdentity = sender ? sender : new Identity(); // ANONYMOUS
   payload.set(0, version ? version : 1);
-  payload.set(1, from ? from : identity.toString(sender));
-  payload.set(2, to ? to : identity.toString()); // ANONYMOUS
+  payload.set(1, from ? from : senderIdentity.toString());
+  payload.set(2, to ? to : new Identity().toString()); // ANONYMOUS
   payload.set(3, method);
   payload.set(4, cbor.encode(data ? data : new ArrayBuffer(0)));
   payload.set(5, new cbor.Tagged(1, timestamp ? timestamp : now));
