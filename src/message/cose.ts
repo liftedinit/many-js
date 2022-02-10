@@ -77,7 +77,7 @@ function signStructure(p: Buffer, payload: Buffer, privateKey: Key) {
 
 // Add a decoder for tag 10000 (Identity) to cbor
 const decoders = {
-  10000: (x: Uint8Array) => Identity.fromBuffer(x),
+  10000: (x: Uint8Array) => new Identity(Buffer.from(x)),
 };
 
 function mapToObject(m?: Map<any, any>): Object | null {

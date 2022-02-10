@@ -10,13 +10,14 @@ describe("identity", () => {
       0, 0, 0, 0, 0, 0, 0, 0,
       seed >> 24, seed >> 16, seed >> 8, seed & 0xff,
     ]);
-    return Identity.fromBuffer(bytes);
+    return new Identity(Buffer.from(bytes));
   }
 
   test("can read anonymous", () => {
     const anon = new Identity();
     const anonStr = anon.toString();
 
+    expect(anon.isAnonymous()).toBe(true);
     expect(anon).toStrictEqual(Identity.fromString(anonStr));
   });
 
