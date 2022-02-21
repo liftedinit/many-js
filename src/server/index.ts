@@ -2,114 +2,94 @@ import { Identity } from "../identity";
 import { KeyPair } from "../keys";
 import { Cbor, Message, decode, encode } from "../message";
 
-export async function sendEncoded(url: string, cbor: Cbor): Promise<Cbor> {
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/cbor" },
-    body: cbor,
-  });
-  const buffer = await response.arrayBuffer();
-  return Buffer.from(buffer);
-}
+export class Server {
+  url: string;
+  keys: KeyPair | undefined;
 
-export async function send(
-  url: string,
-  message: Message,
-  keys?: KeyPair
-): Promise<any> {
-  const cbor = encode(message, keys);
-  const reply = await sendEncoded(url, cbor);
-  // @TODO: Verify response
-  return decode(reply);
-}
-
-export function connect(url: string) {
-  return {
-    call,
-
-    // Base
-    endpoints: (prefix?: string) => call(url, "endpoints", { prefix }),
-    heartbeat: () => call(url, "heartbeat"),
-    status: () => call(url, "status"),
-    echo: (message: any) => call(url, "echo", message),
-
-    // ABCI
-    abciBeginBlock: () => {
-      throw new Error("Not implemented");
-    },
-    abciCommit: () => {
-      throw new Error("Not implemented");
-    },
-    abciEndBlock: () => {
-      throw new Error("Not implemented");
-    },
-    abciInfo: () => {
-      throw new Error("Not implemented");
-    },
-    abciInit: () => {
-      throw new Error("Not implemented");
-    },
-
-    // Account
-    accountBalance: (symbols: string[], keys: KeyPair) =>
-      call(url, "account.balance", new Map([[1, symbols]]), keys),
-    accountBurn: () => {
-      throw new Error("Not implemented");
-    },
-    accountInfo: (keys?: KeyPair) => call(url, "account.info", {}, keys),
-    accountMint: () => {
-      throw new Error("Not implemented");
-    },
-    accountSend: (
-      to: Identity,
-      amount: bigint,
-      symbol: string,
-      keys: KeyPair
-    ) =>
-      call(
-        url,
-        "account.send",
-        new Map<number, any>([
-          [1, to.toString()],
-          [2, amount],
-          [3, symbol],
-        ]),
-        keys
-      ),
-
-    // Ledger
-    ledgerInfo: () => call(url, "ledger.info"),
-    ledgerList: () => {
-      throw new Error("Not implemented");
-    },
-  };
-}
-
-function isKeyPair(keys: unknown): keys is KeyPair {
-  return (
-    typeof keys == "object" &&
-    keys !== null &&
-    keys.hasOwnProperty("privateKey") &&
-    keys.hasOwnProperty("publicKey")
-  );
-}
-
-function call(url: string, method: string, keys?: KeyPair): Promise<any>;
-function call(
-  url: string,
-  method: string,
-  args?: any,
-  keys?: KeyPair
-): Promise<any>;
-function call(
-  url: string,
-  method: string,
-  args?: any,
-  keys?: KeyPair
-): Promise<any> {
-  if (!keys && isKeyPair(args)) {
-    keys = args;
-    args = undefined;
+  constructor(url: string, keys?: KeyPair) {
+    this.url = url;
+    this.keys = keys;
   }
-  return send(url, { method, data: args }, keys);
+
+  async send(message: Message) {
+    const cbor = encode(message, this.keys);
+    const reply = await this.sendEncoded(cbor);
+    // @TODO: Verify response
+    return decode(reply);
+  }
+
+  async sendEncoded(body: Cbor) {
+    const response = await fetch(this.url, {
+      method: "POST",
+      headers: { "Content-Type": "application/cbor" },
+      body,
+    });
+    const reply = await response.arrayBuffer();
+    return Buffer.from(reply);
+  }
+
+  call(method: string, data?: any) {
+    return this.send({ method, data });
+  }
+
+  // @TODO: Move these methods to modules/base, modules/ledger, etc.
+  connect() {
+    return {
+      // 0 - Base
+      endpoints: (prefix?: string) => this.call("endpoints", { prefix }),
+      heartbeat: () => this.call("heartbeat"),
+      status: () => this.call("status"),
+
+      // 1 - Blockchain
+      blockchainInfo: () => this.call("blockchain.info"),
+      blockchainBlock: () => {
+        throw new Error("Not implemented");
+      },
+      blockchainTransaction: () => {
+        throw new Error("Not implemented");
+      },
+
+      // 2 - Ledger
+      ledgerInfo: () => this.call("ledger.info"),
+      ledgerBalance: (symbols: string[]) =>
+        this.call("ledger.balance", new Map([[1, symbols]])),
+      ledgerMint: () => {
+        throw new Error("Not implemented");
+      },
+      ledgerBurn: () => {
+        throw new Error("Not implemented");
+      },
+      ledgerSend: (to: Identity, amount: bigint, symbol: string) =>
+        this.call(
+          "account.send",
+          new Map<number, any>([
+            [1, to.toString()],
+            [2, amount],
+            [3, symbol],
+          ])
+        ),
+
+      // 3 - KVStore
+      kvInfo: () => {
+        throw new Error("Not implemented");
+      },
+      kvGet: () => {
+        throw new Error("Not implemented");
+      },
+      kvPut: () => {
+        throw new Error("Not implemented");
+      },
+      kvDelete: () => {
+        throw new Error("Not implemented");
+      },
+
+      // 4 - Ledger Transactions
+      ledgerTransactions: () => {
+        throw new Error("Not implemented");
+      },
+      ledgerList: () => {
+        throw new Error("Not implemented");
+      },
+    };
+  }
 }

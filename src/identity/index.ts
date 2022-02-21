@@ -10,7 +10,6 @@ export class Identity {
 
   constructor(bytes?: Buffer) {
     this.bytes = new Uint8Array(bytes ? bytes : [0x00]);
-    return this;
   }
 
   static anonymous(): Identity {
