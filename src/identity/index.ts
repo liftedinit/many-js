@@ -30,7 +30,17 @@ export class Identity {
       return new Identity();
     }
     const base32Identity = string.slice(1, -2).toUpperCase();
+    const base32Checksum = string.slice(-2).toUpperCase();
     const identity = base32Decode(base32Identity, "RFC4648");
+    const checksum = base32Decode(base32Checksum, "RFC4648");
+
+    const check = Buffer.allocUnsafe(3);
+    check.writeUInt16BE(crc.crc16(Buffer.from(identity)), 0);
+
+    if (Buffer.compare(Buffer.from(checksum), check.slice(0, 1)) !== 0) {
+      throw new Error("Invalid Checksum");
+    }
+
     return new Identity(Buffer.from(identity));
   }
 
