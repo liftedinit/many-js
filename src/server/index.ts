@@ -33,33 +33,42 @@ export class Server {
   }
 
   // @TODO: Move these methods to modules/base, modules/ledger, etc.
-  connect() {
+
+  get base() {
     return {
       // 0 - Base
       endpoints: (prefix?: string) => this.call("endpoints", { prefix }),
       heartbeat: () => this.call("heartbeat"),
       status: () => this.call("status"),
+    };
+  }
 
+  get blockchain() {
+    return {
       // 1 - Blockchain
-      blockchainInfo: () => this.call("blockchain.info"),
-      blockchainBlock: () => {
+      info: () => this.call("blockchain.info"),
+      block: () => {
         throw new Error("Not implemented");
       },
-      blockchainTransaction: () => {
+      transaction: () => {
         throw new Error("Not implemented");
       },
+    };
+  }
 
+  get ledger() {
+    return {
       // 2 - Ledger
-      ledgerInfo: () => this.call("ledger.info"),
-      ledgerBalance: (symbols: string[]) =>
+      info: () => this.call("ledger.info"),
+      balance: (symbols: string[]) =>
         this.call("ledger.balance", new Map([[1, symbols]])),
-      ledgerMint: () => {
+      mint: () => {
         throw new Error("Not implemented");
       },
-      ledgerBurn: () => {
+      burn: () => {
         throw new Error("Not implemented");
       },
-      ledgerSend: (to: Identity, amount: bigint, symbol: string) =>
+      send: (to: Identity, amount: bigint, symbol: string) =>
         this.call(
           "account.send",
           new Map<number, any>([
@@ -69,25 +78,29 @@ export class Server {
           ])
         ),
 
-      // 3 - KVStore
-      kvInfo: () => {
-        throw new Error("Not implemented");
-      },
-      kvGet: () => {
-        throw new Error("Not implemented");
-      },
-      kvPut: () => {
-        throw new Error("Not implemented");
-      },
-      kvDelete: () => {
-        throw new Error("Not implemented");
-      },
-
       // 4 - Ledger Transactions
-      ledgerTransactions: () => {
+      transactions: () => {
+        throw new Error("not implemented");
+      },
+      list: () => {
+        throw new Error("not implemented");
+      },
+    };
+  }
+
+  get kvstore() {
+    return {
+      // 3 - KVStore
+      info: () => {
         throw new Error("Not implemented");
       },
-      ledgerList: () => {
+      get: () => {
+        throw new Error("Not implemented");
+      },
+      put: () => {
+        throw new Error("Not implemented");
+      },
+      delete: () => {
         throw new Error("Not implemented");
       },
     };
