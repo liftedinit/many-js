@@ -1,6 +1,6 @@
-import * as identity from "./identity";
-import * as keys from "./keys";
+import { Identity } from "./identity";
+import { KeyPair } from "./keys";
 import * as message from "./message";
-import * as server from "./server";
+import { Network } from "./network";
 
-export default { identity, keys, message, server };
+export default { Identity, KeyPair, Network, message };

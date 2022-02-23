@@ -1,9 +1,9 @@
-import * as server from "../server";
-import { fromSeedWords, getSeedWords } from "../keys";
+import { Network } from "../network";
+import { KeyPair } from "../keys";
 
 const globalFetch = global.fetch;
 
-describe("server", () => {
+describe("network", () => {
   beforeAll(() => {
     global.fetch = jest.fn(() =>
       Promise.resolve({
@@ -18,8 +18,8 @@ describe("server", () => {
   });
 
   test("can get and set URL and KeyPair", () => {
-    const testnet = new server.Server("http://example.com");
-    const keys = fromSeedWords(getSeedWords());
+    const testnet = new Network("http://example.com");
+    const keys = KeyPair.fromMnemonic(KeyPair.getMnemonic());
     testnet.keys = keys;
 
     expect(testnet.url).toBe("http://example.com");
@@ -27,9 +27,9 @@ describe("server", () => {
   });
 
   test.skip("calls fetch when sending a message", async () => {
-    const testnet = new server.Server("http://example.com");
+    const testnet = new Network("http://example.com");
 
-    const reply = await testnet.send({ method: "heartbeat" });
+    await testnet.send({ method: "heartbeat" });
     expect(global.fetch).toHaveBeenCalled();
   });
 });

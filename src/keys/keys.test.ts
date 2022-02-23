@@ -1,22 +1,22 @@
-import * as keys from "../keys";
+import { KeyPair } from "../keys";
 
 describe("keys", () => {
   test("getSeedWords", () => {
-    const seedWords = keys.getSeedWords();
+    const seedWords = KeyPair.getMnemonic();
 
     expect(seedWords.split(" ")).toHaveLength(12);
   });
 
   test("fromSeedWords", () => {
-    const seedWords = keys.getSeedWords();
+    const seedWords = KeyPair.getMnemonic();
     const badWords = "abandon abandon abandon";
 
-    const alice = keys.fromSeedWords(seedWords);
-    const bob = keys.fromSeedWords(seedWords);
+    const alice = KeyPair.fromMnemonic(seedWords);
+    const bob = KeyPair.fromMnemonic(seedWords);
 
     expect(alice.privateKey).toStrictEqual(bob.privateKey);
     expect(() => {
-      keys.fromSeedWords(badWords);
+      KeyPair.fromMnemonic(badWords);
     }).toThrow();
   });
 
@@ -30,12 +30,12 @@ describe("keys", () => {
       MEOW
       -----END PRIVATE CAT-----`;
 
-    const alice = keys.fromPem(pem);
-    const bob = keys.fromPem(pem);
+    const alice = KeyPair.fromPem(pem);
+    const bob = KeyPair.fromPem(pem);
 
     expect(alice.privateKey).toStrictEqual(bob.privateKey);
     expect(() => {
-      keys.fromPem(badPem);
+      KeyPair.fromPem(badPem);
     }).toThrow();
   });
 });

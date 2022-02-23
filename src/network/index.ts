@@ -2,7 +2,7 @@ import { Identity } from "../identity";
 import { KeyPair } from "../keys";
 import { Cbor, Message, decode, encode } from "../message";
 
-export class Server {
+export class Network {
   url: string;
   keys: KeyPair | undefined;
 

@@ -1,6 +1,6 @@
 # Many Library
 
-This library can be used by JavaScript applications to connect to servers that support the Many Protocol.
+This library can be used by JavaScript applications to connect to networks that support the Many Protocol.
 
 ## Usage
 
@@ -33,14 +33,14 @@ message = new Message(msg, keys); // => Signed CBOR Buffer
 message.decode(); // => Object
 ```
 
-Sending and receiving messages from a server.
+Sending and receiving messages from a network.
 
 ```ts
-server = new Server(url, keys);
+network = new Network(url, keys);
 
-server.sendEncoded(cbor); // => Encoded Response
-server.send(msg); // => Decoded Response
+network.sendEncoded(cbor); // => Encoded Response
+network.send(msg); // => Decoded Response
 
-server.base.endpoints(); // => Decoded and Parsed Response
-server.ledger.info(); // => Decoded and Parsed Response
+network.base.endpoints(); // => Decoded and Parsed Response
+network.ledger.info(); // => Decoded and Parsed Response
 ```
