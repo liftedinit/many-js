@@ -1,10 +1,65 @@
 import cbor from "cbor";
-
-import { encodeEnvelope, getPayload } from "./cose";
-import * as identity from "../identity";
-
 import { KeyPair } from "../keys";
 import { Identity } from "../identity";
+
+import { CborData, CborMap, tag } from "./cbor";
+import { encodeEnvelope, getPayload } from "./cose";
+
+interface ManyMessageContent {
+  version?: number;
+  from?: Identity;
+  to?: Identity;
+  method: string;
+  data?: any;
+  timestamp?: number;
+  id?: number;
+  nonce?: string;
+  attrs?: string[];
+}
+
+export class ManyMessage {
+  constructor(public content: CborMap) {}
+
+  toString() {
+    return JSON.stringify(this.content, replacer, 2);
+  }
+}
+
+export class ManyRequest extends ManyMessage {
+  static fromObject(obj: ManyMessageContent): ManyMessage {
+    if (!obj.method) {
+      throw new Error("Property 'method' is required.");
+    }
+    const content = new Map();
+    content.set(0, obj.version ? obj.version : 1);
+    if (obj.from) {
+      content.set(1, obj.from.toString());
+    }
+    if (obj.to) {
+      content.set(2, obj.to.toString());
+    }
+    content.set(3, obj.method);
+    content.set(4, obj.data ? obj.data : cbor.encode(new ArrayBuffer(0)));
+    content.set(
+      5,
+      tag(1, obj.timestamp ? obj.timestamp : Math.floor(Date.now() / 1000))
+    );
+    if (obj.id) {
+      content.set(6, obj.id);
+    }
+    if (obj.nonce) {
+      content.set(7, obj.nonce);
+    }
+    if (obj.attrs) {
+      content.set(8, obj.attrs);
+    }
+    return new ManyRequest(content);
+  }
+}
+
+export class ManyResponse extends ManyMessage {}
+
+// --------------------------------------------------------------------------------
 
 export type Cbor = Buffer;
 

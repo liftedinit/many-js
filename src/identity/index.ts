@@ -3,7 +3,7 @@ import base32Encode from "base32-encode";
 import crc from "crc";
 
 import { Key } from "../keys";
-import { toIdentity } from "../message/cose";
+import { CoseKey } from "../message/cose";
 
 export class Identity {
   bytes: Uint8Array;
@@ -21,7 +21,8 @@ export class Identity {
   }
 
   static fromPublicKey(key: Key): Identity {
-    return new Identity(toIdentity(key));
+    const coseKey = new CoseKey(key);
+    return coseKey.toIdentity();
   }
 
   static fromString(string: string): Identity {
