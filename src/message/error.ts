@@ -1,19 +1,19 @@
-export interface SerializedOmniError {
+export interface SerializedManyError {
   "0"?: number;
   "1"?: string;
   "2"?: { [field: string]: string };
 }
 
-export class OmniError extends Error {
+export class ManyError extends Error {
   public code: Number;
   public fields: { [field: string]: string };
 
-  constructor(error: SerializedOmniError) {
+  constructor(error: SerializedManyError) {
     // Error messages replace `{NAME}` with error["2"].name
     const { "0": code, "1": message, "2": fields } = error;
     if (message === undefined) {
       super(
-        `OmniError(${code || 0}) message=${JSON.stringify(
+        `ManyError(${code || 0}) message=${JSON.stringify(
           message
         )} fields=${JSON.stringify(fields)}`
       );

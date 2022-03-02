@@ -29,7 +29,7 @@ describe("network", () => {
   test.skip("calls fetch when sending a message", async () => {
     const testnet = new Network("http://example.com");
 
-    await testnet.send({ method: "heartbeat" });
+    await testnet.call("heartbeat");
     expect(global.fetch).toHaveBeenCalled();
   });
 });

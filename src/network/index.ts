@@ -1,6 +1,7 @@
 import { Identity } from "../identity";
 import { KeyPair } from "../keys";
-import { Cbor, Message, decode, encode } from "../message";
+import { Message } from "../message";
+import { CborData } from "../message/cbor";
 
 export class Network {
   url: string;
@@ -11,25 +12,27 @@ export class Network {
     this.keys = keys;
   }
 
-  async send(message: Message) {
-    const cbor = encode(message, this.keys);
+  async send(req: Message) {
+    const cbor = req.toCborData();
     const reply = await this.sendEncoded(cbor);
     // @TODO: Verify response
-    return decode(reply);
+    const res = Message.fromCborData(reply);
+    return res;
   }
 
-  async sendEncoded(body: Cbor) {
-    const response = await fetch(this.url, {
+  async sendEncoded(body: CborData) {
+    const res = await fetch(this.url, {
       method: "POST",
       headers: { "Content-Type": "application/cbor" },
       body,
     });
-    const reply = await response.arrayBuffer();
+    const reply = await res.arrayBuffer();
     return Buffer.from(reply);
   }
 
   call(method: string, data?: any) {
-    return this.send({ method, data });
+    const req = Message.fromObject({ method, data });
+    return this.send(req);
   }
 
   // @TODO: Move these methods to modules/base, modules/ledger, etc.

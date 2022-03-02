@@ -1,6 +1,6 @@
 import * as error from "./error";
 
-describe("OmniError", function () {
+describe("ManyError", function () {
   it("replaces fields", () => {
     const omniError = {
       [0]: 123,
@@ -11,7 +11,7 @@ describe("OmniError", function () {
         "2": "TWO",
       },
     };
-    const err = new error.OmniError(omniError);
+    const err = new error.ManyError(omniError);
 
     expect(err.toString()).toBe("Error: Hello ZERO and TWO.");
   });
@@ -26,7 +26,7 @@ describe("OmniError", function () {
         "2": "TWO",
       },
     };
-    const err = new error.OmniError(omniError);
+    const err = new error.ManyError(omniError);
 
     expect(err.toString()).toBe("Error: /{}{ZERO}{}}{TWO.");
   });

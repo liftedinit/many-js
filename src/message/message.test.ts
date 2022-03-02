@@ -1,15 +1,17 @@
-import * as message from "../message";
+import { Message } from "../message";
 
-describe("message", () => {
-  test("encode", () => {
-    const msg = { method: "echo" };
-    const encoded = message.encode(msg);
-    expect(encoded).not.toBe(null);
+describe("Message", () => {
+  test("can be constructed from an object", () => {
+    const msg = { method: "info" };
+    const req = Message.fromObject(msg);
+
+    expect(req).toHaveProperty("content");
   });
-  test("decode", () => {
-    const msg = { method: "echo" };
-    const encoded = message.encode(msg);
-    const decoded = message.decode(encoded);
-    expect(decoded).not.toBe(null);
+  test("can be serialized/deserialized", () => {
+    const msg = { method: "info" };
+    const req = Message.fromObject(msg);
+    const cbor = req.toCborData();
+
+    expect(Message.fromCborData(cbor)).toStrictEqual(req);
   });
 });
