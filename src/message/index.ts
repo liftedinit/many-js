@@ -4,6 +4,7 @@ import { Identity } from "../identity";
 import { CborData, CborMap, tag } from "./cbor";
 import { CoseMessage } from "./cose";
 import { ManyError, SerializedManyError } from "./error";
+import { KeyPair } from "../keys";
 
 interface MessageContent {
   version?: number;
@@ -80,8 +81,8 @@ export class Message {
     }
   }
 
-  toCborData() {
-    const cose = CoseMessage.fromMessage(this);
+  toCborData(keys?: KeyPair) {
+    const cose = CoseMessage.fromMessage(this, keys);
     return cose.toCborData();
   }
 
