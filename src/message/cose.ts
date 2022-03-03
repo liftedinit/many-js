@@ -8,6 +8,7 @@ import { Key, KeyPair } from "../keys";
 import { Message } from "../message";
 import { CborData, CborMap, tag } from "./cbor";
 
+
 const ANONYMOUS = Buffer.from([0x00]);
 const EMPTY = Buffer.alloc(0);
 
