@@ -2,7 +2,7 @@ import * as error from "./error";
 
 describe("ManyError", function () {
   it("replaces fields", () => {
-    const omniError = {
+    const manyError = {
       [0]: 123,
       [1]: "Hello {0} and {2}.",
       [2]: {
@@ -17,7 +17,7 @@ describe("ManyError", function () {
   });
 
   it("works with double brackets", () => {
-    const omniError = {
+    const manyError = {
       [0]: 123,
       [1]: "/{{}}{{{0}}}{{{a}}}{b}}}{{{2}.",
       [2]: {
