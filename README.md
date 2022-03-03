@@ -7,15 +7,15 @@ This library can be used by JavaScript applications to connect to networks that 
 Generating key pairs.
 
 ```ts
-keys.fromSeedWords(string); // => KeyPair
-keys.fromPem(string); // => KeyPair
+KeyPair.fromSeedWords(string); // => KeyPair
+KeyPair.fromPem(string); // => KeyPair
 ```
 
 Managing identities.
 
 ```ts
-identity = new Identity.fromPublicKey(key); // => Identity
-identity = new Identity.fromString(string); // => Identity
+identity = Identity.fromPublicKey(key); // => Identity
+identity = Identity.fromString(string); // => Identity
 anonymous = new Identity(); // => Anonymous Identity
 
 identity.toString(keys); // => "ow7aekyjtsx2hmeadrua5cpitgy7pykjkok3gyth3ggsio4zwa"
@@ -27,10 +27,11 @@ Encoding and decoding messages.
 ```ts
 msg = { to, from, method, data, timestamp, version };
 
-message = new Message(msg); // => Anonymous CBOR Buffer
-message = new Message(msg, keys); // => Signed CBOR Buffer
+message = Message.fromObject(msg); // Message
+message.toCborData(); // => Anonymous CBOR Buffer
+message.toCborData(keys); // => Signed CBOR Buffer
 
-message.decode(); // => Object
+message.content; // => Object
 ```
 
 Sending and receiving messages from a network.
