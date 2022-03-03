@@ -1,7 +1,6 @@
-import * as identity from "./identity";
-import * as keys from "./keys";
-import * as message from "./message";
-import * as server from "./server";
+import { Identity } from "./identity";
+import { KeyPair } from "./keys";
+import { Message } from "./message";
+import { Network } from "./network";
 
-const omni = { identity, keys, message, server };
-export default omni;
+export default { Identity, KeyPair, Message, Network };
