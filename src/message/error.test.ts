@@ -11,7 +11,7 @@ describe("ManyError", function () {
         "2": "TWO",
       },
     };
-    const err = new error.ManyError(omniError);
+    const err = new error.ManyError(manyError);
 
     expect(err.toString()).toBe("Error: Hello ZERO and TWO.");
   });
@@ -26,7 +26,7 @@ describe("ManyError", function () {
         "2": "TWO",
       },
     };
-    const err = new error.ManyError(omniError);
+    const err = new error.ManyError(manyError);
 
     expect(err.toString()).toBe("Error: /{}{ZERO}{}}{TWO.");
   });
