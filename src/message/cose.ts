@@ -8,6 +8,7 @@ import { Key, KeyPair } from "../keys";
 import { Message } from "../message";
 import { CborData, CborMap, tag } from "./cbor";
 
+const ANONYMOUS = Buffer.from([0x00]);
 const EMPTY = Buffer.alloc(0);
 
 export class CoseMessage {
@@ -51,7 +52,7 @@ export class CoseMessage {
 
   static fromMessage(message: Message, keys?: KeyPair): CoseMessage {
     const protectedHeader = this.getProtectedHeader(
-      keys ? keys.publicKey : EMPTY
+      keys ? keys.publicKey : ANONYMOUS
     );
     const unprotectedHeader = this.getUnprotectedHeader();
     const content = message.content;
@@ -90,12 +91,39 @@ export class CoseMessage {
     return Buffer.from(ed25519.sign({ message, privateKey }));
   }
 
+  private replacer(key: string, value: any) {
+    if (value?.type === "Buffer") {
+      return Buffer.from(value.data).toString("hex");
+    } else if (value instanceof Map) {
+      return Object.fromEntries(value.entries());
+    } else if (typeof value === "bigint") {
+      return parseInt(value.toString());
+    } else if (key === "hash") {
+      return Buffer.from(value).toString("hex");
+    } else {
+      return value;
+    }
+  }
+
   toCborData(): CborData {
     const p = cbor.encodeCanonical(this.protectedHeader);
     const u = this.unprotectedHeader;
     const payload = cbor.encode(tag(10001, this.content));
     let sig = this.signature;
     return cbor.encodeCanonical(tag(18, [p, u, payload, sig]));
+  }
+
+  toString(): string {
+    return JSON.stringify(
+      [
+        this.protectedHeader,
+        this.unprotectedHeader,
+        this.content,
+        this.signature,
+      ],
+      this.replacer,
+      2
+    );
   }
 }
 
@@ -121,6 +149,9 @@ export class CoseKey {
   }
 
   private getKeyId() {
+    if (Buffer.compare(this.common.get(-2), ANONYMOUS) === 0) {
+      return ANONYMOUS;
+    }
     const keyId = new Map(this.common);
     const pk = "01" + sha3_224(cbor.encodeCanonical(keyId));
     return Buffer.from(pk, "hex");

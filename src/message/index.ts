@@ -34,7 +34,7 @@ export class Message {
       content.set(2, obj.to.toString());
     }
     content.set(3, obj.method);
-    content.set(4, obj.data ? obj.data : cbor.encode(new ArrayBuffer(0)));
+    content.set(4, cbor.encode(obj.data ? obj.data : new ArrayBuffer(0)));
     content.set(
       5,
       tag(1, obj.timestamp ? obj.timestamp : Math.floor(Date.now() / 1000))
@@ -59,6 +59,7 @@ export class Message {
         Object.fromEntries(data.entries()) as SerializedManyError
       );
     }
+    content.set(4, cbor.decodeFirstSync(data));
     return new Message(content);
   }
 
@@ -76,14 +77,19 @@ export class Message {
       return parseInt(value.toString());
     } else if (key === "hash") {
       return Buffer.from(value).toString("hex");
+    } else if (key === "bytes") {
+      return Buffer.from(value).toString("hex");
     } else {
       return value;
     }
   }
 
+  toCoseMessage(keys?: KeyPair) {
+    return CoseMessage.fromMessage(this, keys);
+  }
+
   toCborData(keys?: KeyPair) {
-    const cose = CoseMessage.fromMessage(this, keys);
-    return cose.toCborData();
+    return this.toCoseMessage(keys).toCborData();
   }
 
   toString() {
