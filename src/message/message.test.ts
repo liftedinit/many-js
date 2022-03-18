@@ -1,4 +1,4 @@
-import { Message, DEFAULT_MESSAGE_DATA } from "../message";
+import { Message } from "../message";
 import cbor from "cbor";
 
 describe("Message", () => {

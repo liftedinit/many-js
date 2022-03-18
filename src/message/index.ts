@@ -18,8 +18,6 @@ interface MessageContent {
   attrs?: string[];
 }
 
-export const DEFAULT_MESSAGE_DATA = cbor.encode(new ArrayBuffer(0));
-
 export class Message {
   constructor(public content: CborMap) {}
 
@@ -36,7 +34,9 @@ export class Message {
       content.set(2, obj.to.toString());
     }
     content.set(3, obj.method);
-    content.set(4, obj.data ? cbor.encode(obj.data) : DEFAULT_MESSAGE_DATA);
+    if (obj.data) {
+      content.set(4, cbor.encode(obj.data));
+    }
     content.set(
       5,
       tag(1, obj.timestamp ? obj.timestamp : Math.floor(Date.now() / 1000))
