@@ -2,6 +2,7 @@ import { Identity } from "../identity";
 import { KeyPair } from "../keys";
 import { Message } from "../message";
 import { CborData } from "../message/cbor";
+import { Info } from "./info";
 
 export class Network {
   url: string;
@@ -62,7 +63,10 @@ export class Network {
   get ledger() {
     return {
       // 2 - Ledger
-      info: () => this.call("ledger.info"),
+      info: async () => {
+        const message = await this.call("ledger.info");
+        return Info.getLedgerInfo(message);
+      },
       balance: (symbols: string[]) =>
         this.call("ledger.balance", new Map([[1, symbols]])),
       mint: () => {
