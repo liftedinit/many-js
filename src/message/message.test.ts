@@ -13,12 +13,6 @@ describe("Message", () => {
     const req = Message.fromObject(msg);
     const cborData = req.toCborData();
     const fromCborMessage = Message.fromCborData(cborData);
-    /*
-      need to set message.content[4] to the default data because
-      Message.fromObject sets it to that if data doesn't exist
-    */
-    fromCborMessage.content.set(4, DEFAULT_MESSAGE_DATA);
-
     expect(fromCborMessage).toStrictEqual(req);
   });
 });
