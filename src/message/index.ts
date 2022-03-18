@@ -61,7 +61,6 @@ export class Message {
         Object.fromEntries(data.entries()) as SerializedManyError
       );
     }
-    content.set(4, cbor.decodeFirstSync(data));
     return new Message(content);
   }
 
