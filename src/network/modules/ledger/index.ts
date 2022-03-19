@@ -8,7 +8,6 @@ export interface LedgerInfo {
 
 export class Ledger {
   async fetchLedgerInfo(): Promise<LedgerInfo> {
-    debugger;
     // @ts-ignore
     const message = await this.call("ledger.info");
     return getLedgerInfo(message);
