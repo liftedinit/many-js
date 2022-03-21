@@ -1,9 +1,10 @@
 import { KeyPair } from "../keys";
 import { Message } from "../message";
 import { CborData } from "../message/cbor";
-import { Ledger } from "./modules/ledger";
+import { Ledger, LedgerInfo } from "./modules/ledger";
 import { applyMixins } from "../utils";
 
+export type { LedgerInfo };
 export interface Network extends Ledger {}
 
 export class Network {
