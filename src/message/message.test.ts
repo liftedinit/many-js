@@ -1,5 +1,4 @@
 import { Message } from "../message";
-import cbor from "cbor";
 
 describe("Message", () => {
   test("can be constructed from an object", () => {
