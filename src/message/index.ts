@@ -18,6 +18,8 @@ interface MessageContent {
   attrs?: string[];
 }
 
+export const DEFAULT_MESSAGE_DATA = cbor.encode(new ArrayBuffer(0));
+
 export class Message {
   constructor(public content: CborMap) {}
 
