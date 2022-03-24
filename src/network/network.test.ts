@@ -7,7 +7,7 @@ import {
   expectedSymbolsMap,
   mockSymbolIdentity,
   mockSymbolIdentity2,
-} from "./modules/ledger/data";
+} from "./modules/ledger/__tests__/data"
 
 const globalFetch = global.fetch;
 

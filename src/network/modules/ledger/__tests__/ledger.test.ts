@@ -1,11 +1,11 @@
-import cbor from "cbor";
-import { getLedgerInfo } from ".";
-import { Message } from "../../../message";
+import cbor from "cbor"
+import { getLedgerInfo } from ".."
+import { Message } from "../../../../message"
 import {
   expectedSymbolsMap,
   mockSymbolIdentity,
   mockSymbolIdentity2,
-} from "./data";
+} from "./data"
 
 describe("Ledger", () => {
   it("getLedgerInfo should return symbols", async () => {
@@ -19,12 +19,12 @@ describe("Ledger", () => {
               // @ts-ignore
               new Map([mockSymbolIdentity, mockSymbolIdentity2]),
             ],
-          ])
+          ]),
         ),
       ],
-    ]);
-    const message = new Message(mockContent);
-    const res = getLedgerInfo(message);
-    expect(res).toEqual(expectedSymbolsMap);
-  });
-});
+    ])
+    const message = new Message(mockContent)
+    const res = getLedgerInfo(message)
+    expect(res).toEqual(expectedSymbolsMap)
+  })
+})
