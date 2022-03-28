@@ -8,6 +8,7 @@ import {
   mockSymbolIdentity,
   mockSymbolIdentity2,
 } from "./modules/ledger/__tests__/data"
+import { Ledger } from "./modules";
 
 const globalFetch = global.fetch;
 
@@ -90,7 +91,9 @@ describe("network", () => {
     ) as jest.Mock;
     // global.fetch = globalFetch;
     const testnet = new Network("http://example.com");
-    const res = await testnet.fetchLedgerInfo();
+    testnet.apply([Ledger])
+    // @ts-ignore
+    const res = await testnet.ledger.info()
     expect(res).toEqual(expectedSymbolsMap);
   });
 

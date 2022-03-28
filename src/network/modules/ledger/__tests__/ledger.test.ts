@@ -1,5 +1,5 @@
 import cbor from "cbor"
-import { getLedgerInfo } from ".."
+import { getLedgerInfo } from "../ledger"
 import { Message } from "../../../../message"
 import {
   expectedSymbolsMap,

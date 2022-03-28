@@ -1,13 +1,15 @@
-// https://www.typescriptlang.org/docs/handbook/mixins.html#alternative-pattern
-export function applyMixins(derivedCtor: any, constructors: any[]) {
-  constructors.forEach((baseCtor) => {
-    Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
-      Object.defineProperty(
-        derivedCtor.prototype,
-        name,
-        Object.getOwnPropertyDescriptor(baseCtor.prototype, name) ||
-          Object.create(null)
-      );
-    });
-  });
+export function applyMixins(this: any, modules: any[]) {
+  modules.forEach(module => {
+    const namespace: string = module.name
+    this[namespace] = {}
+    const propertyNames = Object.getOwnPropertyNames(module)
+    propertyNames.forEach(name => {
+      const val = module[name]
+      if (typeof val === "function") {
+        this[namespace][name] = val.bind(this)
+      } else {
+        this[namespace][name] = val
+      }
+    })
+  })
 }
