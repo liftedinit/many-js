@@ -92,7 +92,6 @@ describe("network", () => {
     // global.fetch = globalFetch;
     const testnet = new Network("http://example.com");
     testnet.apply([Ledger])
-    // @ts-ignore
     const res = await testnet.ledger.info()
     expect(res).toEqual(expectedSymbolsMap);
   });

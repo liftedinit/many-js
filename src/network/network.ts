@@ -1,9 +1,12 @@
+import { Identity } from "../identity"
 import { KeyPair } from "../keys"
 import { Message } from "../message"
 import { CborData } from "../message/cbor"
 import { applyMixins } from "../utils"
+import { NetworkModule } from "./modules"
 
 export class Network {
+  [k: string]: any
   url: string
   keys: KeyPair | undefined
 
@@ -12,8 +15,8 @@ export class Network {
     this.keys = keys
   }
 
-  apply(modules: unknown[]) {
-    applyMixins.call(this, modules)
+  apply(modules: NetworkModule[]) {
+    applyMixins(this, modules)
   }
 
   async send(req: Message) {

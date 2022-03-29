@@ -1,13 +1,14 @@
 import cbor from "cbor"
 import { Identity } from "../../../identity"
 import { Message } from "../../../message"
+import type { NetworkModule } from "../types"
 
 export interface LedgerInfo {
   symbols: Map<ReturnType<Identity["toString"]>, string>
 }
 
-interface Ledger {
-  name: string
+interface Ledger extends NetworkModule {
+  _namespace_: string
   info: () => Promise<LedgerInfo>
   balance: () => Promise<unknown>
   mint: () => Promise<unknown>
@@ -18,9 +19,8 @@ interface Ledger {
 }
 
 export const Ledger: Ledger = {
-  name: "ledger",
+  _namespace_: "ledger",
   async info(): Promise<LedgerInfo> {
-    // @ts-ignore
     const message = await this.call("ledger.info")
     return getLedgerInfo(message)
   },
@@ -36,7 +36,7 @@ export const Ledger: Ledger = {
     throw new Error("Not implemented")
   },
 
-  burn() {
+  async burn() {
     throw new Error("Not implemented")
   },
 
@@ -61,48 +61,6 @@ export const Ledger: Ledger = {
     throw new Error("not implemented")
   },
 }
-
-// export class Ledger {
-//   async info(): Promise<LedgerInfo> {
-//     // @ts-ignore
-//     const message = await this.call("ledger.info")
-//     return getLedgerInfo(message)
-//   }
-
-//   async balance(symbols: string[]) {
-//     // @ts-ignore
-//     return await this.call("ledger.balance", new Map([[1, symbols]]))
-//   }
-
-//   mint() {
-//     throw new Error("Not implemented")
-//   }
-
-//   burn() {
-//     throw new Error("Not implemented")
-//   }
-
-//   async ledgerSend(to: Identity, amount: bigint, symbol: string) {
-//     // @ts-ignore
-//     return await this.call(
-//       "account.send",
-//       new Map<number, any>([
-//         [1, to.toString()],
-//         [2, amount],
-//         [3, symbol],
-//       ]),
-//     )
-//   }
-
-//   // 4 - Ledger Transactions
-//   transactions() {
-//     throw new Error("not implemented")
-//   }
-
-//   list() {
-//     throw new Error("not implemented")
-//   }
-// }
 
 export function getLedgerInfo(message: Message): LedgerInfo {
   const result: LedgerInfo = { symbols: new Map() }

@@ -1,14 +1,20 @@
-export function applyMixins(this: any, modules: any[]) {
+import { Network, NetworkModule } from "../network"
+
+export function applyMixins<N extends Network, M extends NetworkModule[]>(
+  network: N,
+  modules: M,
+): any {
   modules.forEach(module => {
-    const namespace: string = module.name
-    this[namespace] = {}
-    const propertyNames = Object.getOwnPropertyNames(module)
-    propertyNames.forEach(name => {
-      const val = module[name]
+    const namespace = module._namespace_
+    // @ts-ignore
+    network[namespace] = {}
+    const props = Object.getOwnPropertyNames(module)
+    props.forEach(prop => {
+      const val = module[prop]
       if (typeof val === "function") {
-        this[namespace][name] = val.bind(this)
+        network[namespace][prop] = val.bind(network)
       } else {
-        this[namespace][name] = val
+        network[namespace][prop] = val
       }
     })
   })
