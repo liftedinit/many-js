@@ -38,7 +38,13 @@ export class Network {
   }
 
   call(method: string, data?: any) {
-    const req = Message.fromObject({ method, data })
+    const req = Message.fromObject({
+      method,
+      from: this.keys?.publicKey
+        ? Identity.fromPublicKey(this.keys.publicKey)
+        : undefined,
+      data,
+    })
     return this.send(req)
   }
 

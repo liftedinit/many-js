@@ -24,12 +24,12 @@ export const Ledger: Ledger = {
     const message = await this.call("ledger.info")
     return getLedgerInfo(message)
   },
-  async balance(symbols?: string[]): Promise<unknown> {
-    // @ts-ignore
-    return await this.call(
+  async balance(symbols?: string[]): Promise<Balances> {
+    const res = await this.call(
       "ledger.balance",
-      symbols ? new Map([[1, symbols]]) : undefined,
+      new Map([[1, symbols ? symbols : []]]),
     )
+    return getBalance(res)
   },
 
   mint() {
@@ -73,6 +73,26 @@ export function getLedgerInfo(message: Message): LedgerInfo {
         const identity = new Identity(Buffer.from(symbol[0].value)).toString()
         const symbolName = symbol[1]
         result.symbols.set(identity, symbolName)
+      }
+    }
+  }
+  return result
+}
+
+export interface Balances {
+  balances: Map<string, bigint>
+}
+function getBalance(message: Message): Balances {
+  const result = { balances: new Map() }
+  if (message.content.has(4)) {
+    const messageContent = cbor.decodeFirstSync(message.content.get(4))
+    if (messageContent.has(0)) {
+      const symbolsToBalancesMap = messageContent.get(0)
+      if (!(symbolsToBalancesMap instanceof Map)) return result
+      for (const balanceEntry of symbolsToBalancesMap) {
+        const symbolIdentityStr = new Identity(balanceEntry[0].value).toString()
+        const balance = balanceEntry[1]
+        result.balances.set(symbolIdentityStr, balance)
       }
     }
   }
