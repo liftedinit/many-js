@@ -10,7 +10,7 @@ export interface LedgerInfo {
 interface Ledger extends NetworkModule {
   _namespace_: string
   info: () => Promise<LedgerInfo>
-  balance: () => Promise<unknown>
+  balance: (symbols?: string[]) => Promise<Balances>
   mint: () => Promise<unknown>
   burn: () => Promise<unknown>
   send: (to: Identity, amount: bigint, symbol: string) => Promise<unknown>
@@ -82,7 +82,7 @@ export function getLedgerInfo(message: Message): LedgerInfo {
 export interface Balances {
   balances: Map<string, bigint>
 }
-function getBalance(message: Message): Balances {
+export function getBalance(message: Message): Balances {
   const result = { balances: new Map() }
   if (message.content.has(4)) {
     const messageContent = cbor.decodeFirstSync(message.content.get(4))
