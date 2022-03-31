@@ -41,7 +41,7 @@ export class CoseMessage {
     const protectedHeader = cbor.decodeFirstSync(cose[0]);
     const unprotectedHeader = cose[1];
     const content = cbor.decodeFirstSync(cose[2], decoders).value;
-    const signature = cose[4];
+    const signature = cose[3]
 
     return new CoseMessage(
       protectedHeader,

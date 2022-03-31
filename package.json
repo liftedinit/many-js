@@ -46,6 +46,9 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
+    "testMatch": [
+      "**/?(*.)+(spec|test).[jt]s?(x)"
+    ],
     "transform": {
       "node_modules/(base32-encode|to-data-view)/.+\\.(j|t)sx?$": "ts-jest"
     },
