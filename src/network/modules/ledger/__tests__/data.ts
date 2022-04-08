@@ -102,7 +102,7 @@ export const mockLedgerListResponseContent = new Map([
               [
                 2,
                 [
-                  0, // send transaction
+                  0,
                   tag(10000, Identity1),
                   tag(10000, Identity2),
                   txnSymbolIdentity2,
