@@ -7,6 +7,73 @@ export interface LedgerInfo {
   symbols: Map<ReturnType<Identity["toString"]>, string>
 }
 
+export enum OrderType {
+  indeterminate = 0,
+  ascending = 1,
+  descending = 2,
+}
+
+interface RangeBound {
+  boundType: BoundType
+  value: unknown
+}
+
+interface TxnRangeBound extends Omit<RangeBound, "value"> {
+  value: Uint8Array
+}
+
+interface ListArgs {
+  count?: number
+  filters?: ListFilterArgs
+  order?: OrderType
+}
+
+export enum TransactionType {
+  send = "send",
+  burn = "burn",
+  mint = "mint",
+}
+export interface Transaction {
+  id: string
+  time: Date
+  type: TransactionType
+  amount: bigint
+  symbolIdentity: string
+  symbol?: string
+  from?: string
+  to?: string
+  account?: string
+}
+
+interface TransactionsData {
+  count: number
+  transactions: Transaction[]
+}
+
+export enum BoundType {
+  "unbounded" = "unbounded",
+  "inclusive" = "inclusive",
+  "exclusive" = "exclusive",
+}
+
+export interface ListFilterArgs {
+  accounts?: string | string[]
+  symbols?: string | string[]
+  txnIdRange?: [TxnRangeBound?, TxnRangeBound?]
+}
+
+interface ListFilters {
+  0: string | string[]
+  1: number | number[]
+  2: string | string[]
+  3: Map<number, [(0 | 1)?, Uint8Array?]>
+  4: Map<number, [(0 | 1)?, Date?]>
+}
+
+export enum RangeType {
+  lower = "lower",
+  upper = "upper",
+}
 interface Ledger extends NetworkModule {
   _namespace_: string
   info: () => Promise<LedgerInfo>
@@ -14,8 +81,8 @@ interface Ledger extends NetworkModule {
   mint: () => Promise<unknown>
   burn: () => Promise<unknown>
   send: (to: Identity, amount: bigint, symbol: string) => Promise<unknown>
-  transactions: () => Promise<unknown>
-  list: () => Promise<unknown>
+  transactions: () => Promise<{ count: bigint }>
+  list: (opts?: ListArgs) => Promise<TransactionsData>
 }
 
 export const Ledger: Ledger = {
@@ -41,9 +108,8 @@ export const Ledger: Ledger = {
   },
 
   async send(to: Identity, amount: bigint, symbol: string): Promise<unknown> {
-    // @ts-ignore
     return await this.call(
-      "account.send",
+      "ledger.send",
       new Map<number, any>([
         [1, to.toString()],
         [2, amount],
@@ -53,12 +119,25 @@ export const Ledger: Ledger = {
   },
 
   // 4 - Ledger Transactions
-  transactions() {
-    throw new Error("not implemented")
+  async transactions() {
+    const res = await this.call("ledger.transactions")
+    return getTransactionsCount(res)
   },
 
-  list() {
-    throw new Error("not implemented")
+  async list({
+    filters = {},
+    count = 10,
+    order = OrderType.descending,
+  }: ListArgs = {}): Promise<TransactionsData> {
+    const res = await this.call(
+      "ledger.list",
+      new Map<number, any>([
+        [0, count],
+        [1, order],
+        [2, makeListFilters(filters)],
+      ]),
+    )
+    return getTxnList(res)
   },
 }
 
@@ -82,6 +161,7 @@ export function getLedgerInfo(message: Message): LedgerInfo {
 export interface Balances {
   balances: Map<string, bigint>
 }
+
 export function getBalance(message: Message): Balances {
   const result = { balances: new Map() }
   if (message.content.has(4)) {
@@ -97,4 +177,112 @@ export function getBalance(message: Message): Balances {
     }
   }
   return result
+}
+
+function getTransactionsCount(message: Message) {
+  return {
+    count: message?.content?.has(4)
+      ? cbor.decodeFirstSync(message.content.get(4))?.get(0)
+      : 0,
+  }
+}
+
+function getTxnList(message: Message): TransactionsData {
+  const result = {
+    count: 0,
+    transactions: [],
+  }
+  if (message.content.has(4)) {
+    const decodedContent = cbor.decodeFirstSync(message.content.get(4))
+    result.count = decodedContent.get(0)
+    const transactions = decodedContent.get(1)
+    result.transactions = transactions.map((t: Map<number, unknown>) => {
+      let transactionData = t.get(2) as Array<unknown>
+      const transactionType = transactionData[0]
+      if (transactionType === 0) {
+        return makeSendTransactionData(t)
+      }
+    })
+  }
+  return result
+}
+
+function makeSendTransactionData(t: Map<number, unknown>) {
+  let transactionData = t.get(2) as Array<unknown>
+  const id = t.get(0) as Uint8Array
+  const time = t.get(1)
+  const from = transactionData[1] as { value: Uint8Array }
+  const to = transactionData[2] as { value: Uint8Array }
+  const fromAddress = new Identity(from.value as Buffer).toString()
+  const toAddress = new Identity(to.value as Buffer).toString()
+  return {
+    id,
+    time,
+    type: TransactionType.send,
+    from: fromAddress,
+    to: toAddress,
+    symbolIdentity: transactionData[3],
+    amount: BigInt(transactionData[4] as number),
+  }
+}
+
+export function makeListFilters(
+  filters: ListFilterArgs,
+): Map<keyof ListFilters, ListFilters[keyof ListFilters]> {
+  const result = new Map()
+  const { accounts, symbols, txnIdRange } = filters
+
+  if (accounts) {
+    if (typeof accounts !== "string" && !Array.isArray(accounts))
+      throw "type of filter.accounts must be a string or string[]"
+    result.set(0, accounts)
+  }
+
+  if (symbols) {
+    if (typeof symbols !== "string" && !Array.isArray(symbols))
+      throw "type of filter.symbols must be a string or string[]"
+    result.set(2, symbols)
+  }
+
+  if (txnIdRange) {
+    const range = new Map()
+    const [lower, upper] = txnIdRange
+    if (lower) {
+      setRangeBound({
+        rangeMap: range,
+        rangeType: RangeType.lower,
+        ...lower,
+      })
+    }
+    if (upper) {
+      setRangeBound({
+        rangeMap: range,
+        rangeType: RangeType.upper,
+        ...upper,
+      })
+    }
+    result.set(3, range)
+  }
+
+  return result
+}
+
+export function setRangeBound({
+  rangeMap,
+  rangeType,
+  boundType,
+  value,
+}: {
+  rangeMap: Map<number, [number, unknown]>
+  rangeType: RangeType
+  boundType: BoundType
+  value: unknown
+}) {
+  const rangeVal = rangeType === RangeType.lower ? 0 : 1
+  let boundVal = [
+    ...(boundType !== BoundType.unbounded
+      ? [boundType === BoundType.inclusive ? 0 : 1, value]
+      : []),
+  ] as [number, typeof value]
+  rangeMap.set(rangeVal, boundVal)
 }
