@@ -15,7 +15,7 @@ export enum OrderType {
 
 type Bound<T> = [] | [0, T] | [1, T]
 
-type Range<T> = Map<number, Bound<T>>
+type Range<T> = Map<0 | 1, Bound<T>>
 
 interface RangeBound {
   boundType: BoundType
