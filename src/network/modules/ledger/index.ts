@@ -1,9 +1,7 @@
-export { Ledger, TransactionType } from "./ledger"
+export { Ledger, TransactionType, BoundType, OrderType } from "./ledger"
 export type {
   LedgerInfo,
   Balances,
   ListFilterArgs,
-  BoundType,
   Transaction,
-  OrderType,
 } from "./ledger"

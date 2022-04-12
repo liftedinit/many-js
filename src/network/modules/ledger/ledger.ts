@@ -13,6 +13,10 @@ export enum OrderType {
   descending = 2,
 }
 
+type Bound<T> = [] | [0, T] | [1, T]
+
+type Range<T> = Map<number, Bound<T>>
+
 interface RangeBound {
   boundType: BoundType
   value: unknown
@@ -51,23 +55,15 @@ interface TransactionsData {
 }
 
 export enum BoundType {
-  "unbounded" = "unbounded",
-  "inclusive" = "inclusive",
-  "exclusive" = "exclusive",
+  unbounded = "unbounded",
+  inclusive = "inclusive",
+  exclusive = "exclusive",
 }
 
 export interface ListFilterArgs {
   accounts?: string | string[]
   symbols?: string | string[]
   txnIdRange?: [TxnRangeBound?, TxnRangeBound?]
-}
-
-interface ListFilters {
-  0: string | string[]
-  1: number | number[]
-  2: string | string[]
-  3: Map<number, [(0 | 1)?, Uint8Array?]>
-  4: Map<number, [(0 | 1)?, Date?]>
 }
 
 export enum RangeType {
@@ -226,9 +222,7 @@ function makeSendTransactionData(t: Map<number, unknown>) {
   }
 }
 
-export function makeListFilters(
-  filters: ListFilterArgs,
-): Map<keyof ListFilters, ListFilters[keyof ListFilters]> {
+export function makeListFilters(filters: ListFilterArgs): Map<number, unknown> {
   const result = new Map()
   const { accounts, symbols, txnIdRange } = filters
 
@@ -245,44 +239,44 @@ export function makeListFilters(
   }
 
   if (txnIdRange) {
-    const range = new Map()
+    const rangeMap = new Map()
     const [lower, upper] = txnIdRange
     if (lower) {
-      setRangeBound({
-        rangeMap: range,
+      setRangeBound<Uint8Array>({
+        rangeMap,
         rangeType: RangeType.lower,
         ...lower,
       })
     }
     if (upper) {
-      setRangeBound({
-        rangeMap: range,
+      setRangeBound<Uint8Array>({
+        rangeMap,
         rangeType: RangeType.upper,
         ...upper,
       })
     }
-    result.set(3, range)
+    result.set(3, rangeMap)
   }
 
   return result
 }
 
-export function setRangeBound({
+export function setRangeBound<T>({
   rangeMap,
   rangeType,
   boundType,
   value,
 }: {
-  rangeMap: Map<number, [number, unknown]>
+  rangeMap: Range<T>
   rangeType: RangeType
   boundType: BoundType
   value: unknown
 }) {
   const rangeVal = rangeType === RangeType.lower ? 0 : 1
-  let boundVal = [
-    ...(boundType !== BoundType.unbounded
+  const boundVal = (
+    boundType !== BoundType.unbounded
       ? [boundType === BoundType.inclusive ? 0 : 1, value]
-      : []),
-  ] as [number, typeof value]
+      : []
+  ) as Bound<T>
   rangeMap.set(rangeVal, boundVal)
 }
