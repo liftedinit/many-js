@@ -64,3 +64,83 @@ export const expectedBalancesMap = {
     [identityStr2, 5000000],
   ]),
 }
+
+const txnSymbolIdentity1 = "oafw3bxrqe2jdcidvjlonloqcczvytrxr3fl4naybmign3uy6e"
+const txnSymbolIdentity2 = "oafxombm6axwsrcvymht5ss3chlpbks7sp7dvl2v7chnuzkyfj"
+const txnTime1 = new Date()
+const txnTime2 = new Date()
+txnTime2.setMinutes(txnTime1.getMinutes() + 1)
+export const mockLedgerListResponseContent = new Map([
+  [
+    4,
+    cbor.encode(
+      // @ts-ignore
+      new Map([
+        [0, 10],
+        [
+          1,
+          [
+            // @ts-ignore
+            new Map([
+              [0, 1],
+              [1, txnTime1],
+              [
+                2,
+                [
+                  0,
+                  tag(10000, Identity1),
+                  tag(10000, Identity2),
+                  txnSymbolIdentity1,
+                  1,
+                ],
+              ],
+            ]),
+            // @ts-ignore
+            new Map([
+              [0, 2],
+              [1, txnTime2],
+              [
+                2,
+                [
+                  0,
+                  tag(10000, Identity1),
+                  tag(10000, Identity2),
+                  txnSymbolIdentity2,
+                  2,
+                ],
+              ],
+            ]),
+          ],
+        ],
+      ]),
+    ),
+  ],
+])
+
+export const expectedListResponse = {
+  count: 10,
+  transactions: [
+    {
+      id: 1,
+      time: txnTime1,
+      type: "send",
+      from: identityStr1,
+      to: identityStr2,
+      symbolIdentity: txnSymbolIdentity1,
+      amount: BigInt(1),
+    },
+    {
+      id: 2,
+      time: txnTime2,
+      type: "send",
+      from: identityStr1,
+      to: identityStr2,
+      symbolIdentity: txnSymbolIdentity2,
+      amount: BigInt(2),
+    },
+  ],
+}
+
+export const mockLedgeListResponseMessage = new Message(
+  mockLedgerListResponseContent,
+)
