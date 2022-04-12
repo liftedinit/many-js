@@ -39,7 +39,7 @@ describe("identity", () => {
 
   test("textual format 1", () => {
     const alice = Identity.fromString(
-      "oahek5lid7ek7ckhq7j77nfwgk3vkspnyppm2u467ne5mwiqys"
+      "mahek5lid7ek7ckhq7j77nfwgk3vkspnyppm2u467ne5mwiqys"
     );
     const bob = Identity.fromHex(
       "01c8aead03f915f128f0fa7ff696c656eaa93db87bd9aa73df693acb22"
@@ -50,7 +50,7 @@ describe("identity", () => {
 
   test("textual format 2", () => {
     const alice = Identity.fromString(
-      "oqbfbahksdwaqeenayy2gxke32hgb7aq4ao4wt745lsfs6wiaaaaqnz"
+      "mqbfbahksdwaqeenayy2gxke32hgb7aq4ao4wt745lsfs6wiaaaaqnz"
     );
     const bob = Identity.fromHex(
       "804a101d521d810211a0c6346ba89bd1cc1f821c03b969ff9d5c8b2f59000001"
@@ -61,7 +61,7 @@ describe("identity", () => {
 
   test("subresource 1", () => {
     const alice = Identity.fromString(
-      "oahek5lid7ek7ckhq7j77nfwgk3vkspnyppm2u467ne5mwiqys"
+      "mahek5lid7ek7ckhq7j77nfwgk3vkspnyppm2u467ne5mwiqys"
     ).withSubresource(1);
     const bob = Identity.fromHex(
       "80c8aead03f915f128f0fa7ff696c656eaa93db87bd9aa73df693acb22000001"
