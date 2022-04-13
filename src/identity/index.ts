@@ -5,6 +5,7 @@ import crc from "crc";
 import { Key } from "../keys";
 import { CoseKey } from "../message/cose";
 
+export const ANON_IDENTITY = "maa"
 export class Identity {
   bytes: Uint8Array;
 
@@ -26,8 +27,8 @@ export class Identity {
   }
 
   static fromString(string: string): Identity {
-    if (string === "oaa") {
-      return new Identity();
+    if (string === ANON_IDENTITY) {
+      return new Identity()
     }
     const base32Identity = string.slice(1, -2).toUpperCase();
     const base32Checksum = string.slice(-2).toUpperCase();
@@ -54,7 +55,7 @@ export class Identity {
 
   toString(): string {
     if (this.isAnonymous()) {
-      return "maa";
+      return ANON_IDENTITY
     }
     const identity = this.toBuffer();
     const checksum = Buffer.allocUnsafe(3);
