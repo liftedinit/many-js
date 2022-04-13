@@ -18,7 +18,7 @@ identity = Identity.fromPublicKey(key); // => Identity
 identity = Identity.fromString(string); // => Identity
 anonymous = new Identity(); // => Anonymous Identity
 
-identity.toString(keys); // => "ow7aekyjtsx2hmeadrua5cpitgy7pykjkok3gyth3ggsio4zwa"
+identity.toString(keys); // => "mw7aekyjtsx2hmeadrua5cpitgy7pykjkok3gyth3ggsio4zwa"
 identity.toHex(keys); // => "01e736fc9624ff8ca7956189b6c1b66f55f533ed362ca48c884cd20065";
 ```
 

@@ -54,13 +54,13 @@ export class Identity {
 
   toString(): string {
     if (this.isAnonymous()) {
-      return "oaa";
+      return "maa";
     }
     const identity = this.toBuffer();
     const checksum = Buffer.allocUnsafe(3);
     checksum.writeUInt16BE(crc.crc16(identity), 0);
 
-    const leader = "o";
+    const leader = "m";
     const base32Identity = base32Encode(identity, "RFC4648", {
       padding: false,
     });

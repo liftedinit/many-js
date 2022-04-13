@@ -3,9 +3,9 @@ import cbor from "cbor"
 import { tag } from "../../../../message/cbor"
 import { Message } from "../../../../message"
 
-const identityStr1 = "oqbfbahksdwaqeenayy2gxke32hgb7aq4ao4wt745lsfs6wiaaaaqnz"
+const identityStr1 = "mqbfbahksdwaqeenayy2gxke32hgb7aq4ao4wt745lsfs6wiaaaaqnz"
 const Identity1 = Identity.fromString(identityStr1).toBuffer()
-const identityStr2 = "oaffbahksdwaqeenayy2gxke32hgb7aq4ao4wt745lsfs6wijp"
+const identityStr2 = "maffbahksdwaqeenayy2gxke32hgb7aq4ao4wt745lsfs6wijp"
 const Identity2 = Identity.fromString(identityStr2).toBuffer()
 
 export const mockSymbolIdentity = [tag(10000, Identity1), "abc"]
