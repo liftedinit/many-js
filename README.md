@@ -14,9 +14,9 @@ KeyPair.fromPem(string); // => KeyPair
 Managing identities.
 
 ```ts
-identity = Identity.fromPublicKey(key); // => Identity
-identity = Identity.fromString(string); // => Identity
-anonymous = new Identity(); // => Anonymous Identity
+identity = Address.fromPublicKey(key); // => Address
+identity = Address.fromString(string); // => Address
+anonymous = new Address(); // => Anonymous Address
 
 identity.toString(keys); // => "mw7aekyjtsx2hmeadrua5cpitgy7pykjkok3gyth3ggsio4zwa"
 identity.toHex(keys); // => "01e736fc9624ff8ca7956189b6c1b66f55f533ed362ca48c884cd20065";
