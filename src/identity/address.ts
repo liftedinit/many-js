@@ -6,33 +6,33 @@ import { Key } from "../keys"
 import { CoseKey } from "../message/cose"
 
 export const ANON_IDENTITY = "maa"
-export class Identity {
+export class Address {
   bytes: Uint8Array
 
   constructor(bytes?: Buffer) {
     this.bytes = new Uint8Array(bytes ? bytes : [0x00])
   }
 
-  static anonymous(): Identity {
-    return new Identity()
+  static anonymous(): Address {
+    return new Address()
   }
 
-  static fromHex(hex: string): Identity {
-    return new Identity(Buffer.from(hex, "hex"))
+  static fromHex(hex: string): Address {
+    return new Address(Buffer.from(hex, "hex"))
   }
 
-  static fromPublicKey(key: Key): Identity {
+  static fromPublicKey(key: Key): Address {
     const coseKey = new CoseKey(key)
-    return coseKey.toIdentity()
+    return coseKey.toAddress()
   }
 
-  static fromString(string: string): Identity {
+  static fromString(string: string): Address {
     if (string === ANON_IDENTITY) {
-      return new Identity()
+      return new Address()
     }
-    const base32Identity = string.slice(1, -2).toUpperCase()
+    const base32Address = string.slice(1, -2).toUpperCase()
     const base32Checksum = string.slice(-2).toUpperCase()
-    const identity = base32Decode(base32Identity, "RFC4648")
+    const identity = base32Decode(base32Address, "RFC4648")
     const checksum = base32Decode(base32Checksum, "RFC4648")
 
     const check = Buffer.allocUnsafe(3)
@@ -42,7 +42,7 @@ export class Identity {
       throw new Error("Invalid Checksum")
     }
 
-    return new Identity(Buffer.from(identity))
+    return new Address(Buffer.from(identity))
   }
 
   isAnonymous(): boolean {
@@ -62,11 +62,11 @@ export class Identity {
     checksum.writeUInt16BE(crc.crc16(identity), 0)
 
     const leader = "m"
-    const base32Identity = base32Encode(identity, "RFC4648", {
+    const base32Address = base32Encode(identity, "RFC4648", {
       padding: false,
     })
     const base32Checksum = base32Encode(checksum, "RFC4648").slice(0, 2)
-    return (leader + base32Identity + base32Checksum).toLowerCase()
+    return (leader + base32Address + base32Checksum).toLowerCase()
   }
 
   toHex(): string {
@@ -76,7 +76,7 @@ export class Identity {
     return Buffer.from(this.bytes).toString("hex")
   }
 
-  withSubresource(id: number): Identity {
+  withSubresource(id: number): Address {
     let bytes = Buffer.from(this.bytes.slice(0, 29))
     bytes[0] = 0x80 + ((id & 0x7f000000) >> 24)
     const subresourceBytes = Buffer.from([
@@ -84,6 +84,6 @@ export class Identity {
       (id & 0x0000ff00) >> 8,
       id & 0x000000ff,
     ])
-    return new Identity(Buffer.concat([bytes, subresourceBytes]))
+    return new Address(Buffer.concat([bytes, subresourceBytes]))
   }
 }

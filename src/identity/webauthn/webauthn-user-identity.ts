@@ -1,9 +1,9 @@
 import cbor from "cbor"
-import { UserIdentity } from "../types"
+import { Identity } from "../types"
 
 const CHALLENGE_BUFFER = new TextEncoder().encode("lifted")
 
-export class WebAuthnUserIdentity extends UserIdentity {
+export class WebAuthnIdentity extends Identity {
   publicKey: ArrayBuffer
   rawId: ArrayBuffer
 
@@ -26,7 +26,7 @@ export class WebAuthnUserIdentity extends UserIdentity {
       attestationObj.authData,
     )
 
-    return new WebAuthnUserIdentity(publicKeyBytes, publicKeyCredential.rawId)
+    return new WebAuthnIdentity(publicKeyBytes, publicKeyCredential.rawId)
   }
 
   async sign(data: ArrayBuffer): Promise<ArrayBuffer> {

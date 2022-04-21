@@ -3,7 +3,7 @@ import { pki } from "node-forge";
 import { sha3_224 } from "js-sha3";
 const ed25519 = pki.ed25519;
 
-import { Identity } from "../identity";
+import { Address } from "../identity";
 import { Key, KeyPair } from "../keys";
 import { Message } from "../message";
 import { CborData, CborMap, tag } from "./cbor";
@@ -33,7 +33,7 @@ export class CoseMessage {
   static fromCborData(data: CborData): CoseMessage {
     const decoders = {
       tags: {
-        10000: (value: Uint8Array) => new Identity(Buffer.from(value)),
+        10000: (value: Uint8Array) => new Address(Buffer.from(value)),
         1: (value: number) => tag(1, value),
       },
     };
@@ -168,7 +168,7 @@ export class CoseKey {
     return cbor.encodeCanonical([this.key]);
   }
 
-  toIdentity(): Identity {
-    return new Identity(this.keyId);
+  toAddress(): Address {
+    return new Address(this.keyId)
   }
 }

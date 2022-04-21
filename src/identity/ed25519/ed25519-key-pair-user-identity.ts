@@ -1,8 +1,8 @@
 import { pki } from "node-forge"
 const ed25519 = pki.ed25519
-import { KeyPairUserIdentity } from "../types"
+import { KeyPairIdentity } from "../types"
 
-export class Ed25519KeyPairUserIdentity extends KeyPairUserIdentity {
+export class Ed25519KeyPairIdentity extends KeyPairIdentity {
   publicKey: ArrayBuffer
   privateKey: ArrayBuffer
   constructor(publicKey: ArrayBuffer, privateKey: ArrayBuffer) {

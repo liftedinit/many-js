@@ -1,10 +1,10 @@
 import cbor from "cbor"
-import { Identity } from "../../../identity"
+import { Address } from "../../../identity"
 import { Message } from "../../../message"
 import type { NetworkModule } from "../types"
 
 export interface LedgerInfo {
-  symbols: Map<ReturnType<Identity["toString"]>, string>
+  symbols: Map<ReturnType<Address["toString"]>, string>
 }
 
 export enum OrderType {
@@ -42,7 +42,7 @@ export interface Transaction {
   time: Date
   type: TransactionType
   amount: bigint
-  symbolIdentity: string
+  symbolAddress: string
   symbol?: string
   from?: string
   to?: string
@@ -76,7 +76,7 @@ interface Ledger extends NetworkModule {
   balance: (symbols?: string[]) => Promise<Balances>
   mint: () => Promise<unknown>
   burn: () => Promise<unknown>
-  send: (to: Identity, amount: bigint, symbol: string) => Promise<unknown>
+  send: (to: Address, amount: bigint, symbol: string) => Promise<unknown>
   transactions: () => Promise<{ count: bigint }>
   list: (opts?: ListArgs) => Promise<TransactionsData>
 }
@@ -103,7 +103,7 @@ export const Ledger: Ledger = {
     throw new Error("Not implemented")
   },
 
-  async send(to: Identity, amount: bigint, symbol: string): Promise<unknown> {
+  async send(to: Address, amount: bigint, symbol: string): Promise<unknown> {
     return await this.call(
       "ledger.send",
       new Map<number, any>([
@@ -145,9 +145,9 @@ export function getLedgerInfo(message: Message): LedgerInfo {
       const symbols = decodedContent.get(4)
 
       for (const symbol of symbols) {
-        const identity = new Identity(Buffer.from(symbol[0].value)).toString()
+        const address = new Address(Buffer.from(symbol[0].value)).toString()
         const symbolName = symbol[1]
-        result.symbols.set(identity, symbolName)
+        result.symbols.set(address, symbolName)
       }
     }
   }
@@ -166,9 +166,9 @@ export function getBalance(message: Message): Balances {
       const symbolsToBalancesMap = messageContent.get(0)
       if (!(symbolsToBalancesMap instanceof Map)) return result
       for (const balanceEntry of symbolsToBalancesMap) {
-        const symbolIdentityStr = new Identity(balanceEntry[0].value).toString()
+        const symbolAddress = new Address(balanceEntry[0].value).toString()
         const balance = balanceEntry[1]
-        result.balances.set(symbolIdentityStr, balance)
+        result.balances.set(symbolAddress, balance)
       }
     }
   }
@@ -209,15 +209,15 @@ function makeSendTransactionData(t: Map<number, unknown>) {
   const time = t.get(1)
   const from = transactionData[1] as { value: Uint8Array }
   const to = transactionData[2] as { value: Uint8Array }
-  const fromAddress = new Identity(from.value as Buffer).toString()
-  const toAddress = new Identity(to.value as Buffer).toString()
+  const fromAddress = new Address(from.value as Buffer).toString()
+  const toAddress = new Address(to.value as Buffer).toString()
   return {
     id,
     time,
     type: TransactionType.send,
     from: fromAddress,
     to: toAddress,
-    symbolIdentity: transactionData[3],
+    symbolAddress: transactionData[3],
     amount: BigInt(transactionData[4] as number),
   }
 }

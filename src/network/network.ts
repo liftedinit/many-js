@@ -1,4 +1,4 @@
-import { Identity } from "../identity"
+import { Address } from "../identity"
 import { KeyPair } from "../keys"
 import { Message } from "../message"
 import { CborData } from "../message/cbor"
@@ -41,7 +41,7 @@ export class Network {
     const req = Message.fromObject({
       method,
       from: this.keys?.publicKey
-        ? Identity.fromPublicKey(this.keys.publicKey)
+        ? Address.fromPublicKey(this.keys.publicKey)
         : undefined,
       data,
     })

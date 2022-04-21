@@ -1,6 +1,5 @@
 import cbor from "cbor";
-
-import { Identity } from "../identity";
+import { Address } from "../identity"
 import { CborData, CborMap, tag } from "./cbor";
 import { CoseMessage } from "./cose";
 import { ManyError, SerializedManyError } from "./error";
@@ -8,8 +7,8 @@ import { KeyPair } from "../keys";
 
 interface MessageContent {
   version?: number;
-  from?: Identity;
-  to?: Identity;
+  from?: Address
+  to?: Address
   method: string;
   data?: any;
   timestamp?: number;

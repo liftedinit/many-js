@@ -5,8 +5,8 @@ import { tag } from "../message/cbor";
 import { sha3_224 } from "js-sha3";
 import {
   expectedSymbolsMap,
-  mockSymbolIdentity,
-  mockSymbolIdentity2,
+  mockSymbolAddress,
+  mockSymbolAddress2,
 } from "./modules/ledger/__tests__/data"
 import { Ledger } from "./modules";
 
@@ -71,10 +71,10 @@ describe("network", () => {
         4,
         cbor.encode(
           // @ts-ignore
-          new Map([[4, new Map([mockSymbolIdentity, mockSymbolIdentity2])]])
+          new Map([[4, new Map([mockSymbolAddress, mockSymbolAddress2])]]),
         ),
       ],
-    ]);
+    ])
     const mockCoseResponse = cbor.encodeCanonical(
       tag(18, [
         cbor.encodeCanonical(protectedHeader),
