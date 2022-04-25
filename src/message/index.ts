@@ -1,9 +1,8 @@
 import cbor from "cbor";
-import { Address } from "../identity"
+import { Address, Identity } from "../identity"
 import { CborData, CborMap, tag } from "./cbor";
 import { CoseMessage } from "./cose";
 import { ManyError, SerializedManyError } from "./error";
-import { KeyPair } from "../keys";
 
 interface MessageContent {
   version?: number;
@@ -84,12 +83,12 @@ export class Message {
     }
   }
 
-  toCoseMessage(keys?: KeyPair) {
-    return CoseMessage.fromMessage(this, keys);
+  toCoseMessage(identity?: Identity) {
+    return CoseMessage.fromMessage(this, identity)
   }
 
-  toCborData(keys?: KeyPair) {
-    return this.toCoseMessage(keys).toCborData();
+  async toCborData(identity?: Identity) {
+    return (await this.toCoseMessage(identity)).toCborData()
   }
 
   toString() {

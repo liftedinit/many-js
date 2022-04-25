@@ -7,11 +7,11 @@ describe("Message", () => {
 
     expect(req).toHaveProperty("content");
   });
-  test("can be serialized/deserialized", () => {
-    const msg = { method: "info" };
-    const req = Message.fromObject(msg);
-    const cbor = req.toCborData();
+  test("can be serialized/deserialized", async () => {
+    const msg = { method: "info" }
+    const req = Message.fromObject(msg)
+    const cbor = await req.toCborData()
 
-    expect(Message.fromCborData(cbor)).toStrictEqual(req);
-  });
+    expect(Message.fromCborData(cbor)).toStrictEqual(req)
+  })
 });

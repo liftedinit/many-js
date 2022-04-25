@@ -1,4 +1,4 @@
-import { Address } from "../identity"
+import { Address, Identity } from "../identity"
 import { KeyPair } from "../keys"
 import { Message } from "../message"
 import { CborData } from "../message/cbor"
@@ -8,11 +8,11 @@ import { NetworkModule } from "./modules"
 export class Network {
   [k: string]: any
   url: string
-  keys: KeyPair | undefined
+  identity: Identity | undefined
 
-  constructor(url: string, keys?: KeyPair) {
+  constructor(url: string, identity?: Identity) {
     this.url = url
-    this.keys = keys
+    this.identity = identity
   }
 
   apply(modules: NetworkModule[]) {
@@ -20,7 +20,7 @@ export class Network {
   }
 
   async send(req: Message) {
-    const cbor = req.toCborData(this.keys)
+    const cbor = await req.toCborData(this.identity)
     const reply = await this.sendEncoded(cbor)
     // @TODO: Verify response
     const res = Message.fromCborData(reply)
@@ -40,8 +40,8 @@ export class Network {
   call(method: string, data?: any) {
     const req = Message.fromObject({
       method,
-      from: this.keys?.publicKey
-        ? Address.fromPublicKey(this.keys.publicKey)
+      from: this.identity?.publicKey
+        ? Address.fromPublicKey(this.identity?.publicKey)
         : undefined,
       data,
     })

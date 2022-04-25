@@ -13,7 +13,7 @@ export class WebAuthnIdentity extends Identity {
     this.rawId = rawId
   }
 
-  static async create() {
+  static async create(): Promise<WebAuthnIdentity> {
     const publicKeyCredential = await createPublicKeyCredential()
     const attestationResponse =
       publicKeyCredential.response as AuthenticatorResponse &
@@ -30,24 +30,41 @@ export class WebAuthnIdentity extends Identity {
   }
 
   async sign(data: ArrayBuffer): Promise<ArrayBuffer> {
-    const publicKey: PublicKeyCredentialRequestOptions = {
-      challenge: data,
-      allowCredentials: [
-        {
-          id: this.rawId,
-          type: "public-key",
-        },
-      ],
-    }
-    let credential = (await window.navigator.credentials.get({
-      publicKey,
-    })) as PublicKeyCredential
-
-    return (credential.response as AuthenticatorAssertionResponse).signature
+    const credential = await WebAuthnIdentity.getCredential(this.rawId, data)
+    const signature = (credential.response as AuthenticatorAssertionResponse)
+      .signature
+    return new Uint8Array(signature)
   }
 
   async verify(m: ArrayBuffer): Promise<boolean> {
     return false
+  }
+
+  static async getCredential(
+    credentialId: ArrayBuffer,
+    challenge?: Uint8Array | ArrayBuffer,
+  ): Promise<PublicKeyCredential> {
+    let credential = (await window.navigator.credentials.get({
+      publicKey: {
+        challenge: challenge ?? CHALLENGE_BUFFER,
+        timeout: 10000,
+        allowCredentials: [
+          {
+            transports: ["nfc", "usb"],
+            id: credentialId,
+            type: "public-key",
+          },
+        ],
+      },
+    })) as PublicKeyCredential
+    return credential
+  }
+
+  toJson(): { rawId: string; publicKey: ArrayBuffer } {
+    return {
+      rawId: Buffer.from(this.rawId).toString("base64"),
+      publicKey: this.publicKey,
+    }
   }
 }
 
@@ -67,10 +84,19 @@ async function createPublicKeyCredential() {
 
     attestation: "direct",
 
+    authenticatorSelection: {
+      authenticatorAttachment: "cross-platform",
+    },
+
     pubKeyCredParams: [
       {
+        /*
+          EdDSA	-8
+          ES256	-7	ECDSA w/ SHA-256
+        */
         type: "public-key",
-        alg: -7,
+        alg: -8,
+        // alg: -7,
       },
     ],
   }

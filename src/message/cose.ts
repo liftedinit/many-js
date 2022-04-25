@@ -1,28 +1,24 @@
 import cbor from "cbor";
-import { pki } from "node-forge";
 import { sha3_224 } from "js-sha3";
-const ed25519 = pki.ed25519;
-
-import { Address } from "../identity";
-import { Key, KeyPair } from "../keys";
+import { Address, Identity } from "../identity"
+import { Key } from "../keys"
 import { Message } from "../message";
 import { CborData, CborMap, tag } from "./cbor";
 
-
-const ANONYMOUS = Buffer.from([0x00]);
+export const ANONYMOUS = Buffer.from([0x00])
 const EMPTY = Buffer.alloc(0);
 
 export class CoseMessage {
   protectedHeader: CborMap;
   unprotectedHeader: CborMap;
   content: CborMap;
-  signature: Buffer;
+  signature: ArrayBuffer
 
   constructor(
     protectedHeader: CborMap,
     unprotectedHeader: CborMap,
     content: CborMap,
-    signature: Buffer
+    signature: ArrayBuffer,
   ) {
     this.protectedHeader = protectedHeader;
     this.unprotectedHeader = unprotectedHeader;
@@ -51,14 +47,18 @@ export class CoseMessage {
     );
   }
 
-  static fromMessage(message: Message, keys?: KeyPair): CoseMessage {
+  static async fromMessage(
+    message: Message,
+    identity?: Identity,
+  ): Promise<CoseMessage> {
     const protectedHeader = this.getProtectedHeader(
-      keys ? keys.publicKey : ANONYMOUS
-    );
-    const unprotectedHeader = this.getUnprotectedHeader();
-    const content = message.content;
-    const signature = keys
-      ? this.getSignature(protectedHeader, content, keys.privateKey)
+      identity ? identity?.publicKey : ANONYMOUS,
+    )
+    const unprotectedHeader = this.getUnprotectedHeader()
+    const content = message.content
+
+    const signature = identity
+      ? await this.getSignature(protectedHeader, content, identity)
       : EMPTY;
     return new CoseMessage(
       protectedHeader,
@@ -81,15 +81,15 @@ export class CoseMessage {
     return new Map();
   }
 
-  private static getSignature(
+  private static async getSignature(
     protectedHeader: CborMap,
     content: CborMap,
-    privateKey: Key
-  ): Buffer {
+    identity: Identity,
+  ): Promise<Buffer | ArrayBuffer> {
     const p = cbor.encodeCanonical(protectedHeader);
     const payload = cbor.encode(tag(10001, content));
     const message = cbor.encodeCanonical(["Signature1", p, EMPTY, payload]);
-    return Buffer.from(ed25519.sign({ message, privateKey }));
+    return await identity.sign(message)
   }
 
   private replacer(key: string, value: any) {

@@ -5,20 +5,27 @@ import { KeyPairIdentity } from "../types"
 export class Ed25519KeyPairIdentity extends KeyPairIdentity {
   publicKey: ArrayBuffer
   privateKey: ArrayBuffer
+
   constructor(publicKey: ArrayBuffer, privateKey: ArrayBuffer) {
     super()
     this.publicKey = publicKey
     this.privateKey = privateKey
   }
+
   async sign(data: ArrayBuffer): Promise<ArrayBuffer> {
-    return Buffer.from(
-      ed25519.sign({
-        message: new Uint8Array(data),
-        privateKey: new Uint8Array(this.privateKey),
-      }),
-    )
+    return ed25519.sign({
+      message: data as Uint8Array,
+      privateKey: this.privateKey as Uint8Array,
+    })
   }
   async verify(m: ArrayBuffer): Promise<boolean> {
     return false
+  }
+
+  toJson() {
+    return {
+      publicKey: this.publicKey,
+      privateKey: this.privateKey,
+    }
   }
 }

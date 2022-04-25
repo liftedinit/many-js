@@ -3,7 +3,7 @@ import * as bip39 from "bip39";
 
 const ed25519 = forge.pki.ed25519;
 
-export type Key = Uint8Array;
+export type Key = ArrayBuffer
 
 interface KeyPairParams {
   privateKey: Key;
