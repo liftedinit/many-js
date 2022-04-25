@@ -1,1 +1,1 @@
-export * from "./webauthn-user-identity"
+export * from "./webauthn-identity"
