@@ -52,7 +52,7 @@ export class CoseMessage {
     identity?: Identity,
   ): Promise<CoseMessage> {
     const protectedHeader = this.getProtectedHeader(
-      identity ? identity?.publicKey : ANONYMOUS,
+      identity ? identity.publicKey : ANONYMOUS,
     )
     const unprotectedHeader = this.getUnprotectedHeader()
     const content = message.content
