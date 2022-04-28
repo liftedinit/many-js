@@ -37,11 +37,12 @@ export class Network {
     return Buffer.from(reply)
   }
 
-  call(method: string, data?: any) {
+  async call(method: string, data?: any) {
     const req = Message.fromObject({
       method,
-      from: this.identity?.publicKey
-        ? Address.fromPublicKey(this.identity?.publicKey)
+      from: this.identity
+        ? // ? Address.fromPublicKey(this.identity?.publicKey)
+          await Address.fromIdentity(this.identity)
         : undefined,
       data,
     })

@@ -1,16 +1,28 @@
 import cbor from "cbor"
+import { CoseKey } from "../../message/cose"
 import { Identity } from "../types"
 
 const CHALLENGE_BUFFER = new TextEncoder().encode("lifted")
 
 export class WebAuthnIdentity extends Identity {
-  publicKey: ArrayBuffer
+  publicKey: ArrayBuffer // x-coordinate
   rawId: ArrayBuffer
+  cosePublicKey: ArrayBuffer
 
-  constructor(publicKey: ArrayBuffer, rawId: ArrayBuffer) {
+  constructor(cosePublicKey: ArrayBuffer, rawId: ArrayBuffer) {
     super()
-    this.publicKey = publicKey
+    this.cosePublicKey = cosePublicKey
+    this.publicKey = this.getPublicKeyFromCoseKey(cosePublicKey)
     this.rawId = rawId
+  }
+
+  static decode(publicKey: ArrayBuffer) {
+    return cbor.decodeAllSync(publicKey)
+  }
+
+  private getPublicKeyFromCoseKey(cosePublicKey: ArrayBuffer): ArrayBuffer {
+    const decoded = cbor.decodeFirstSync(cosePublicKey)
+    return decoded.get(-2)
   }
 
   static async create(): Promise<WebAuthnIdentity> {
@@ -33,7 +45,8 @@ export class WebAuthnIdentity extends Identity {
     const credential = await WebAuthnIdentity.getCredential(this.rawId, data)
     const signature = (credential.response as AuthenticatorAssertionResponse)
       .signature
-    return new Uint8Array(signature)
+    console.log({ signature })
+    return signature
   }
 
   async verify(m: ArrayBuffer): Promise<boolean> {
@@ -60,10 +73,24 @@ export class WebAuthnIdentity extends Identity {
     return credential
   }
 
-  toJson(): { rawId: string; publicKey: ArrayBuffer } {
+  getCoseKey(): CoseKey {
+    // @ts-ignore
+    const c = new Map([
+      [1, 1], // kty: OKP
+      [3, -8], // alg: EdDSA
+      [-1, 6], // crv: Ed25519
+      [4, [2]], // key_ops: [verify]
+      [-2, this.publicKey], // x: publicKey
+    ])
+    console.log({ getCoseKey: c })
+    return new CoseKey(cbor.decode(this.cosePublicKey))
+    return new CoseKey(c)
+  }
+
+  toJson(): { rawId: string; cosePublicKey: ArrayBuffer } {
     return {
       rawId: Buffer.from(this.rawId).toString("base64"),
-      publicKey: this.publicKey,
+      cosePublicKey: this.cosePublicKey,
     }
   }
 }
@@ -112,6 +139,8 @@ function getPublicKeyBytesFromAuthData(authData: ArrayBuffer): ArrayBuffer {
   // @ts-ignore
   idLenBytes.forEach((value, index) => dataView.setUint8(index, value))
   const credentialIdLength = dataView.getUint16(0)
-  const publicKeyBytes = authData.slice(55 + credentialIdLength)
-  return publicKeyBytes
+  const cosePublicKey = authData.slice(55 + credentialIdLength)
+  const publicKeyObject = cbor.decodeFirstSync(cosePublicKey)
+  console.log({ publicKeyObject })
+  return cosePublicKey
 }

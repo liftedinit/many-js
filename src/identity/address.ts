@@ -4,6 +4,7 @@ import crc from "crc"
 
 import { Key } from "../keys"
 import { CoseKey } from "../message/cose"
+import { Identity } from "./types"
 
 export const ANON_IDENTITY = "maa"
 export class Address {
@@ -21,8 +22,14 @@ export class Address {
     return new Address(Buffer.from(hex, "hex"))
   }
 
-  static fromPublicKey(key: Key): Address {
-    const coseKey = new CoseKey(key)
+  // static fromPublicKey(key: Key): Address {
+  //   // const coseKey = new CoseKey(key)
+  //   const coseKey = new CoseKey(key)
+  //   return coseKey.toAddress()
+  // }
+
+  static fromIdentity(i: Identity): Address {
+    const coseKey = i.getCoseKey()
     return coseKey.toAddress()
   }
 

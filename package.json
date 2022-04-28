@@ -4,6 +4,7 @@
   "private": true,
   "main": "dist/index.js",
   "dependencies": {
+    "@types/cose-js": "^0.8.0",
     "@types/crc": "^3.4.0",
     "@types/jest": "^27.0.3",
     "@types/node": "^12.20.37",
@@ -14,6 +15,7 @@
     "base32-encode": "^1.2.0",
     "bip39": "^3.0.4",
     "cbor": "^8.1.0",
+    "cose-js": "^0.8.4",
     "crc": "^3.8.0",
     "jest": "^27.4.5",
     "js-sha3": "^0.8.0",
@@ -25,6 +27,7 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
+    "watch": "npm run clean && npm run build -- -w",
     "clean": "rm -rf ./dist",
     "postinstall": "tsc"
   },
