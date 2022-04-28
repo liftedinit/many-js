@@ -82,9 +82,10 @@ export class WebAuthnIdentity extends Identity {
       [4, [2]], // key_ops: [verify]
       [-2, this.publicKey], // x: publicKey
     ])
-    console.log({ getCoseKey: c })
-    return new CoseKey(cbor.decode(this.cosePublicKey))
-    return new CoseKey(c)
+    let decoded = cbor.decode(this.cosePublicKey)
+    decoded.set(4, [2])
+    console.log({ decoded })
+    return new CoseKey(decoded)
   }
 
   toJson(): { rawId: string; cosePublicKey: ArrayBuffer } {
