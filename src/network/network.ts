@@ -42,11 +42,11 @@ export class Network {
       method,
       from: this.identity
         ? // ? Address.fromPublicKey(this.identity?.publicKey)
-          await Address.fromIdentity(this.identity)
+          Address.fromIdentity(this.identity)
         : undefined,
       data,
     })
-    return this.send(req)
+    return await this.send(req)
   }
 
   // @TODO: Move these methods to modules/base, modules/ledger, etc.

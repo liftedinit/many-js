@@ -41,15 +41,11 @@ export class WebAuthnIdentity extends Identity {
     return new WebAuthnIdentity(publicKeyBytes, publicKeyCredential.rawId)
   }
 
-  async sign(data: ArrayBuffer): Promise<ArrayBuffer> {
-    const credential = await WebAuthnIdentity.getCredential(this.rawId, data)
-    const signature = (credential.response as AuthenticatorAssertionResponse)
-      .signature
-    console.log({ signature })
-    return signature
+  async sign(_: ArrayBuffer): Promise<null> {
+    return null
   }
 
-  async verify(m: ArrayBuffer): Promise<boolean> {
+  async verify(_: ArrayBuffer): Promise<boolean> {
     return false
   }
 
@@ -73,18 +69,21 @@ export class WebAuthnIdentity extends Identity {
     return credential
   }
 
+  async getUnprotectedHeader(data: ArrayBuffer): Promise<Map<string, any>> {
+    const digest = await window.crypto.subtle.digest("SHA-512", data)
+    const cred = await WebAuthnIdentity.getCredential(this.rawId, digest)
+    const response = cred.response as AuthenticatorAssertionResponse
+    const m = new Map()
+    m.set("webauthn", true)
+    m.set("authData", response.authenticatorData)
+    m.set("clientData", Buffer.from(response.clientDataJSON).toString())
+    m.set("signature", response.signature)
+    return m
+  }
+
   getCoseKey(): CoseKey {
-    // @ts-ignore
-    const c = new Map([
-      [1, 1], // kty: OKP
-      [3, -8], // alg: EdDSA
-      [-1, 6], // crv: Ed25519
-      [4, [2]], // key_ops: [verify]
-      [-2, this.publicKey], // x: publicKey
-    ])
     let decoded = cbor.decode(this.cosePublicKey)
     decoded.set(4, [2])
-    console.log({ decoded })
     return new CoseKey(decoded)
   }
 
@@ -141,7 +140,6 @@ function getPublicKeyBytesFromAuthData(authData: ArrayBuffer): ArrayBuffer {
   idLenBytes.forEach((value, index) => dataView.setUint8(index, value))
   const credentialIdLength = dataView.getUint16(0)
   const cosePublicKey = authData.slice(55 + credentialIdLength)
-  const publicKeyObject = cbor.decodeFirstSync(cosePublicKey)
-  console.log({ publicKeyObject })
+  // const publicKeyObject = cbor.decodeFirstSync(cosePublicKey)
   return cosePublicKey
 }

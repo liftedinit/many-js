@@ -22,12 +22,6 @@ export class Address {
     return new Address(Buffer.from(hex, "hex"))
   }
 
-  // static fromPublicKey(key: Key): Address {
-  //   // const coseKey = new CoseKey(key)
-  //   const coseKey = new CoseKey(key)
-  //   return coseKey.toAddress()
-  // }
-
   static fromIdentity(i: Identity): Address {
     const coseKey = i.getCoseKey()
     return coseKey.toAddress()

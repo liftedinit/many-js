@@ -1,7 +1,7 @@
 import { CoseKey } from "../message/cose"
 
 export interface Signer {
-  sign(data: ArrayBuffer): Promise<ArrayBuffer>
+  sign(data: ArrayBuffer): Promise<ArrayBuffer | null>
 }
 
 export interface Verifier {
@@ -11,9 +11,12 @@ export interface Verifier {
 export abstract class Identity implements Signer, Verifier {
   abstract publicKey: ArrayBuffer
   abstract toJson(): unknown
-  abstract sign(data: ArrayBuffer): Promise<ArrayBuffer>
+  abstract sign(data: ArrayBuffer): Promise<ArrayBuffer | null>
   abstract verify(data: ArrayBuffer): Promise<boolean>
   abstract getCoseKey(): CoseKey
+  async getUnprotectedHeader(_: ArrayBuffer): Promise<Map<string, any>> {
+    return new Map()
+  }
 }
 
 export abstract class KeyPairIdentity extends Identity {
