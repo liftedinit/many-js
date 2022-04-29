@@ -41,8 +41,8 @@ export class WebAuthnIdentity extends Identity {
     return new WebAuthnIdentity(publicKeyBytes, publicKeyCredential.rawId)
   }
 
-  async sign(_: ArrayBuffer): Promise<null> {
-    return null
+  async sign(_: ArrayBuffer): Promise<ArrayBuffer> {
+    return new TextEncoder().encode("webauthn")
   }
 
   async verify(_: ArrayBuffer): Promise<boolean> {

@@ -1,10 +1,10 @@
 import { Identity } from "../types"
-import { ANONYMOUS, CoseKey } from "../../message/cose"
+import { ANONYMOUS, CoseKey, EMPTY } from "../../message/cose"
 
 export class AnonymousIdentity extends Identity {
   publicKey = ANONYMOUS
   async sign() {
-    return ANONYMOUS
+    return EMPTY
   }
   async verify() {
     return false

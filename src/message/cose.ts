@@ -5,19 +5,19 @@ import { Message } from "../message"
 import { CborData, CborMap, tag } from "./cbor"
 
 export const ANONYMOUS = Buffer.from([0x00])
-const EMPTY = Buffer.alloc(0);
+export const EMPTY = Buffer.alloc(0)
 
 export class CoseMessage {
   protectedHeader: CborMap
   unprotectedHeader: CborMap
   content: CborMap
-  signature: ArrayBuffer | null
+  signature: ArrayBuffer
 
   constructor(
     protectedHeader: CborMap,
     unprotectedHeader: CborMap,
     content: CborMap,
-    signature: ArrayBuffer | null,
+    signature: ArrayBuffer,
   ) {
     this.protectedHeader = protectedHeader
     this.unprotectedHeader = unprotectedHeader
@@ -50,7 +50,7 @@ export class CoseMessage {
     message: Message,
     identity: Identity = new AnonymousIdentity(),
   ): Promise<CoseMessage> {
-    const protectedHeader = this._getProtectedHeader(identity)
+    const protectedHeader = this.getProtectedHeader(identity)
     const content = message.content
     const cborContent = cbor.encode(tag(10001, message.content))
     const unprotectedHeader = await identity.getUnprotectedHeader(cborContent)
@@ -68,9 +68,8 @@ export class CoseMessage {
     )
   }
 
-  private static _getProtectedHeader(identity: Identity): CborMap {
+  private static getProtectedHeader(identity: Identity): CborMap {
     const coseKey = identity.getCoseKey()
-    console.log({ getProtectedHeader: coseKey })
     const protectedHeader = new Map()
     protectedHeader.set(1, coseKey.key.get(3)) // alg
     protectedHeader.set(4, coseKey.keyId) // kid: kid
@@ -82,7 +81,7 @@ export class CoseMessage {
     protectedHeader: CborMap,
     payload: ArrayBuffer,
     identity: Identity,
-  ): Promise<ArrayBuffer | null> {
+  ): Promise<ArrayBuffer> {
     const p = cbor.encodeCanonical(protectedHeader)
     const message = cbor.encodeCanonical(["Signature1", p, EMPTY, payload])
     return await identity.sign(message)

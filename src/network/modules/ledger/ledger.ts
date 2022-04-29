@@ -1,5 +1,5 @@
 import cbor from "cbor"
-import { Address } from "../../../identity"
+import { Address, Identity } from "../../../identity"
 import { Message } from "../../../message"
 import type { NetworkModule } from "../types"
 
@@ -73,7 +73,7 @@ export enum RangeType {
 interface Ledger extends NetworkModule {
   _namespace_: string
   info: () => Promise<LedgerInfo>
-  balance: (symbols?: string[]) => Promise<Balances>
+  balance: (address?: string, symbols?: string[]) => Promise<Balances>
   mint: () => Promise<unknown>
   burn: () => Promise<unknown>
   send: (to: Address, amount: bigint, symbol: string) => Promise<unknown>
@@ -87,11 +87,10 @@ export const Ledger: Ledger = {
     const message = await this.call("ledger.info")
     return getLedgerInfo(message)
   },
-  async balance(symbols?: string[]): Promise<Balances> {
-    const res = await this.call(
-      "ledger.balance",
-      new Map([[1, symbols ? symbols : []]]),
-    )
+  async balance(address?: string, symbols?: string[]): Promise<Balances> {
+    const m = new Map<number, unknown>([[1, symbols ?? []]])
+    address && m.set(0, address)
+    const res = await this.call("ledger.balance", m)
     return getBalance(res)
   },
 

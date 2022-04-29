@@ -54,7 +54,7 @@ describe("Ledger", () => {
         return mockLedgerBalanceResponseMessage
       })
       const ledger = setupLedger(mockCall)
-      await ledger.balance(["abc", "def"])
+      await ledger.balance(undefined, ["abc", "def"])
       expect(mockCall).toHaveBeenCalledTimes(1)
       expect(mockCall).toHaveBeenCalledWith(
         "ledger.balance",
