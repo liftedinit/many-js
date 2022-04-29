@@ -1,5 +1,5 @@
 import cbor from "cbor"
-import { CoseKey } from "../../message/cose"
+import { CoseKey, EMPTY } from "../../message/cose"
 import { Identity } from "../types"
 
 const CHALLENGE_BUFFER = new TextEncoder().encode("lifted")
@@ -17,7 +17,7 @@ export class WebAuthnIdentity extends Identity {
   }
 
   static decode(publicKey: ArrayBuffer) {
-    return cbor.decodeAllSync(publicKey)
+    return cbor.decodeFirstSync(publicKey)
   }
 
   private getPublicKeyFromCoseKey(cosePublicKey: ArrayBuffer): ArrayBuffer {
@@ -42,7 +42,7 @@ export class WebAuthnIdentity extends Identity {
   }
 
   async sign(_: ArrayBuffer): Promise<ArrayBuffer> {
-    return new TextEncoder().encode("webauthn")
+    return EMPTY
   }
 
   async verify(_: ArrayBuffer): Promise<boolean> {
@@ -83,6 +83,7 @@ export class WebAuthnIdentity extends Identity {
 
   getCoseKey(): CoseKey {
     let decoded = cbor.decode(this.cosePublicKey)
+    console.log({ coseKey: decoded })
     decoded.set(4, [2])
     return new CoseKey(decoded)
   }
@@ -124,6 +125,15 @@ async function createPublicKeyCredential() {
         type: "public-key",
         alg: -8,
         // alg: -7,
+      },
+      {
+        /*
+          EdDSA	-8
+          ES256	-7	ECDSA w/ SHA-256
+        */
+        type: "public-key",
+        // alg: -8,
+        alg: -7,
       },
     ],
   }
