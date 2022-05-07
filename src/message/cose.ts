@@ -51,14 +51,20 @@ export class CoseMessage {
     identity: Identity = new AnonymousIdentity(),
   ): Promise<CoseMessage> {
     const protectedHeader = this.getProtectedHeader(identity)
+    const cborProtectedHeader = cbor.encodeCanonical(protectedHeader)
     const content = message.content
     const cborContent = cbor.encode(tag(10001, message.content))
-    const unprotectedHeader = await identity.getUnprotectedHeader(cborContent)
-    const signature = await this.getSignature(
-      protectedHeader,
+    const toBeSigned = cbor.encodeCanonical([
+      "Signature1",
+      cborProtectedHeader,
+      EMPTY,
       cborContent,
-      identity,
+    ])
+    const unprotectedHeader = await identity.getUnprotectedHeader(
+      cborContent,
+      cborProtectedHeader,
     )
+    const signature = await identity.sign(toBeSigned, unprotectedHeader)
 
     return new CoseMessage(
       protectedHeader,
@@ -75,16 +81,6 @@ export class CoseMessage {
     protectedHeader.set(4, coseKey.keyId) // kid: kid
     protectedHeader.set("keyset", coseKey.toCborData())
     return protectedHeader
-  }
-
-  private static async getSignature(
-    protectedHeader: CborMap,
-    payload: ArrayBuffer,
-    identity: Identity,
-  ): Promise<ArrayBuffer> {
-    const p = cbor.encodeCanonical(protectedHeader)
-    const message = cbor.encodeCanonical(["Signature1", p, EMPTY, payload])
-    return await identity.sign(message)
   }
 
   private replacer(key: string, value: any) {

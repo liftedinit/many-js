@@ -1,8 +1,10 @@
 import cbor from "cbor"
 import { CoseKey, EMPTY } from "../../message/cose"
 import { Identity } from "../types"
+const sha512 = require("js-sha512")
 
 const CHALLENGE_BUFFER = new TextEncoder().encode("lifted")
+const ONE_MINUTE = 60000
 
 export class WebAuthnIdentity extends Identity {
   publicKey: ArrayBuffer // x-coordinate
@@ -27,22 +29,24 @@ export class WebAuthnIdentity extends Identity {
 
   static async create(): Promise<WebAuthnIdentity> {
     const publicKeyCredential = await createPublicKeyCredential()
-    const attestationResponse =
-      publicKeyCredential.response as AuthenticatorResponse &
-        AuthenticatorAttestationResponse
-
+    const attestationResponse = publicKeyCredential?.response
+    if (!(attestationResponse instanceof AuthenticatorAttestationResponse)) {
+      throw new Error("Must be AuthenticatorAttestationResponse")
+    }
     const attestationObj = cbor.decodeFirstSync(
       attestationResponse.attestationObject,
     )
     const publicKeyBytes = getPublicKeyBytesFromAuthData(
       attestationObj.authData,
     )
-
     return new WebAuthnIdentity(publicKeyBytes, publicKeyCredential.rawId)
   }
 
-  async sign(_: ArrayBuffer): Promise<ArrayBuffer> {
-    return EMPTY
+  async sign(
+    _: ArrayBuffer,
+    unprotectedHeader: Map<string, unknown>,
+  ): Promise<ArrayBuffer> {
+    return unprotectedHeader.get("signature") as ArrayBuffer
   }
 
   async verify(_: ArrayBuffer): Promise<boolean> {
@@ -56,7 +60,8 @@ export class WebAuthnIdentity extends Identity {
     let credential = (await window.navigator.credentials.get({
       publicKey: {
         challenge: challenge ?? CHALLENGE_BUFFER,
-        timeout: 10000,
+        timeout: ONE_MINUTE,
+        userVerification: "discouraged",
         allowCredentials: [
           {
             transports: ["nfc", "usb"],
@@ -69,9 +74,13 @@ export class WebAuthnIdentity extends Identity {
     return credential
   }
 
-  async getUnprotectedHeader(data: ArrayBuffer): Promise<Map<string, any>> {
-    const digest = await window.crypto.subtle.digest("SHA-512", data)
-    const cred = await WebAuthnIdentity.getCredential(this.rawId, digest)
+  async getUnprotectedHeader(
+    data: ArrayBuffer,
+    cborProtectedHeader: ArrayBuffer,
+  ): Promise<Map<string, unknown>> {
+    const digest = sha512.arrayBuffer(data)
+    const challenge = cbor.encodeCanonical([cborProtectedHeader, digest])
+    const cred = await WebAuthnIdentity.getCredential(this.rawId, challenge)
     const response = cred.response as AuthenticatorAssertionResponse
     const m = new Map()
     m.set("webauthn", true)
@@ -83,7 +92,6 @@ export class WebAuthnIdentity extends Identity {
 
   getCoseKey(): CoseKey {
     let decoded = cbor.decode(this.cosePublicKey)
-    console.log({ coseKey: decoded })
     decoded.set(4, [2])
     return new CoseKey(decoded)
   }
@@ -96,9 +104,9 @@ export class WebAuthnIdentity extends Identity {
   }
 }
 
-async function createPublicKeyCredential() {
+async function createPublicKeyCredential(challenge = CHALLENGE_BUFFER) {
   const publicKey: PublicKeyCredentialCreationOptions = {
-    challenge: CHALLENGE_BUFFER,
+    challenge,
 
     rp: {
       name: "lifted",
@@ -114,25 +122,18 @@ async function createPublicKeyCredential() {
 
     authenticatorSelection: {
       authenticatorAttachment: "cross-platform",
+      userVerification: "discouraged",
     },
 
     pubKeyCredParams: [
       {
-        /*
-          EdDSA	-8
-          ES256	-7	ECDSA w/ SHA-256
-        */
+        // EdDSA	-8
         type: "public-key",
         alg: -8,
-        // alg: -7,
       },
       {
-        /*
-          EdDSA	-8
-          ES256	-7	ECDSA w/ SHA-256
-        */
+        // ES256	-7	ECDSA w/ SHA-256
         type: "public-key",
-        // alg: -8,
         alg: -7,
       },
     ],
