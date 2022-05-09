@@ -102,11 +102,10 @@ export class WebAuthnIdentity extends Identity {
     content: CborMap,
     unprotectedHeader: Map<string, unknown>,
   ): Promise<unknown> {
-    const shaClientData = sha256.arrayBuffer(
-      unprotectedHeader.get("clientData"),
-    )
-    // @ts-ignore
     try {
+      const shaClientData = sha256.arrayBuffer(
+        unprotectedHeader.get("clientDataJSON"),
+      )
       const result = Buffer.concat([
         // @ts-ignore
         Buffer.from(unprotectedHeader.get("authData")),
