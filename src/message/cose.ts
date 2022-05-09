@@ -50,7 +50,7 @@ export class CoseMessage {
     message: Message,
     identity: Identity = new AnonymousIdentity(),
   ): Promise<CoseMessage> {
-    const protectedHeader = this.getProtectedHeader(identity)
+    const protectedHeader = await this.getProtectedHeader(identity)
     const cborProtectedHeader = cbor.encodeCanonical(protectedHeader)
     const content = message.content
     const cborContent = cbor.encode(tag(10001, message.content))
@@ -62,7 +62,8 @@ export class CoseMessage {
     ])
     const unprotectedHeader = await identity.getUnprotectedHeader(
       cborContent,
-      cborProtectedHeader,
+      // @ts-ignore
+      protectedHeader,
     )
     const signature = await identity.sign(toBeSigned, unprotectedHeader)
 
@@ -75,7 +76,13 @@ export class CoseMessage {
     )
   }
 
-  private static getProtectedHeader(identity: Identity): CborMap {
+  private static async getProtectedHeader(
+    identity: Identity,
+  ): Promise<CborMap> {
+    if (identity?.getProtectedHeader) {
+      console.log("identity?.getProtectedHeader >>>>>>>>>>>>")
+      return await identity.getProtectedHeader()
+    }
     const coseKey = identity.getCoseKey()
     const protectedHeader = new Map()
     protectedHeader.set(1, coseKey.key.get(3)) // alg

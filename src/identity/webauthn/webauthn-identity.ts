@@ -82,12 +82,10 @@ export class WebAuthnIdentity extends Identity {
     cborProtectedHeader: ArrayBuffer,
   ): Promise<Map<string, unknown>> {
     try {
-      let c = new Map()
+      const c = new Map()
       c.set(0, cborProtectedHeader)
       c.set(1, data)
-      // @ts-ignore
-      let challenge = cbor.encode(c)
-
+      const challenge = cbor.encode(c)
       // const challenge = Buffer.concat([
       //   // @ts-ignore
       //   cborProtectedHeader,
@@ -97,7 +95,11 @@ export class WebAuthnIdentity extends Identity {
       // ])
       const cred = await WebAuthnIdentity.getCredential(this.rawId, challenge)
       const response = cred.response as AuthenticatorAssertionResponse
+      const coseKey = this.getCoseKey()
       const m = new Map()
+      m.set(1, coseKey.key.get(3)) // alg
+      m.set(4, coseKey.keyId) // kid: kid
+      m.set("keyset", coseKey.toCborData())
       m.set("webauthn", true)
       m.set("authData", response.authenticatorData)
       m.set("clientDataStr", Buffer.from(response.clientDataJSON).toString())
@@ -108,6 +110,10 @@ export class WebAuthnIdentity extends Identity {
       console.error("getUnprotectedHeader", e)
       throw e
     }
+  }
+
+  async getProtectedHeader() {
+    return new Map()
   }
 
   async getContent(
