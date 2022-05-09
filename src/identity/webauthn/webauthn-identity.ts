@@ -78,11 +78,11 @@ export class WebAuthnIdentity extends Identity {
 
   async getUnprotectedHeader(
     data: ArrayBuffer,
-    protectedHeader: ArrayBuffer,
+    protectedHeader: CborMap,
   ): Promise<Map<string, unknown>> {
     const challenge = Buffer.concat([
       // @ts-ignore
-      protectedHeader,
+      Buffer.from(JSON.stringify(protectedHeader)),
       Buffer.from("SEPARATOR"),
       // @ts-ignore
       data,
@@ -92,8 +92,8 @@ export class WebAuthnIdentity extends Identity {
     const m = new Map()
     m.set("webauthn", true)
     m.set("authData", response.authenticatorData)
-    // m.set("clientData", Buffer.from(response.clientDataJSON).toString())
-    m.set("clientData", response.clientDataJSON)
+    m.set("clientDataStr", Buffer.from(response.clientDataJSON).toString())
+    m.set("clientDataJSON", response.clientDataJSON)
     m.set("signature", response.signature)
     return m
   }

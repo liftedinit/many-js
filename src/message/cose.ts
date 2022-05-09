@@ -62,7 +62,7 @@ export class CoseMessage {
     ])
     const unprotectedHeader = await identity.getUnprotectedHeader(
       cborContent,
-      cborProtectedHeader,
+      protectedHeader,
     )
     const signature = await identity.sign(toBeSigned, unprotectedHeader)
 

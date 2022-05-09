@@ -23,7 +23,7 @@ export abstract class Identity implements Signer, Verifier {
   abstract getCoseKey(): CoseKey
   async getUnprotectedHeader(
     message: ArrayBuffer,
-    cborProtectedHeader: ArrayBuffer,
+    protectedHeader: CborMap,
   ): Promise<Map<string, unknown>> {
     return new Map()
   }
