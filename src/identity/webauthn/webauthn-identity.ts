@@ -1,6 +1,7 @@
 import cbor from "cbor"
 import CborMap from "cbor/types/lib/map"
 import { CoseKey, EMPTY } from "../../message/cose"
+import { replacer } from "../../utils"
 import { Identity } from "../types"
 // const sha512 = require("js-sha512")
 const sha256 = require("js-sha256")
@@ -78,11 +79,11 @@ export class WebAuthnIdentity extends Identity {
 
   async getUnprotectedHeader(
     data: ArrayBuffer,
-    protectedHeader: CborMap,
+    cborProtectedHeader: ArrayBuffer,
   ): Promise<Map<string, unknown>> {
     const challenge = Buffer.concat([
       // @ts-ignore
-      Buffer.from(JSON.stringify(protectedHeader)),
+      cborProtectedHeader,
       Buffer.from("SEPARATOR"),
       // @ts-ignore
       data,
