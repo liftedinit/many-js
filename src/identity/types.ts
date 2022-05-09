@@ -21,7 +21,7 @@ export abstract class Identity implements Signer, Verifier {
   ): Promise<ArrayBuffer>
   abstract verify(data: ArrayBuffer): Promise<boolean>
   abstract getCoseKey(): CoseKey
-  abstract getProtectedHeader?(): Promise<Map<string | number, unknown>>
+  getProtectedHeader?(): Promise<Map<string | number, unknown>>
   async getUnprotectedHeader(
     message: ArrayBuffer,
     protectedHeader: ArrayBuffer,
