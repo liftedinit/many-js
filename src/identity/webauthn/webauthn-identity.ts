@@ -119,7 +119,7 @@ export class WebAuthnIdentity extends Identity {
   }
 
   async getProtectedHeader() {
-    return new Map()
+    return ""
   }
 
   async getContent(
