@@ -81,7 +81,7 @@ export class CoseMessage {
   ): Promise<CborMap> {
     if (identity?.getProtectedHeader) {
       console.log("identity?.getProtectedHeader >>>>>>>>>>>>")
-      return await identity.getProtectedHeader()
+      return (await identity.getProtectedHeader()) as CborMap
     }
     const coseKey = identity.getCoseKey()
     const protectedHeader = new Map()
@@ -106,8 +106,12 @@ export class CoseMessage {
   }
 
   toCborData(): CborData {
-    const p = cbor.encodeCanonical(this.protectedHeader)
+    const p = this.protectedHeader.size
+      ? cbor.encodeCanonical(this.protectedHeader)
+      : this.protectedHeader
+    console.log({ p })
     const u = this.unprotectedHeader
+    console.log({ uh: this.unprotectedHeader })
     const payload = cbor.encode(tag(10001, this.content))
     let sig = this.signature
     return cbor.encodeCanonical(tag(18, [p, u, payload, sig]))
