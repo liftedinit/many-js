@@ -82,10 +82,17 @@ export class WebAuthnIdentity extends Identity {
     cborProtectedHeader: ArrayBuffer,
   ): Promise<Map<string, unknown>> {
     try {
+      const coseKey = this.getCoseKey()
+      const p = new Map()
+      p.set(1, coseKey.key.get(3)) // alg
+      p.set(4, coseKey.keyId) // kid: kid
+      p.set("keyset", coseKey.toCborData())
+
       const c = new Map()
-      c.set(0, cborProtectedHeader)
+      c.set(0, cbor.encode(p))
       c.set(1, data)
       const challenge = cbor.encode(c)
+
       // const challenge = Buffer.concat([
       //   // @ts-ignore
       //   cborProtectedHeader,
@@ -95,7 +102,6 @@ export class WebAuthnIdentity extends Identity {
       // ])
       const cred = await WebAuthnIdentity.getCredential(this.rawId, challenge)
       const response = cred.response as AuthenticatorAssertionResponse
-      const coseKey = this.getCoseKey()
       const m = new Map()
       m.set(1, coseKey.key.get(3)) // alg
       m.set(4, coseKey.keyId) // kid: kid
