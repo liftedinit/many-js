@@ -69,7 +69,8 @@ export class CoseMessage {
     return new CoseMessage(
       protectedHeader,
       unprotectedHeader,
-      content,
+      // @ts-ignore
+      await identity.getContent(content, unprotectedHeader),
       signature,
     )
   }

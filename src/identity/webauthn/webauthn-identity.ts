@@ -1,7 +1,9 @@
 import cbor from "cbor"
+import CborMap from "cbor/types/lib/map"
 import { CoseKey, EMPTY } from "../../message/cose"
 import { Identity } from "../types"
-const sha512 = require("js-sha512")
+// const sha512 = require("js-sha512")
+const sha256 = require("js-sha256")
 
 const CHALLENGE_BUFFER = new TextEncoder().encode("lifted")
 const ONE_MINUTE = 60000
@@ -76,18 +78,46 @@ export class WebAuthnIdentity extends Identity {
 
   async getUnprotectedHeader(
     data: ArrayBuffer,
-    cborProtectedHeader: ArrayBuffer,
+    protectedHeader: ArrayBuffer,
   ): Promise<Map<string, unknown>> {
-    // const digest = sha512.arrayBuffer(data)
-    const challenge = cbor.encodeCanonical([cborProtectedHeader, data])
+    const challenge = Buffer.concat([
+      // @ts-ignore
+      protectedHeader,
+      Buffer.from("SEPARATOR"),
+      // @ts-ignore
+      data,
+    ])
     const cred = await WebAuthnIdentity.getCredential(this.rawId, challenge)
     const response = cred.response as AuthenticatorAssertionResponse
     const m = new Map()
     m.set("webauthn", true)
     m.set("authData", response.authenticatorData)
-    m.set("clientData", Buffer.from(response.clientDataJSON).toString())
+    // m.set("clientData", Buffer.from(response.clientDataJSON).toString())
+    m.set("clientData", response.clientDataJSON)
     m.set("signature", response.signature)
     return m
+  }
+
+  async getContent(
+    content: CborMap,
+    unprotectedHeader: Map<string, unknown>,
+  ): Promise<unknown> {
+    const shaClientData = sha256.arrayBuffer(
+      unprotectedHeader.get("clientData"),
+    )
+    // @ts-ignore
+    try {
+      const result = Buffer.concat([
+        // @ts-ignore
+        Buffer.from(unprotectedHeader.get("authData")),
+        Buffer.from("SEPARATOR"),
+        Buffer.from(shaClientData),
+      ])
+      return result
+    } catch (e) {
+      console.error("getContent", e)
+      throw e
+    }
   }
 
   getCoseKey(): CoseKey {

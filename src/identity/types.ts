@@ -1,3 +1,4 @@
+import { CborMap } from "../message/cbor"
 import { CoseKey } from "../message/cose"
 
 export interface Signer {
@@ -25,6 +26,12 @@ export abstract class Identity implements Signer, Verifier {
     cborProtectedHeader: ArrayBuffer,
   ): Promise<Map<string, unknown>> {
     return new Map()
+  }
+  async getContent(
+    content: CborMap,
+    unprotectedHeader: Map<string, unknown>,
+  ): Promise<unknown> {
+    return content
   }
 }
 
