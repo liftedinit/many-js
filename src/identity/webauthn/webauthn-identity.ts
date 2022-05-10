@@ -74,10 +74,10 @@ export class WebAuthnIdentity extends Identity {
 
   async getUnprotectedHeader(
     cborMessageContent: ArrayBuffer,
-    protectedHeader: CborMap,
+    cborProtectedHeader: ArrayBuffer,
   ): Promise<Map<string, unknown>> {
     const c = new Map()
-    c.set(0, protectedHeader)
+    c.set(0, cborProtectedHeader)
     c.set(1, sha512.arrayBuffer(cborMessageContent).toString("base64"))
     const challenge = cbor.encode(c)
     const cred = await WebAuthnIdentity.getCredential(this.rawId, challenge)
