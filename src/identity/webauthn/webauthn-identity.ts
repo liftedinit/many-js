@@ -1,4 +1,5 @@
 import cbor from "cbor"
+import CborMap from "cbor/types/lib/map"
 import { CoseKey, EMPTY } from "../../message/cose"
 import { Identity } from "../types"
 const sha512 = require("js-sha512")
@@ -45,8 +46,9 @@ export class WebAuthnIdentity extends Identity {
   async sign(
     _: ArrayBuffer,
     unprotectedHeader: Map<string, unknown>,
-  ): Promise<ArrayBuffer> {
-    return unprotectedHeader.get("signature") as ArrayBuffer
+  ): Promise<null> {
+    return null
+    // return unprotectedHeader.get("signature") as ArrayBuffer
   }
 
   async verify(_: ArrayBuffer): Promise<boolean> {
@@ -75,11 +77,14 @@ export class WebAuthnIdentity extends Identity {
   }
 
   async getUnprotectedHeader(
-    data: ArrayBuffer,
-    cborProtectedHeader: ArrayBuffer,
+    data: CborMap,
+    protectedHeader: ArrayBuffer,
   ): Promise<Map<string, unknown>> {
-    const digest = sha512.arrayBuffer(data)
-    const challenge = cbor.encodeCanonical([cborProtectedHeader, digest])
+    const c = new Map()
+    c.set(0, protectedHeader)
+    c.set(1, data)
+    // const digest = sha512.arrayBuffer(data)
+    const challenge = cbor.encode(c)
     const cred = await WebAuthnIdentity.getCredential(this.rawId, challenge)
     const response = cred.response as AuthenticatorAssertionResponse
     const m = new Map()
@@ -94,6 +99,10 @@ export class WebAuthnIdentity extends Identity {
     let decoded = cbor.decode(this.cosePublicKey)
     decoded.set(4, [2])
     return new CoseKey(decoded)
+  }
+
+  getContent(content: CborMap) {
+    return sha512.arrayBuffer(cbor.encode(content))
   }
 
   toJson(): { rawId: string; cosePublicKey: ArrayBuffer } {

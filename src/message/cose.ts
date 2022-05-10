@@ -11,13 +11,13 @@ export class CoseMessage {
   protectedHeader: CborMap
   unprotectedHeader: CborMap
   content: CborMap
-  signature: ArrayBuffer
+  signature: ArrayBuffer | null
 
   constructor(
     protectedHeader: CborMap,
     unprotectedHeader: CborMap,
     content: CborMap,
-    signature: ArrayBuffer,
+    signature: ArrayBuffer | null,
   ) {
     this.protectedHeader = protectedHeader
     this.unprotectedHeader = unprotectedHeader
@@ -61,7 +61,7 @@ export class CoseMessage {
       cborContent,
     ])
     const unprotectedHeader = await identity.getUnprotectedHeader(
-      cborContent,
+      content,
       cborProtectedHeader,
     )
     const signature = await identity.sign(toBeSigned, unprotectedHeader)
@@ -69,7 +69,8 @@ export class CoseMessage {
     return new CoseMessage(
       protectedHeader,
       unprotectedHeader,
-      content,
+      // @ts-ignore
+      identity?.getContent ? identity.getContent(content) : content,
       signature,
     )
   }

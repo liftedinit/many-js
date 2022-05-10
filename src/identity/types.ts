@@ -1,10 +1,11 @@
+import { CborMap } from "../message/cbor"
 import { CoseKey } from "../message/cose"
 
 export interface Signer {
   sign(
     data: ArrayBuffer,
     unprotectedHeader?: Map<string, unknown>,
-  ): Promise<ArrayBuffer>
+  ): Promise<ArrayBuffer | null>
 }
 
 export interface Verifier {
@@ -17,11 +18,11 @@ export abstract class Identity implements Signer, Verifier {
   abstract sign(
     data: ArrayBuffer,
     unprotectedHeader: Map<string, unknown>,
-  ): Promise<ArrayBuffer>
+  ): Promise<ArrayBuffer | null>
   abstract verify(data: ArrayBuffer): Promise<boolean>
   abstract getCoseKey(): CoseKey
   async getUnprotectedHeader(
-    message: ArrayBuffer,
+    message: CborMap,
     cborProtectedHeader: ArrayBuffer,
   ): Promise<Map<string, unknown>> {
     return new Map()
