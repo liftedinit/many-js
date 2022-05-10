@@ -43,12 +43,8 @@ export class WebAuthnIdentity extends Identity {
     return new WebAuthnIdentity(publicKeyBytes, publicKeyCredential.rawId)
   }
 
-  async sign(
-    _: ArrayBuffer,
-    unprotectedHeader: Map<string, unknown>,
-  ): Promise<null> {
-    return null
-    // return unprotectedHeader.get("signature") as ArrayBuffer
+  async sign(): Promise<ArrayBuffer> {
+    return EMPTY
   }
 
   async verify(_: ArrayBuffer): Promise<boolean> {
@@ -82,7 +78,10 @@ export class WebAuthnIdentity extends Identity {
   ): Promise<Map<string, unknown>> {
     const c = new Map()
     c.set(0, protectedHeader)
-    c.set(1, data)
+    c.set(
+      1,
+      Buffer.from(sha512.arrayBuffer(cbor.encode(data))).toString("base64"),
+    )
     // const digest = sha512.arrayBuffer(data)
     const challenge = cbor.encode(c)
     const cred = await WebAuthnIdentity.getCredential(this.rawId, challenge)
@@ -99,10 +98,6 @@ export class WebAuthnIdentity extends Identity {
     let decoded = cbor.decode(this.cosePublicKey)
     decoded.set(4, [2])
     return new CoseKey(decoded)
-  }
-
-  getContent(content: CborMap) {
-    return sha512.arrayBuffer(cbor.encode(content))
   }
 
   toJson(): { rawId: string; cosePublicKey: ArrayBuffer } {
