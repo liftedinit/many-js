@@ -18,10 +18,6 @@ export class WebAuthnIdentity extends Identity {
     this.rawId = rawId
   }
 
-  static decode(publicKey: ArrayBuffer) {
-    return cbor.decodeFirstSync(publicKey)
-  }
-
   private getPublicKeyFromCoseKey(cosePublicKey: ArrayBuffer): ArrayBuffer {
     const decoded = cbor.decodeFirstSync(cosePublicKey)
     return decoded.get(-2)
