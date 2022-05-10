@@ -78,7 +78,10 @@ export class WebAuthnIdentity extends Identity {
   ): Promise<Map<string, unknown>> {
     const c = new Map()
     c.set(0, cborProtectedHeader)
-    c.set(1, sha512.arrayBuffer(cborMessageContent).toString("base64"))
+    c.set(
+      1,
+      Buffer.from(sha512.arrayBuffer(cborMessageContent)).toString("base64"),
+    )
     const challenge = cbor.encode(c)
     const cred = await WebAuthnIdentity.getCredential(this.rawId, challenge)
     const response = cred.response as AuthenticatorAssertionResponse
