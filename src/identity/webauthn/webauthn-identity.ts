@@ -151,6 +151,5 @@ function getCosePublicKey(authData: ArrayBuffer): ArrayBuffer {
   idLenBytes.forEach((value, index) => dataView.setUint8(index, value))
   const credentialIdLength = dataView.getUint16(0)
   const cosePublicKey = authData.slice(55 + credentialIdLength)
-  // const publicKeyObject = cbor.decodeFirstSync(cosePublicKey)
   return cosePublicKey
 }
