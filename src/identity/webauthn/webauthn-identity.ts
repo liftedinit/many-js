@@ -1,5 +1,4 @@
 import cbor from "cbor"
-import CborMap from "cbor/types/lib/map"
 import { CoseKey, EMPTY } from "../../message/cose"
 import { Identity } from "../types"
 const sha512 = require("js-sha512")
@@ -37,10 +36,8 @@ export class WebAuthnIdentity extends Identity {
     const attestationObj = cbor.decodeFirstSync(
       attestationResponse.attestationObject,
     )
-    const publicKeyBytes = getPublicKeyBytesFromAuthData(
-      attestationObj.authData,
-    )
-    return new WebAuthnIdentity(publicKeyBytes, publicKeyCredential.rawId)
+    const cosePublicKey = getCosePublicKey(attestationObj.authData)
+    return new WebAuthnIdentity(cosePublicKey, publicKeyCredential.rawId)
   }
 
   async sign(): Promise<ArrayBuffer> {
@@ -147,7 +144,7 @@ async function createPublicKeyCredential(challenge = CHALLENGE_BUFFER) {
   })) as PublicKeyCredential
 }
 
-function getPublicKeyBytesFromAuthData(authData: ArrayBuffer): ArrayBuffer {
+function getCosePublicKey(authData: ArrayBuffer): ArrayBuffer {
   const dataView = new DataView(new ArrayBuffer(2))
   const idLenBytes = authData.slice(53, 55)
   // @ts-ignore
