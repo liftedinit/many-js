@@ -7,7 +7,7 @@ const CHALLENGE_BUFFER = new TextEncoder().encode("lifted")
 const ONE_MINUTE = 60000
 
 export class WebAuthnIdentity extends Identity {
-  publicKey: ArrayBuffer // x-coordinate
+  publicKey: ArrayBuffer
   rawId: ArrayBuffer
   cosePublicKey: ArrayBuffer
 
@@ -100,7 +100,7 @@ export class WebAuthnIdentity extends Identity {
   }
 }
 
-async function createPublicKeyCredential(challenge = CHALLENGE_BUFFER) {
+export async function createPublicKeyCredential(challenge = CHALLENGE_BUFFER) {
   const publicKey: PublicKeyCredentialCreationOptions = {
     challenge,
 
