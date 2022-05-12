@@ -5,7 +5,7 @@ export interface Signer {
   sign(
     data: ArrayBuffer,
     unprotectedHeader?: Map<string, unknown>,
-  ): Promise<ArrayBuffer | null>
+  ): Promise<ArrayBuffer>
 }
 
 export interface Verifier {
@@ -18,7 +18,7 @@ export abstract class Identity implements Signer, Verifier {
   abstract sign(
     data: ArrayBuffer,
     unprotectedHeader: Map<string, unknown>,
-  ): Promise<ArrayBuffer | null>
+  ): Promise<ArrayBuffer>
   abstract verify(data: ArrayBuffer): Promise<boolean>
   abstract getCoseKey(): CoseKey
   async getUnprotectedHeader(

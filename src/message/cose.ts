@@ -11,13 +11,13 @@ export class CoseMessage {
   protectedHeader: CborMap
   unprotectedHeader: CborMap
   content: CborMap
-  signature: ArrayBuffer | null
+  signature: ArrayBuffer
 
   constructor(
     protectedHeader: CborMap,
     unprotectedHeader: CborMap,
     content: CborMap,
-    signature: ArrayBuffer | null,
+    signature: ArrayBuffer,
   ) {
     this.protectedHeader = protectedHeader
     this.unprotectedHeader = unprotectedHeader
