@@ -7,7 +7,7 @@ import { Address } from "../address"
 
 export class Ed25519KeyPairIdentity extends PrivateKeyIdentity {
   publicKey: ArrayBuffer
-  privateKey: ArrayBuffer
+  protected privateKey: ArrayBuffer
 
   constructor(publicKey: ArrayBuffer, privateKey: ArrayBuffer) {
     super()

@@ -34,5 +34,5 @@ export abstract class PublicKeyIdentity extends Identity {
 }
 
 export abstract class PrivateKeyIdentity extends PublicKeyIdentity {
-  abstract privateKey: ArrayBuffer
+  protected abstract privateKey: ArrayBuffer
 }
