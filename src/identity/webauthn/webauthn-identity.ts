@@ -1,12 +1,13 @@
 import cbor from "cbor"
 import { CoseKey, EMPTY } from "../../message/cose"
-import { Identity } from "../types"
+import { Address } from "../address"
+import { PublicKeyIdentity } from "../types"
 const sha512 = require("js-sha512")
 
 const CHALLENGE_BUFFER = new TextEncoder().encode("lifted")
 const ONE_MINUTE = 60000
 
-export class WebAuthnIdentity extends Identity {
+export class WebAuthnIdentity extends PublicKeyIdentity {
   publicKey: ArrayBuffer
   rawId: ArrayBuffer
   cosePublicKey: ArrayBuffer
@@ -16,6 +17,10 @@ export class WebAuthnIdentity extends Identity {
     this.cosePublicKey = cosePublicKey
     this.publicKey = this.getPublicKeyFromCoseKey(cosePublicKey)
     this.rawId = rawId
+  }
+
+  async getAddress(): Promise<Address> {
+    return this.getCoseKey().toAddress()
   }
 
   private getPublicKeyFromCoseKey(cosePublicKey: ArrayBuffer): ArrayBuffer {

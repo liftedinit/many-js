@@ -2,10 +2,6 @@ import base32Decode from "base32-decode"
 import base32Encode from "base32-encode"
 import crc from "crc"
 
-import { Key } from "../keys"
-import { CoseKey } from "../message/cose"
-import { Identity } from "./types"
-
 export const ANON_IDENTITY = "maa"
 export class Address {
   bytes: Uint8Array
@@ -20,11 +16,6 @@ export class Address {
 
   static fromHex(hex: string): Address {
     return new Address(Buffer.from(hex, "hex"))
-  }
-
-  static fromIdentity(i: Identity): Address {
-    const coseKey = i.getCoseKey()
-    return coseKey.toAddress()
   }
 
   static fromString(string: string): Address {

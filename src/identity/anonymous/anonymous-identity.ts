@@ -1,8 +1,8 @@
 import { Identity } from "../types"
-import { ANONYMOUS, CoseKey, EMPTY } from "../../message/cose"
+import { EMPTY } from "../../message/cose"
+import { Address } from "../address"
 
 export class AnonymousIdentity extends Identity {
-  publicKey = ANONYMOUS
   async sign() {
     return EMPTY
   }
@@ -10,17 +10,11 @@ export class AnonymousIdentity extends Identity {
     return false
   }
 
-  getCoseKey(): CoseKey {
-    const c = new Map()
-    c.set(1, 1) // kty: OKP
-    c.set(3, -8) // alg: EdDSA
-    c.set(-1, 6) // crv: Ed25519
-    c.set(4, [2]) // key_ops: [verify]
-    c.set(-2, this.publicKey) // x: publicKey
-    return new CoseKey(c)
+  async getAddress(): Promise<Address> {
+    return Address.anonymous()
   }
 
   toJson() {
-    return this.publicKey
+    return AnonymousIdentity.name
   }
 }

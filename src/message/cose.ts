@@ -1,12 +1,17 @@
 import cbor from "cbor";
 import { sha3_224 } from "js-sha3";
-import { Address, AnonymousIdentity, Identity } from "../identity"
+import {
+  Address,
+  AnonymousIdentity,
+  Identity,
+  PrivateKeyIdentity,
+  PublicKeyIdentity,
+} from "../identity"
 import { Message } from "../message"
 import { CborData, CborMap, tag } from "./cbor"
 
 export const ANONYMOUS = Buffer.from([0x00])
 export const EMPTY = Buffer.alloc(0)
-
 export class CoseMessage {
   protectedHeader: CborMap
   unprotectedHeader: CborMap
@@ -74,12 +79,16 @@ export class CoseMessage {
     )
   }
 
-  private static getProtectedHeader(identity: Identity): CborMap {
-    const coseKey = identity.getCoseKey()
+  private static getProtectedHeader(
+    identity: PublicKeyIdentity | PrivateKeyIdentity | Identity,
+  ): CborMap {
     const protectedHeader = new Map()
-    protectedHeader.set(1, coseKey.key.get(3)) // alg
-    protectedHeader.set(4, coseKey.keyId) // kid: kid
-    protectedHeader.set("keyset", coseKey.toCborData())
+    if ("getCoseKey" in identity) {
+      const coseKey = identity.getCoseKey()
+      protectedHeader.set(1, coseKey.key.get(3)) // alg
+      protectedHeader.set(4, coseKey.keyId) // kid: kid
+      protectedHeader.set("keyset", coseKey.toCborData())
+    }
     return protectedHeader
   }
 

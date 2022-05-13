@@ -2,9 +2,10 @@ import forge, { pki } from "node-forge"
 import * as bip39 from "bip39"
 import { CoseKey } from "../../message/cose"
 const ed25519 = pki.ed25519
-import { KeyPairIdentity } from "../types"
+import { PrivateKeyIdentity } from "../types"
+import { Address } from "../address"
 
-export class Ed25519KeyPairIdentity extends KeyPairIdentity {
+export class Ed25519KeyPairIdentity extends PrivateKeyIdentity {
   publicKey: ArrayBuffer
   privateKey: ArrayBuffer
 
@@ -16,6 +17,11 @@ export class Ed25519KeyPairIdentity extends KeyPairIdentity {
 
   static getMnemonic(): string {
     return bip39.generateMnemonic()
+  }
+
+  async getAddress(): Promise<Address> {
+    const coseKey = this.getCoseKey()
+    return coseKey.toAddress()
   }
 
   static fromMnemonic(mnemonic: string): Ed25519KeyPairIdentity {

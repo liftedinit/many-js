@@ -1,5 +1,5 @@
-import { CborMap } from "../message/cbor"
 import { CoseKey } from "../message/cose"
+import { Address } from "./address"
 
 export interface Signer {
   sign(
@@ -13,14 +13,13 @@ export interface Verifier {
 }
 
 export abstract class Identity implements Signer, Verifier {
-  abstract publicKey: ArrayBuffer
+  abstract getAddress(): Promise<Address>
   abstract toJson(): unknown
   abstract sign(
     data: ArrayBuffer,
     unprotectedHeader: Map<string, unknown>,
   ): Promise<ArrayBuffer>
   abstract verify(data: ArrayBuffer): Promise<boolean>
-  abstract getCoseKey(): CoseKey
   async getUnprotectedHeader(
     cborMessageContent: ArrayBuffer,
     cborProtectedHeader: ArrayBuffer,
@@ -29,6 +28,11 @@ export abstract class Identity implements Signer, Verifier {
   }
 }
 
-export abstract class KeyPairIdentity extends Identity {
+export abstract class PublicKeyIdentity extends Identity {
+  abstract publicKey: ArrayBuffer
+  abstract getCoseKey(): CoseKey
+}
+
+export abstract class PrivateKeyIdentity extends PublicKeyIdentity {
   abstract privateKey: ArrayBuffer
 }
