@@ -127,11 +127,6 @@ export async function createPublicKeyCredential(challenge = CHALLENGE_BUFFER) {
     },
 
     pubKeyCredParams: [
-      // {
-      //   // EdDSA	-8
-      //   type: "public-key",
-      //   alg: -8,
-      // },
       {
         // ES256	-7	ECDSA w/ SHA-256
         type: "public-key",
