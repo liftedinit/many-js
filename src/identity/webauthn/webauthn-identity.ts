@@ -15,7 +15,7 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
   constructor(cosePublicKey: ArrayBuffer, rawId: ArrayBuffer) {
     super()
     this.cosePublicKey = cosePublicKey
-    this.publicKey = this.getPublicKeyFromCoseKey(cosePublicKey)
+    this.publicKey = WebAuthnIdentity.getPublicKeyFromCoseKey(cosePublicKey)
     this.rawId = rawId
   }
 
@@ -23,7 +23,7 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
     return this.getCoseKey().toAddress()
   }
 
-  private getPublicKeyFromCoseKey(cosePublicKey: ArrayBuffer): ArrayBuffer {
+  static getPublicKeyFromCoseKey(cosePublicKey: ArrayBuffer): ArrayBuffer {
     const decoded = cbor.decodeFirstSync(cosePublicKey)
     return decoded.get(-2)
   }
@@ -93,7 +93,7 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
 
   getCoseKey(): CoseKey {
     let decoded = cbor.decode(this.cosePublicKey)
-    decoded.set(4, [2])
+    decoded.set(4, [2]) // key_ops: [verify]
     return new CoseKey(decoded)
   }
 
@@ -127,11 +127,11 @@ export async function createPublicKeyCredential(challenge = CHALLENGE_BUFFER) {
     },
 
     pubKeyCredParams: [
-      {
-        // EdDSA	-8
-        type: "public-key",
-        alg: -8,
-      },
+      // {
+      //   // EdDSA	-8
+      //   type: "public-key",
+      //   alg: -8,
+      // },
       {
         // ES256	-7	ECDSA w/ SHA-256
         type: "public-key",
