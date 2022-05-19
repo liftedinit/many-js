@@ -1,5 +1,4 @@
-import { Address, Identity } from "../identity"
-import { KeyPair } from "../keys"
+import { Identity } from "../identity"
 import { Message } from "../message"
 import { CborData } from "../message/cbor"
 import { applyMixins } from "../utils"
