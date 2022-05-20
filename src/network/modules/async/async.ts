@@ -4,14 +4,6 @@ import { Message } from "../../../message"
 import { Network } from "../../network"
 import type { NetworkModule } from "../types"
 
-/**
-    const res = await Async.handleAsyncToken.call(
-      this,
-      new Network(this.url, new AnonymousIdentity()),
-      Message.fromCborData(reply),
-    )
- */
-
 interface Async extends NetworkModule {
   handleAsyncToken: (message: Message, n?: Network) => Promise<unknown>
 }
