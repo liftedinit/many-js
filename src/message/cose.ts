@@ -57,8 +57,8 @@ export class CoseMessage {
   ): Promise<CoseMessage> {
     const protectedHeader = this.getProtectedHeader(identity)
     const cborProtectedHeader = cbor.encodeCanonical(protectedHeader)
-    const content = message.content
-    const cborContent = cbor.encode(tag(10001, message.content))
+    const content = message.getContent()
+    const cborContent = cbor.encode(tag(10001, content))
     const toBeSigned = cbor.encodeCanonical([
       "Signature1",
       cborProtectedHeader,

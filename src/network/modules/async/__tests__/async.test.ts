@@ -49,7 +49,7 @@ describe("Async", () => {
       new Message(new Map([[8, [[1, new ArrayBuffer(0)]]]])),
       n,
     )) as Message
-    const content = cbor.decode(res.content.get(4))
+    const content = res.getPayload()
     expect(content instanceof Map).toBe(true)
     expect(content.get(0)).toEqual(["data", "returned"])
   })

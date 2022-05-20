@@ -138,8 +138,8 @@ export const Ledger: Ledger = {
 
 export function getLedgerInfo(message: Message): LedgerInfo {
   const result: LedgerInfo = { symbols: new Map() }
-  if (message.content.has(4)) {
-    const decodedContent = cbor.decodeFirstSync(message.content.get(4))
+  const decodedContent = message.getPayload()
+  if (decodedContent) {
     if (decodedContent.has(4)) {
       const symbols = decodedContent.get(4)
 
@@ -159,8 +159,8 @@ export interface Balances {
 
 export function getBalance(message: Message): Balances {
   const result = { balances: new Map() }
-  if (message.content.has(4)) {
-    const messageContent = cbor.decodeFirstSync(message.content.get(4))
+  const messageContent = message.getPayload()
+  if (messageContent) {
     if (messageContent.has(0)) {
       const symbolsToBalancesMap = messageContent.get(0)
       if (!(symbolsToBalancesMap instanceof Map)) return result
@@ -176,9 +176,7 @@ export function getBalance(message: Message): Balances {
 
 function getTransactionsCount(message: Message) {
   return {
-    count: message?.content?.has(4)
-      ? cbor.decodeFirstSync(message.content.get(4))?.get(0)
-      : 0,
+    count: message?.getContent().has(4) ? message?.getPayload()?.get(0) : 0,
   }
 }
 
@@ -187,13 +185,13 @@ function getTxnList(message: Message): TransactionsData {
     count: 0,
     transactions: [],
   }
-  if (message.content.has(4)) {
-    const decodedContent = cbor.decodeFirstSync(message.content.get(4))
+  const decodedContent = message.getPayload()
+  if (decodedContent) {
     result.count = decodedContent.get(0)
     const transactions = decodedContent.get(1)
     result.transactions = transactions.map((t: Map<number, unknown>) => {
-      let transactionData = t.get(2) as Array<unknown>
-      const transactionType = transactionData[0]
+      let transactionData = t.get(2) as Map<number, unknown>
+      const transactionType = transactionData.get(0)
       if (transactionType === 0) {
         return makeSendTransactionData(t)
       }
@@ -203,11 +201,11 @@ function getTxnList(message: Message): TransactionsData {
 }
 
 function makeSendTransactionData(t: Map<number, unknown>) {
-  let transactionData = t.get(2) as Array<unknown>
+  let transactionData = t.get(2) as Map<number, unknown>
   const id = t.get(0) as Uint8Array
   const time = t.get(1)
-  const from = transactionData[1] as { value: Uint8Array }
-  const to = transactionData[2] as { value: Uint8Array }
+  const from = transactionData.get(1) as { value: Uint8Array }
+  const to = transactionData.get(2) as { value: Uint8Array }
   const fromAddress = new Address(from.value as Buffer).toString()
   const toAddress = new Address(to.value as Buffer).toString()
   return {
@@ -216,8 +214,8 @@ function makeSendTransactionData(t: Map<number, unknown>) {
     type: TransactionType.send,
     from: fromAddress,
     to: toAddress,
-    symbolAddress: transactionData[3],
-    amount: BigInt(transactionData[4] as number),
+    symbolAddress: transactionData.get(3),
+    amount: BigInt(transactionData.get(4) as number),
   }
 }
 

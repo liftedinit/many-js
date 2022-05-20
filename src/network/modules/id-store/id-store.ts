@@ -54,9 +54,9 @@ export const IdStore: IdStore = {
 
 function getPhrase(m: Message): { phrase: string } {
   const result = { phrase: "" }
-  if (m.content.has(4)) {
-    const decoded = cbor.decodeFirstSync(m.content.get(4))
-    result.phrase = decoded?.get(0)?.join(" ")
+  const payload = m.getPayload()
+  if (payload) {
+    result.phrase = payload?.get(0)?.join(" ")
   }
   return result
 }
@@ -66,11 +66,11 @@ function getCredentialData(m: Message): {
   cosePublicKey?: ArrayBuffer
 } {
   const result = { credentialId: undefined, cosePublicKey: undefined }
-  if (m.content.has(4)) {
-    const decoded = cbor.decodeFirstSync(m.content.get(4))
-    if (decoded.has(0) && decoded.has(1)) {
-      result.credentialId = decoded.get(0)
-      result.cosePublicKey = decoded.get(1)
+  const payload = m.getPayload()
+  if (payload) {
+    if (payload.has(0) && payload.has(1)) {
+      result.credentialId = payload.get(0)
+      result.cosePublicKey = payload.get(1)
     }
   }
   return result

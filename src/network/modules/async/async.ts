@@ -16,31 +16,14 @@ export const Async: Async = {
   _namespace_: "async",
 
   async handleAsyncToken(message: Message, n?: Network) {
-    const asyncToken = getAsyncToken(message)
-    if (asyncToken) {
-      return await fetchAsyncStatus(
-        n ?? new Network(this.url, new AnonymousIdentity()),
-        asyncToken,
-      )
-    }
-    return message
+    const asyncToken = message.getAsyncToken()
+    return asyncToken
+      ? await fetchAsyncStatus(
+          n ?? new Network(this.url, new AnonymousIdentity()),
+          asyncToken,
+        )
+      : message
   },
-}
-
-function getAsyncToken(message: Message) {
-  let token = undefined
-  if (message.content.has(8)) {
-    const responseAttrs = message.content.get(8)
-    if (Array.isArray(responseAttrs)) {
-      let attr = responseAttrs.find(attr => {
-        if (Array.isArray(attr) && attr[0] === 1) {
-          return attr
-        }
-      })
-      token = attr?.[1]
-    }
-  }
-  return token
 }
 
 async function fetchAsyncStatus(
@@ -48,25 +31,26 @@ async function fetchAsyncStatus(
   asyncToken: ArrayBuffer,
 ): Promise<Message> {
   const start = new Date().getTime()
+  let waitTime = ONE_SECOND
   let isDurationReached = false
   let res = new Message(new Map())
 
   while (!isDurationReached) {
     res = (await n.call("async.status", new Map([[0, asyncToken]]))) as Message
-    if (res?.content && res.content instanceof Map && res.content.has(4)) {
-      const content = res.content.get(4)
-      const decoded = cbor.decode(content)
-      if (decoded.has(0)) {
-        const asyncResult = decoded.get(0)
-        if (asyncResult === 3 && decoded.has(1)) {
-          const msg = cbor.decode(decoded.get(1)).value
+    const payload = res.getPayload()
+    if (payload) {
+      if (payload.has(0)) {
+        const asyncResult = payload.get(0)
+        if (asyncResult === 3 && payload.has(1)) {
+          const msg = cbor.decode(payload.get(1)).value
           return new Message(msg)
         }
       }
     }
     const now = new Date().getTime()
     isDurationReached = now - start >= ONE_MINUTE
-    await sleep(ONE_SECOND)
+    await sleep(waitTime)
+    waitTime *= 1.5
   }
 
   return res

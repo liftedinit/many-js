@@ -3,6 +3,7 @@ import { Address, Identity } from "../identity"
 import { CborData, CborMap, tag } from "./cbor";
 import { CoseMessage } from "./cose";
 import { ManyError, SerializedManyError } from "./error";
+import { Attributes, AsyncAttribute } from "./attributes"
 
 interface MessageContent {
   version?: number;
@@ -17,7 +18,25 @@ interface MessageContent {
 }
 
 export class Message {
-  constructor(public content: CborMap) {}
+  private content: CborMap
+  constructor(content: CborMap) {
+    this.content = content
+  }
+
+  getContent() {
+    return this.content
+  }
+
+  getAsyncToken(): ArrayBuffer | undefined {
+    const attributes = Attributes.getFromMessage(this)
+    return attributes
+      ? AsyncAttribute.getFromAttributes(attributes)?.getToken()
+      : undefined
+  }
+
+  getPayload(): CborMap {
+    return cbor.decode(this.content?.get(4))
+  }
 
   static fromObject(obj: MessageContent): Message {
     if (!obj.method) {
