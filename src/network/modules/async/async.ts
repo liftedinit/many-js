@@ -4,6 +4,10 @@ import { Message } from "../../../message"
 import { Network } from "../../network"
 import type { NetworkModule } from "../types"
 
+const ONE_MINUTE = 60000
+const ONE_SECOND = 1000
+const sleep = async (time: number) => new Promise(r => setTimeout(r, time))
+
 interface Async extends NetworkModule {
   handleAsyncToken: (message: Message, n?: Network) => Promise<unknown>
 }
@@ -43,24 +47,27 @@ async function fetchAsyncStatus(
   n: Network,
   asyncToken: ArrayBuffer,
 ): Promise<Message> {
-  const res = (await n.call(
-    "async.status",
-    new Map([[0, asyncToken]]),
-  )) as Message
+  const start = new Date().getTime()
+  let isDurationReached = false
+  let res = new Message(new Map())
 
-  if (res.content && res.content instanceof Map && res.content.has(4)) {
-    const content = res.content.get(4)
-    const decoded = cbor.decode(content)
-    if (decoded.has(0)) {
-      const asyncResult = decoded.get(0)
-      if (asyncResult === 3 && decoded.has(1)) {
-        const msg = cbor.decode(decoded.get(1)).value
-        return new Message(msg)
-      } else {
-        await new Promise(r => setTimeout(r, 250))
-        return await fetchAsyncStatus(n, asyncToken)
+  while (!isDurationReached) {
+    res = (await n.call("async.status", new Map([[0, asyncToken]]))) as Message
+    if (res?.content && res.content instanceof Map && res.content.has(4)) {
+      const content = res.content.get(4)
+      const decoded = cbor.decode(content)
+      if (decoded.has(0)) {
+        const asyncResult = decoded.get(0)
+        if (asyncResult === 3 && decoded.has(1)) {
+          const msg = cbor.decode(decoded.get(1)).value
+          return new Message(msg)
+        }
       }
     }
+    const now = new Date().getTime()
+    isDurationReached = now - start >= ONE_MINUTE
+    await sleep(ONE_SECOND)
   }
+
   return res
 }
