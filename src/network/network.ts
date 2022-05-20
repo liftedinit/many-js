@@ -3,6 +3,7 @@ import { Message } from "../message"
 import { CborData } from "../message/cbor"
 import { applyMixins } from "../utils"
 import { NetworkModule } from "./modules"
+import { Async } from "./modules/async"
 
 export class Network {
   [k: string]: any
@@ -22,7 +23,10 @@ export class Network {
     const cbor = await req.toCborData(this.identity)
     const reply = await this.sendEncoded(cbor)
     // @TODO: Verify response
-    const res = Message.fromCborData(reply)
+    const res = await Async.handleAsyncToken.call(
+      this,
+      Message.fromCborData(reply),
+    )
     return res
   }
 
