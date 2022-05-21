@@ -60,7 +60,7 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
         userVerification: "discouraged",
         allowCredentials: [
           {
-            transports: ["nfc", "usb"],
+            transports: ["nfc", "usb", "ble"],
             id: credentialId,
             type: "public-key",
           },
