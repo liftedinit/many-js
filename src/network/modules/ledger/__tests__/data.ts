@@ -65,8 +65,8 @@ export const expectedBalancesMap = {
   ]),
 }
 
-const txnSymbolAddress1 = "oafw3bxrqe2jdcidvjlonloqcczvytrxr3fl4naybmign3uy6e"
-const txnSymbolAddress2 = "oafxombm6axwsrcvymht5ss3chlpbks7sp7dvl2v7chnuzkyfj"
+const txnSymbolAddress1 = "mafw3bxrqe2jdcidvjlonloqcczvytrxr3fl4naybmign3uy6e"
+const txnSymbolAddress2 = "mafxombm6axwsrcvymht5ss3chlpbks7sp7dvl2v7chnuzkyfj"
 const txnTime1 = new Date()
 const txnTime2 = new Date()
 txnTime2.setMinutes(txnTime1.getMinutes() + 1)
@@ -91,7 +91,13 @@ export const mockLedgerListResponseContent = new Map([
                   [0, 0],
                   [1, tag(10000, Address1)],
                   [2, tag(10000, Address2)],
-                  [3, txnSymbolAddress1],
+                  [
+                    3,
+                    tag(
+                      10000,
+                      Address.fromString(txnSymbolAddress1).toBuffer(),
+                    ),
+                  ],
                   [4, 1],
                 ]),
               ],
@@ -107,7 +113,13 @@ export const mockLedgerListResponseContent = new Map([
                   [0, 0],
                   [1, tag(10000, Address1)],
                   [2, tag(10000, Address2)],
-                  [3, txnSymbolAddress2],
+                  [
+                    3,
+                    tag(
+                      10000,
+                      Address.fromString(txnSymbolAddress2).toBuffer(),
+                    ),
+                  ],
                   [4, 2],
                 ]),
               ],

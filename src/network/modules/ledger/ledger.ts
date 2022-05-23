@@ -160,15 +160,13 @@ export interface Balances {
 export function getBalance(message: Message): Balances {
   const result = { balances: new Map() }
   const messageContent = message.getPayload()
-  if (messageContent) {
-    if (messageContent.has(0)) {
-      const symbolsToBalancesMap = messageContent.get(0)
-      if (!(symbolsToBalancesMap instanceof Map)) return result
-      for (const balanceEntry of symbolsToBalancesMap) {
-        const symbolAddress = new Address(balanceEntry[0].value).toString()
-        const balance = balanceEntry[1]
-        result.balances.set(symbolAddress, balance)
-      }
+  if (messageContent && messageContent.has(0)) {
+    const symbolsToBalancesMap = messageContent.get(0)
+    if (!(symbolsToBalancesMap instanceof Map)) return result
+    for (const balanceEntry of symbolsToBalancesMap) {
+      const symbolAddress = new Address(balanceEntry[0].value).toString()
+      const balance = balanceEntry[1]
+      result.balances.set(symbolAddress, balance)
     }
   }
   return result
@@ -206,6 +204,8 @@ function makeSendTransactionData(t: Map<number, unknown>) {
   const time = t.get(1)
   const from = transactionData.get(1) as { value: Uint8Array }
   const to = transactionData.get(2) as { value: Uint8Array }
+  const symbol = transactionData.get(3) as { value: Uint8Array }
+  const symbolAddress = new Address(symbol.value as Buffer).toString()
   const fromAddress = new Address(from.value as Buffer).toString()
   const toAddress = new Address(to.value as Buffer).toString()
   return {
@@ -214,7 +214,7 @@ function makeSendTransactionData(t: Map<number, unknown>) {
     type: TransactionType.send,
     from: fromAddress,
     to: toAddress,
-    symbolAddress: transactionData.get(3),
+    symbolAddress,
     amount: BigInt(transactionData.get(4) as number),
   }
 }
