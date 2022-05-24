@@ -2,14 +2,14 @@ import forge, { pki } from "node-forge"
 import * as bip39 from "bip39"
 import { CoseKey } from "../../message/cose"
 const ed25519 = pki.ed25519
-import { PrivateKeyIdentity } from "../types"
+import { PublicKeyIdentity } from "../types"
 import { Address } from "../address"
 
-export class Ed25519KeyPairIdentity extends PrivateKeyIdentity {
+export class Ed25519KeyPairIdentity extends PublicKeyIdentity {
   publicKey: ArrayBuffer
   protected privateKey: ArrayBuffer
 
-  constructor(publicKey: ArrayBuffer, privateKey: ArrayBuffer) {
+  protected constructor(publicKey: ArrayBuffer, privateKey: ArrayBuffer) {
     super()
     this.publicKey = publicKey
     this.privateKey = privateKey
@@ -66,8 +66,13 @@ export class Ed25519KeyPairIdentity extends PrivateKeyIdentity {
     return new CoseKey(c)
   }
 
-  toJson() {
+  toJSON(): {
+    dataType: string
+    publicKey: ArrayBuffer
+    privateKey: ArrayBuffer
+  } {
     return {
+      dataType: this.constructor.name,
       publicKey: this.publicKey,
       privateKey: this.privateKey,
     }

@@ -1,6 +1,5 @@
 import { pki } from "node-forge"
-import * as bip39 from "bip39"
-import { Message } from "../message";
+import { Message } from "../message"
 import { CoseMessage } from "./cose"
 import { Ed25519KeyPairIdentity } from "../identity"
 const ed25519 = pki.ed25519
@@ -14,10 +13,9 @@ describe("CoseMessage", () => {
   })
 
   test("can make signed request", async () => {
-    const mnemonic = bip39.generateMnemonic()
-    const seed = bip39.mnemonicToSeedSync(mnemonic).slice(0, 32)
-    const keys = ed25519.generateKeyPair({ seed })
-    const identity = new Ed25519KeyPairIdentity(keys.publicKey, keys.privateKey)
+    const identity = Ed25519KeyPairIdentity.fromMnemonic(
+      Ed25519KeyPairIdentity.getMnemonic(),
+    )
     const signedMessage = Message.fromObject({ method: "info" })
     const coseMessage = await CoseMessage.fromMessage(signedMessage, identity)
 
@@ -32,8 +30,8 @@ describe("CoseMessage", () => {
 
     expect(deserialized.content).toStrictEqual(coseMessage.content)
   })
-});
+})
 
 describe("CoseKey", () => {
-  test.skip("fromPublicKey", () => {});
-});
+  test.skip("fromPublicKey", () => {})
+})

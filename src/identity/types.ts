@@ -14,7 +14,7 @@ export interface Verifier {
 
 export abstract class Identity implements Signer, Verifier {
   abstract getAddress(): Promise<Address>
-  abstract toJson(): unknown
+  abstract toJSON(): unknown
   abstract sign(
     data: ArrayBuffer,
     unprotectedHeader: Map<string, unknown>,
@@ -31,8 +31,4 @@ export abstract class Identity implements Signer, Verifier {
 export abstract class PublicKeyIdentity extends Identity {
   abstract publicKey: ArrayBuffer
   abstract getCoseKey(): CoseKey
-}
-
-export abstract class PrivateKeyIdentity extends PublicKeyIdentity {
-  protected abstract privateKey: ArrayBuffer
 }

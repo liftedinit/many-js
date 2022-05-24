@@ -1,11 +1,11 @@
 import cbor from "cbor"
+import { ONE_MINUTE, ONE_SECOND } from "../../../const"
 import { AnonymousIdentity } from "../../../identity"
 import { Message } from "../../../message"
+import { CborMap } from "../../../message/cbor"
 import { Network } from "../../network"
 import type { NetworkModule } from "../types"
 
-const ONE_MINUTE = 60000
-const ONE_SECOND = 1000
 const sleep = async (time: number) => new Promise(r => setTimeout(r, time))
 
 interface Async extends NetworkModule {
@@ -18,7 +18,7 @@ export const Async: Async = {
   async handleAsyncToken(message: Message, n?: Network) {
     const asyncToken = message.getAsyncToken()
     return asyncToken
-      ? await fetchAsyncStatus(
+      ? await pollAsyncStatus(
           n ?? new Network(this.url, new AnonymousIdentity()),
           asyncToken,
         )
@@ -26,32 +26,68 @@ export const Async: Async = {
   },
 }
 
-async function fetchAsyncStatus(
+export enum AsyncStatusResult {
+  Unknown = 0,
+  Queued = 1,
+  Processing = 2,
+  Done = 3,
+  Expired = 4,
+}
+
+type AsyncStatusPayload =
+  | { result: AsyncStatusResult.Unknown }
+  | { result: AsyncStatusResult.Queued }
+  | { result: AsyncStatusResult.Processing }
+  | { result: AsyncStatusResult.Expired }
+  | {
+      result: AsyncStatusResult.Done
+      payload: ArrayBuffer
+    }
+function parseAsyncStatusPayload(cbor: CborMap): AsyncStatusPayload {
+  const index = cbor.get(0)
+  if (typeof index != "number") {
+    throw new Error("Invalid async result")
+  }
+  if (!(index in AsyncStatusResult)) {
+    throw Error("Invalid async result")
+  }
+  const result = index as AsyncStatusResult
+  let payload = undefined
+  if (result === AsyncStatusResult.Done) {
+    payload = cbor.get(1) as ArrayBuffer
+    if (!payload || !Buffer.isBuffer(payload)) {
+      throw Error("Invalid async result")
+    }
+  }
+  return { result, payload } as AsyncStatusPayload
+}
+async function pollAsyncStatus(
   n: Network,
   asyncToken: ArrayBuffer,
+  options: {
+    timeoutInMsec?: number
+    waitTimeInMsec?: number
+  } = {},
 ): Promise<Message> {
-  const start = new Date().getTime()
-  let waitTime = ONE_SECOND
-  let isDurationReached = false
-  let res = new Message(new Map())
-
-  while (!isDurationReached) {
-    res = (await n.call("async.status", new Map([[0, asyncToken]]))) as Message
-    const payload = res.getPayload()
-    if (payload) {
-      if (payload.has(0)) {
-        const asyncResult = payload.get(0)
-        if (asyncResult === 3 && payload.has(1)) {
-          const msg = cbor.decode(payload.get(1)).value
-          return new Message(msg)
-        }
-      }
+  const timeoutInMsec = options.timeoutInMsec ?? ONE_MINUTE
+  let waitTimeInMsec = options.waitTimeInMsec ?? ONE_SECOND
+  const end = +new Date() + timeoutInMsec
+  while (true) {
+    const res = (await n.call(
+      "async.status",
+      new Map([[0, asyncToken]]),
+    )) as Message
+    const result = parseAsyncStatusPayload(res.getPayload())
+    switch (result.result) {
+      case AsyncStatusResult.Done:
+        return new Message(cbor.decode(result.payload).value)
+      case AsyncStatusResult.Expired:
+        throw new Error("Async Expired before getting a result")
     }
-    const now = new Date().getTime()
-    isDurationReached = now - start >= ONE_MINUTE
-    await sleep(waitTime)
-    waitTime *= 1.5
+    if (Date.now() >= end) {
+      return res
+    }
+    await sleep(waitTimeInMsec)
+    waitTimeInMsec *= 1.5
   }
-
-  return res
 }

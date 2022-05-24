@@ -4,7 +4,6 @@ import {
   Address,
   AnonymousIdentity,
   Identity,
-  PrivateKeyIdentity,
   PublicKeyIdentity,
 } from "../identity"
 import { Message } from "../message"
@@ -80,7 +79,7 @@ export class CoseMessage {
   }
 
   private static getProtectedHeader(
-    identity: PublicKeyIdentity | PrivateKeyIdentity | Identity,
+    identity: PublicKeyIdentity | Identity,
   ): CborMap {
     const protectedHeader = new Map()
     if ("getCoseKey" in identity) {

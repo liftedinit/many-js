@@ -14,7 +14,7 @@ export class AnonymousIdentity extends Identity {
     return Address.anonymous()
   }
 
-  toJson() {
-    return AnonymousIdentity.name
+  toJSON(): { dataType: string } {
+    return { dataType: this.constructor.name }
   }
 }

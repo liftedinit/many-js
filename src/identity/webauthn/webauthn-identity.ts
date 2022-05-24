@@ -1,11 +1,11 @@
 import cbor from "cbor"
+import { ONE_MINUTE } from "../../const"
 import { CoseKey, EMPTY } from "../../message/cose"
 import { Address } from "../address"
 import { PublicKeyIdentity } from "../types"
 const sha512 = require("js-sha512")
 
 const CHALLENGE_BUFFER = new TextEncoder().encode("lifted")
-const ONE_MINUTE = 60000
 
 export class WebAuthnIdentity extends PublicKeyIdentity {
   publicKey: ArrayBuffer
@@ -42,6 +42,9 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
   }
 
   async sign(): Promise<ArrayBuffer> {
+    // This value ends up in the signature COSE field, but we don't
+    // use it for WebAuthn verification, so we simply set it to
+    // EMPTY.
     return EMPTY
   }
 
@@ -97,8 +100,9 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
     return new CoseKey(decoded)
   }
 
-  toJson(): { rawId: string; cosePublicKey: ArrayBuffer } {
+  toJSON(): { dataType: string; rawId: string; cosePublicKey: ArrayBuffer } {
     return {
+      dataType: this.constructor.name,
       rawId: Buffer.from(this.rawId).toString("base64"),
       cosePublicKey: this.cosePublicKey,
     }
@@ -127,6 +131,11 @@ export async function createPublicKeyCredential(challenge = CHALLENGE_BUFFER) {
     },
 
     pubKeyCredParams: [
+      /**
+       * we only use this algo because the major browsers (chrome, firefox, safari, brave, edge) support this.
+       * for example, if we create a credential with eddsa algo on chrome, we wouldnt be able to use it from firefox
+       * because it doesn't support this algo.
+       */
       {
         // ES256	-7	ECDSA w/ SHA-256
         type: "public-key",

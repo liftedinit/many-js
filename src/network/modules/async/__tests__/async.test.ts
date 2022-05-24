@@ -4,42 +4,24 @@ import { tag } from "../../../../message/cbor"
 import cbor from "cbor"
 import { Network } from "../../.."
 import { AnonymousIdentity } from "../../../../identity"
+import { AsyncStatusResult } from ".."
 
 describe("Async", () => {
   it("handleAsyncToken()", async () => {
-    let count = 2
     const mockCall = jest
       .fn()
       .mockImplementationOnce(async () => {
-        return new Message(new Map([[4, cbor.encode(new Map([[0, 0]]))]]))
+        return makeAsyncStatusPollResponseMessage(AsyncStatusResult.Unknown)
       })
       .mockImplementationOnce(async () => {
-        return new Message(
-          new Map([
-            [
-              4,
-              cbor.encode(
-                //@ts-ignore
-                new Map([
-                  [0, 3],
-                  [
-                    1,
-                    cbor.encode(
-                      tag(
-                        10002,
-                        new Map([
-                          [
-                            4,
-                            cbor.encode(new Map([[0, ["data", "returned"]]])),
-                          ],
-                        ]),
-                      ),
-                    ),
-                  ],
-                ]),
-              ),
-            ],
-          ]),
+        return makeAsyncStatusPollResponseMessage(
+          AsyncStatusResult.Done,
+          cbor.encode(
+            tag(
+              10002,
+              new Map([[4, cbor.encode(new Map([[0, ["data", "returned"]]]))]]),
+            ),
+          ),
         )
       })
     const async = setupAsync(mockCall)
@@ -61,4 +43,14 @@ function setupAsync(callImpl?: jest.Mock) {
     call: mockCall,
     ...Async,
   }
+}
+
+function makeAsyncStatusPollResponseMessage(
+  statusResult: AsyncStatusResult,
+  payload?: ArrayBuffer,
+) {
+  const result = new Map()
+  result.set(0, statusResult)
+  if (payload) result.set(1, payload)
+  return new Message(new Map([[4, cbor.encode(result)]]))
 }
