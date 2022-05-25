@@ -17,6 +17,7 @@
     "crc": "^3.8.0",
     "jest": "^27.4.5",
     "js-sha3": "^0.8.0",
+    "js-sha512": "^0.8.0",
     "node-forge": "^0.10.0",
     "ts-jest": "^27.1.1",
     "typescript": "^4.4.4",
@@ -25,6 +26,7 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
+    "watch": "npm run clean && npm run build -- -w",
     "clean": "rm -rf ./dist",
     "postinstall": "tsc"
   },
@@ -46,6 +48,7 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
+    "maxWorkers": 1,
     "testMatch": [
       "**/?(*.)+(spec|test).[jt]s?(x)"
     ],

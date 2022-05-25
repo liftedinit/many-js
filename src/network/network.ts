@@ -1,18 +1,18 @@
 import { Identity } from "../identity"
-import { KeyPair } from "../keys"
 import { Message } from "../message"
 import { CborData } from "../message/cbor"
 import { applyMixins } from "../utils"
 import { NetworkModule } from "./modules"
+import { Async } from "./modules/async"
 
 export class Network {
   [k: string]: any
   url: string
-  keys: KeyPair | undefined
+  identity: Identity | undefined
 
-  constructor(url: string, keys?: KeyPair) {
+  constructor(url: string, identity?: Identity) {
     this.url = url
-    this.keys = keys
+    this.identity = identity
   }
 
   apply(modules: NetworkModule[]) {
@@ -20,10 +20,13 @@ export class Network {
   }
 
   async send(req: Message) {
-    const cbor = req.toCborData(this.keys)
+    const cbor = await req.toCborData(this.identity)
     const reply = await this.sendEncoded(cbor)
     // @TODO: Verify response
-    const res = Message.fromCborData(reply)
+    const res = await Async.handleAsyncToken.call(
+      this,
+      Message.fromCborData(reply),
+    )
     return res
   }
 
@@ -37,15 +40,13 @@ export class Network {
     return Buffer.from(reply)
   }
 
-  call(method: string, data?: any) {
+  async call(method: string, data?: any) {
     const req = Message.fromObject({
       method,
-      from: this.keys?.publicKey
-        ? Identity.fromPublicKey(this.keys.publicKey)
-        : undefined,
+      from: this.identity ? await this.identity.getAddress() : undefined,
       data,
     })
-    return this.send(req)
+    return await this.send(req)
   }
 
   // @TODO: Move these methods to modules/base, modules/ledger, etc.

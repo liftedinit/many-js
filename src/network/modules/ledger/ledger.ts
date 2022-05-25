@@ -1,10 +1,10 @@
 import cbor from "cbor"
-import { Identity } from "../../../identity"
+import { Address, Identity } from "../../../identity"
 import { Message } from "../../../message"
 import type { NetworkModule } from "../types"
 
 export interface LedgerInfo {
-  symbols: Map<ReturnType<Identity["toString"]>, string>
+  symbols: Map<ReturnType<Address["toString"]>, string>
 }
 
 export enum OrderType {
@@ -42,7 +42,7 @@ export interface Transaction {
   time: Date
   type: TransactionType
   amount: bigint
-  symbolIdentity: string
+  symbolAddress: string
   symbol?: string
   from?: string
   to?: string
@@ -73,10 +73,10 @@ export enum RangeType {
 interface Ledger extends NetworkModule {
   _namespace_: string
   info: () => Promise<LedgerInfo>
-  balance: (symbols?: string[]) => Promise<Balances>
+  balance: (address?: string, symbols?: string[]) => Promise<Balances>
   mint: () => Promise<unknown>
   burn: () => Promise<unknown>
-  send: (to: Identity, amount: bigint, symbol: string) => Promise<unknown>
+  send: (to: Address, amount: bigint, symbol: string) => Promise<unknown>
   transactions: () => Promise<{ count: bigint }>
   list: (opts?: ListArgs) => Promise<TransactionsData>
 }
@@ -87,11 +87,10 @@ export const Ledger: Ledger = {
     const message = await this.call("ledger.info")
     return getLedgerInfo(message)
   },
-  async balance(symbols?: string[]): Promise<Balances> {
-    const res = await this.call(
-      "ledger.balance",
-      new Map([[1, symbols ? symbols : []]]),
-    )
+  async balance(address?: string, symbols?: string[]): Promise<Balances> {
+    const m = new Map<number, unknown>([[1, symbols ?? []]])
+    address && m.set(0, address)
+    const res = await this.call("ledger.balance", m)
     return getBalance(res)
   },
 
@@ -103,7 +102,7 @@ export const Ledger: Ledger = {
     throw new Error("Not implemented")
   },
 
-  async send(to: Identity, amount: bigint, symbol: string): Promise<unknown> {
+  async send(to: Address, amount: bigint, symbol: string): Promise<unknown> {
     return await this.call(
       "ledger.send",
       new Map<number, any>([
@@ -139,15 +138,15 @@ export const Ledger: Ledger = {
 
 export function getLedgerInfo(message: Message): LedgerInfo {
   const result: LedgerInfo = { symbols: new Map() }
-  if (message.content.has(4)) {
-    const decodedContent = cbor.decodeFirstSync(message.content.get(4))
+  const decodedContent = message.getPayload()
+  if (decodedContent) {
     if (decodedContent.has(4)) {
       const symbols = decodedContent.get(4)
 
       for (const symbol of symbols) {
-        const identity = new Identity(Buffer.from(symbol[0].value)).toString()
+        const address = new Address(Buffer.from(symbol[0].value)).toString()
         const symbolName = symbol[1]
-        result.symbols.set(identity, symbolName)
+        result.symbols.set(address, symbolName)
       }
     }
   }
@@ -160,16 +159,14 @@ export interface Balances {
 
 export function getBalance(message: Message): Balances {
   const result = { balances: new Map() }
-  if (message.content.has(4)) {
-    const messageContent = cbor.decodeFirstSync(message.content.get(4))
-    if (messageContent.has(0)) {
-      const symbolsToBalancesMap = messageContent.get(0)
-      if (!(symbolsToBalancesMap instanceof Map)) return result
-      for (const balanceEntry of symbolsToBalancesMap) {
-        const symbolIdentityStr = new Identity(balanceEntry[0].value).toString()
-        const balance = balanceEntry[1]
-        result.balances.set(symbolIdentityStr, balance)
-      }
+  const messageContent = message.getPayload()
+  if (messageContent && messageContent.has(0)) {
+    const symbolsToBalancesMap = messageContent.get(0)
+    if (!(symbolsToBalancesMap instanceof Map)) return result
+    for (const balanceEntry of symbolsToBalancesMap) {
+      const symbolAddress = new Address(balanceEntry[0].value).toString()
+      const balance = balanceEntry[1]
+      result.balances.set(symbolAddress, balance)
     }
   }
   return result
@@ -177,9 +174,7 @@ export function getBalance(message: Message): Balances {
 
 function getTransactionsCount(message: Message) {
   return {
-    count: message?.content?.has(4)
-      ? cbor.decodeFirstSync(message.content.get(4))?.get(0)
-      : 0,
+    count: message?.getContent().has(4) ? message?.getPayload()?.get(0) : 0,
   }
 }
 
@@ -188,13 +183,13 @@ function getTxnList(message: Message): TransactionsData {
     count: 0,
     transactions: [],
   }
-  if (message.content.has(4)) {
-    const decodedContent = cbor.decodeFirstSync(message.content.get(4))
+  const decodedContent = message.getPayload()
+  if (decodedContent) {
     result.count = decodedContent.get(0)
     const transactions = decodedContent.get(1)
     result.transactions = transactions.map((t: Map<number, unknown>) => {
-      let transactionData = t.get(2) as Array<unknown>
-      const transactionType = transactionData[0]
+      let transactionData = t.get(2) as Map<number, unknown>
+      const transactionType = transactionData.get(0)
       if (transactionType === 0) {
         return makeSendTransactionData(t)
       }
@@ -204,21 +199,23 @@ function getTxnList(message: Message): TransactionsData {
 }
 
 function makeSendTransactionData(t: Map<number, unknown>) {
-  let transactionData = t.get(2) as Array<unknown>
+  let transactionData = t.get(2) as Map<number, unknown>
   const id = t.get(0) as Uint8Array
   const time = t.get(1)
-  const from = transactionData[1] as { value: Uint8Array }
-  const to = transactionData[2] as { value: Uint8Array }
-  const fromAddress = new Identity(from.value as Buffer).toString()
-  const toAddress = new Identity(to.value as Buffer).toString()
+  const from = transactionData.get(1) as { value: Uint8Array }
+  const to = transactionData.get(2) as { value: Uint8Array }
+  const symbol = transactionData.get(3) as { value: Uint8Array }
+  const symbolAddress = new Address(symbol.value as Buffer).toString()
+  const fromAddress = new Address(from.value as Buffer).toString()
+  const toAddress = new Address(to.value as Buffer).toString()
   return {
     id,
     time,
     type: TransactionType.send,
     from: fromAddress,
     to: toAddress,
-    symbolIdentity: transactionData[3],
-    amount: BigInt(transactionData[4] as number),
+    symbolAddress,
+    amount: BigInt(transactionData.get(4) as number),
   }
 }
 

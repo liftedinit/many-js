@@ -1,15 +1,14 @@
 import cbor from "cbor";
-
-import { Identity } from "../identity";
+import { Address, Identity } from "../identity"
 import { CborData, CborMap, tag } from "./cbor";
 import { CoseMessage } from "./cose";
 import { ManyError, SerializedManyError } from "./error";
-import { KeyPair } from "../keys";
+import { Attributes, AsyncAttribute } from "./attributes"
 
 interface MessageContent {
   version?: number;
-  from?: Identity;
-  to?: Identity;
+  from?: Address
+  to?: Address
   method: string;
   data?: any;
   timestamp?: number;
@@ -19,7 +18,25 @@ interface MessageContent {
 }
 
 export class Message {
-  constructor(public content: CborMap) {}
+  private content: CborMap
+  constructor(content: CborMap) {
+    this.content = content
+  }
+
+  getContent() {
+    return this.content
+  }
+
+  getAsyncToken(): ArrayBuffer | undefined {
+    const attributes = Attributes.getFromMessage(this)
+    return attributes
+      ? AsyncAttribute.getFromAttributes(attributes)?.getToken()
+      : undefined
+  }
+
+  getPayload(): CborMap {
+    return cbor.decode(this.content?.get(4))
+  }
 
   static fromObject(obj: MessageContent): Message {
     if (!obj.method) {
@@ -85,12 +102,12 @@ export class Message {
     }
   }
 
-  toCoseMessage(keys?: KeyPair) {
-    return CoseMessage.fromMessage(this, keys);
+  toCoseMessage(identity?: Identity) {
+    return CoseMessage.fromMessage(this, identity)
   }
 
-  toCborData(keys?: KeyPair) {
-    return this.toCoseMessage(keys).toCborData();
+  async toCborData(identity?: Identity) {
+    return (await this.toCoseMessage(identity)).toCborData()
   }
 
   toString() {

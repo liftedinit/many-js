@@ -1,14 +1,14 @@
 import cbor from "cbor";
 import { Network } from "../network";
-import { KeyPair } from "../keys";
 import { tag } from "../message/cbor";
 import { sha3_224 } from "js-sha3";
 import {
   expectedSymbolsMap,
-  mockSymbolIdentity,
-  mockSymbolIdentity2,
+  mockSymbolAddress,
+  mockSymbolAddress2,
 } from "./modules/ledger/__tests__/data"
 import { Ledger } from "./modules";
+import { Ed25519KeyPairIdentity } from "../identity"
 
 const globalFetch = global.fetch;
 
@@ -19,7 +19,9 @@ describe("network", () => {
 
   test("can get and set URL and KeyPair", () => {
     const testnet = new Network("http://example.com");
-    const keys = KeyPair.fromMnemonic(KeyPair.getMnemonic());
+    const keys = Ed25519KeyPairIdentity.fromMnemonic(
+      Ed25519KeyPairIdentity.getMnemonic(),
+    )
     testnet.keys = keys;
 
     expect(testnet.url).toBe("http://example.com");
@@ -71,10 +73,10 @@ describe("network", () => {
         4,
         cbor.encode(
           // @ts-ignore
-          new Map([[4, new Map([mockSymbolIdentity, mockSymbolIdentity2])]])
+          new Map([[4, new Map([mockSymbolAddress, mockSymbolAddress2])]]),
         ),
       ],
-    ]);
+    ])
     const mockCoseResponse = cbor.encodeCanonical(
       tag(18, [
         cbor.encodeCanonical(protectedHeader),
