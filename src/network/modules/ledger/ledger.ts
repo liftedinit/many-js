@@ -187,15 +187,27 @@ function getTxnList(message: Message): TransactionsData {
   if (decodedContent) {
     result.count = decodedContent.get(0)
     const transactions = decodedContent.get(1)
-    result.transactions = transactions.map((t: Map<number, unknown>) => {
-      let transactionData = t.get(2) as Map<number, unknown>
-      const transactionType = transactionData.get(0)
-      if (transactionType === 0) {
-        return makeSendTransactionData(t)
-      }
-    })
+    result.transactions = transactions
+      .map((t: Map<number, unknown>) => {
+        let transactionData = t.get(2) as Map<number, unknown>
+        const transactionType = getLedgerTransactionType(
+          transactionData.get(0) as [number, number],
+        )
+        if (transactionType === TransactionType.send) {
+          return makeSendTransactionData(t)
+        }
+      })
+      .filter(Boolean)
   }
   return result
+}
+
+function getLedgerTransactionType([a, b]: [number, number]):
+  | TransactionType
+  | undefined {
+  if (a === 4 && b === 0) {
+    return TransactionType.send
+  }
 }
 
 function makeSendTransactionData(t: Map<number, unknown>) {

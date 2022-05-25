@@ -88,7 +88,7 @@ export const mockLedgerListResponseContent = new Map([
                 2,
                 //@ts-ignore
                 new Map([
-                  [0, 0],
+                  [0, [4, 0]],
                   [1, tag(10000, Address1)],
                   [2, tag(10000, Address2)],
                   [
@@ -110,7 +110,7 @@ export const mockLedgerListResponseContent = new Map([
                 2,
                 //@ts-ignore
                 new Map([
-                  [0, 0],
+                  [0, [4, 0]],
                   [1, tag(10000, Address1)],
                   [2, tag(10000, Address2)],
                   [
