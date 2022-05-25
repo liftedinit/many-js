@@ -53,7 +53,7 @@ export class Ed25519KeyPairIdentity extends PublicKeyIdentity {
     })
   }
   async verify(m: ArrayBuffer): Promise<boolean> {
-    return false
+    throw new Error("Method not implemented.")
   }
 
   getCoseKey(): CoseKey {

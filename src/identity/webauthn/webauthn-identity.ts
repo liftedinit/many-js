@@ -49,7 +49,7 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
   }
 
   async verify(_: ArrayBuffer): Promise<boolean> {
-    return false
+    throw new Error("Method not implemented.")
   }
 
   static async getCredential(
