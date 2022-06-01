@@ -11,7 +11,7 @@ import {
 export const Account: IAccount = {
   _namespace_: "account",
 
-  async info(accountId: string): Promise<unknown> {
+  async info(accountId: string): Promise<ReturnType<typeof getAccountInfo>> {
     const message = await this.call("account.info", new Map([[0, accountId]]))
     return getAccountInfo(message)
   },
