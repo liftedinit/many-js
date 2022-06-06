@@ -29,11 +29,6 @@ export enum LedgerTransactionType {
 
 export interface IAccount extends NetworkModule {
   info: (accountId: string) => Promise<unknown>
-  multisigSubmitTxn: (
-    txnType: LedgerTransactionType,
-    opts: LedgerSendParam,
-  ) => Promise<unknown>
-  create: () => Promise<unknown>
 }
 
 export enum AccountFeatureTypes {
