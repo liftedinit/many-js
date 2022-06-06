@@ -17,17 +17,16 @@ export const Account: IAccount = {
   },
 }
 
-type AccountInfoData =
-  | {
-      name: string
-      roles: ReturnType<typeof getAccountInfoRolesData>
-      features: ReturnType<typeof getAccountInfoFeaturesData>
-    }
-  | undefined
+export type AccountInfoData = {
+  name: string
+  roles: ReturnType<typeof getAccountInfoRolesData>
+  features: ReturnType<typeof getAccountInfoFeaturesData>
+}
+
 function getAccountInfo(message: Message): {
-  accountInfo: AccountInfoData
+  accountInfo: AccountInfoData | undefined
 } {
-  let result: { accountInfo: AccountInfoData } = {
+  let result: { accountInfo: AccountInfoData | undefined } = {
     accountInfo: undefined,
   }
   const payload = message.getPayload()

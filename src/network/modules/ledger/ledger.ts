@@ -1,7 +1,14 @@
 import cbor from "cbor"
-import { Address, Identity } from "../../../identity"
+import { transactionTypeIndices } from "../../../const"
+import { Address } from "../../../identity"
 import { Message } from "../../../message"
-import type { NetworkModule } from "../types"
+import { makeLedgerSendParam } from "../../../utils"
+import {
+  LedgerSendParam,
+  LedgerTransactionType,
+  NetworkModule,
+  TransactionTypeIndices,
+} from "../types"
 
 export interface LedgerInfo {
   symbols: Map<ReturnType<Address["toString"]>, string>
@@ -32,15 +39,10 @@ interface ListArgs {
   order?: OrderType
 }
 
-export enum TransactionType {
-  send = "send",
-  burn = "burn",
-  mint = "mint",
-}
 export interface Transaction {
   id: string
   time: Date
-  type: TransactionType
+  type: LedgerTransactionType
   amount: bigint
   symbolAddress: string
   symbol?: string
@@ -76,7 +78,7 @@ interface Ledger extends NetworkModule {
   balance: (address?: string, symbols?: string[]) => Promise<Balances>
   mint: () => Promise<unknown>
   burn: () => Promise<unknown>
-  send: (to: Address, amount: bigint, symbol: string) => Promise<unknown>
+  send: (data: LedgerSendParam) => Promise<unknown>
   transactions: () => Promise<{ count: bigint }>
   list: (opts?: ListArgs) => Promise<TransactionsData>
 }
@@ -102,15 +104,8 @@ export const Ledger: Ledger = {
     throw new Error("Not implemented")
   },
 
-  async send(to: Address, amount: bigint, symbol: string): Promise<unknown> {
-    return await this.call(
-      "ledger.send",
-      new Map<number, any>([
-        [1, to.toString()],
-        [2, amount],
-        [3, symbol],
-      ]),
-    )
+  async send(param: LedgerSendParam): Promise<unknown> {
+    return await this.call("ledger.send", makeLedgerSendParam(param))
   },
 
   // 4 - Ledger Transactions
@@ -132,7 +127,7 @@ export const Ledger: Ledger = {
         [2, makeListFilters(filters)],
       ]),
     )
-    return getTxnList(res)
+    return await getTxnList(res)
   },
 }
 
@@ -178,8 +173,8 @@ function getTransactionsCount(message: Message) {
   }
 }
 
-function getTxnList(message: Message): TransactionsData {
-  const result = {
+async function getTxnList(message: Message): Promise<TransactionsData> {
+  const result: TransactionsData = {
     count: 0,
     transactions: [],
   }
@@ -187,48 +182,138 @@ function getTxnList(message: Message): TransactionsData {
   if (decodedContent) {
     result.count = decodedContent.get(0)
     const transactions = decodedContent.get(1)
-    result.transactions = transactions
-      .map((t: Map<number, unknown>) => {
-        let transactionData = t.get(2) as Map<number, unknown>
-        const transactionType = getLedgerTransactionType(
-          transactionData.get(0) as [number, number],
-        )
-        if (transactionType === TransactionType.send) {
-          return makeSendTransactionData(t)
-        }
-      })
-      .filter(Boolean)
+    result.transactions = (
+      await Promise.all(
+        transactions.map(async (t: Map<number, unknown>) => {
+          try {
+            return {
+              id: t.get(0),
+              time: t.get(1),
+              ...(await makeTxnData(t.get(2) as Map<number, unknown>)),
+            }
+          } catch (e) {
+            console.error("error parsing txn:", e)
+          }
+        }),
+      )
+    ).filter(Boolean)
   }
   return result
 }
 
-function getLedgerTransactionType([a, b]: [number, number]):
-  | TransactionType
-  | undefined {
-  if (a === 4 && b === 0) {
-    return TransactionType.send
+async function getTxnTypeNameFromIndices(
+  indices: TransactionTypeIndices,
+): Promise<LedgerTransactionType | undefined> {
+  const indicesJson = JSON.stringify(indices)
+  if (
+    indicesJson ===
+    JSON.stringify(transactionTypeIndices[LedgerTransactionType.send])
+  )
+    return LedgerTransactionType.send
+  if (
+    indicesJson ===
+    JSON.stringify(
+      transactionTypeIndices[LedgerTransactionType.accountMultisigSubmit],
+    )
+  )
+    return LedgerTransactionType.accountMultisigSubmit
+}
+
+type MakeTxnDataOpts = {
+  isTxnParamData: boolean
+}
+
+async function makeTxnData(
+  txn: Map<number, unknown>,
+  opts?: MakeTxnDataOpts,
+): Promise<Record<string, unknown> | undefined> {
+  const indices = txn.get(0) as TransactionTypeIndices
+  const txnTypeName = await getTxnTypeNameFromIndices(indices)
+
+  if (txnTypeName === LedgerTransactionType.send)
+    return await makeSendTransactionData(txn, opts)
+  else if (txnTypeName === LedgerTransactionType.accountMultisigSubmit)
+    return await makeMultisigSubmitTxnData(txn)
+
+  console.error("txn type not implemented", indices)
+}
+
+async function makeMultisigSubmitTxnData(txnData: Map<number, unknown>) {
+  const submitterAddress = await getAddressFromTaggedIdentity(
+    txnData.get(1) as { value: Uint8Array },
+  )
+  const accountAddress = await getAddressFromTaggedIdentity(
+    txnData.get(2) as { value: Uint8Array },
+  )
+
+  const submittedTxn = txnData.get(4) as Map<number, unknown>
+  const transaction = await makeTxnData(submittedTxn, {
+    isTxnParamData: true,
+  })
+
+  return {
+    type: LedgerTransactionType.accountMultisigSubmit,
+    submitter: submitterAddress,
+    account: accountAddress,
+    memo: txnData.get(3),
+    token: txnData.get(5),
+    timeout: txnData.get(7),
+    threshold: txnData.get(6),
+    execute_automatically: txnData.get(8),
+    transaction,
   }
 }
 
-function makeSendTransactionData(t: Map<number, unknown>) {
-  let transactionData = t.get(2) as Map<number, unknown>
-  const id = t.get(0) as Uint8Array
-  const time = t.get(1)
-  const from = transactionData.get(1) as { value: Uint8Array }
-  const to = transactionData.get(2) as { value: Uint8Array }
-  const symbol = transactionData.get(3) as { value: Uint8Array }
-  const symbolAddress = new Address(symbol.value as Buffer).toString()
-  const fromAddress = new Address(from.value as Buffer).toString()
-  const toAddress = new Address(to.value as Buffer).toString()
-  return {
-    id,
-    time,
-    type: TransactionType.send,
-    from: fromAddress,
-    to: toAddress,
-    symbolAddress,
-    amount: BigInt(transactionData.get(4) as number),
+async function makeSendTransactionData(
+  txnData: Map<number, unknown>,
+  opts?: MakeTxnDataOpts,
+) {
+  const { isTxnParamData } = opts || {}
+  if (isTxnParamData) {
+    txnData = txnData.get(1) as Map<number, unknown>
+    return {
+      type: LedgerTransactionType.send,
+      from: await getAddressFromTaggedIdentity(
+        txnData.get(0) as {
+          value: Uint8Array
+        },
+      ),
+      to: await getAddressFromTaggedIdentity(
+        txnData.get(1) as {
+          value: Uint8Array
+        },
+      ),
+      symbolAddress: await getAddressFromTaggedIdentity(
+        txnData.get(3) as {
+          value: Uint8Array
+        },
+      ),
+      amount: BigInt(txnData.get(2) as number),
+    }
   }
+  return {
+    type: LedgerTransactionType.send,
+    from: await getAddressFromTaggedIdentity(
+      txnData.get(1) as {
+        value: Uint8Array
+      },
+    ),
+    to: await getAddressFromTaggedIdentity(
+      txnData.get(2) as {
+        value: Uint8Array
+      },
+    ),
+    symbolAddress: await getAddressFromTaggedIdentity(
+      txnData.get(3) as { value: Uint8Array },
+    ),
+    amount: BigInt(txnData.get(4) as number),
+  }
+}
+
+async function getAddressFromTaggedIdentity(taggedIdentity: {
+  value: Uint8Array
+}): Promise<string> {
+  return new Address(taggedIdentity.value as Buffer).toString()
 }
 
 export function makeListFilters(filters: ListFilterArgs): Map<number, unknown> {

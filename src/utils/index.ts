@@ -1,5 +1,7 @@
 import { Network, NetworkModule } from "../network"
 
+export * from "./transactions"
+
 export function applyMixins<N extends Network, M extends NetworkModule[]>(
   network: N,
   modules: M,

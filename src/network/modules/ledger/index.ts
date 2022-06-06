@@ -1,4 +1,4 @@
-export { Ledger, TransactionType, BoundType, OrderType } from "./ledger"
+export { Ledger, BoundType, OrderType } from "./ledger"
 export type {
   LedgerInfo,
   Balances,
