@@ -15,6 +15,8 @@ import {
   mockLedgerBalanceResponseMessage,
   mockLedgeListResponseMessage,
   expectedListResponse,
+  mockLedgerListMultisigSubmitTxnResponse,
+  expectedMockLedgerListMultisigSubmitTxnResponse,
 } from "./data"
 
 describe("Ledger", () => {
@@ -68,13 +70,21 @@ describe("Ledger", () => {
   })
 
   describe("ledger.list", () => {
-    it("should return count and list of transactions", async () => {
+    it("should return count and list of send transactions", async () => {
       const mockCall = jest.fn(async () => {
         return mockLedgeListResponseMessage
       })
       const ledger = setupLedger(mockCall)
       const res = await ledger.list()
       expect(res).toEqual(expectedListResponse)
+    })
+    it("should return count and list of multisigSubmit transaction", async () => {
+      const mockCall = jest.fn(async () => {
+        return mockLedgerListMultisigSubmitTxnResponse
+      })
+      const ledger = setupLedger(mockCall)
+      const res = await ledger.list()
+      expect(res).toEqual(expectedMockLedgerListMultisigSubmitTxnResponse)
     })
     it("should be called with correct args", async () => {
       const mockCall = jest.fn(async () => {
