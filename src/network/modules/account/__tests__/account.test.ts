@@ -1,14 +1,15 @@
-import cbor from "cbor"
 import { Address } from "../../../../identity"
-import { Message } from "../../../../message"
 import {
   AccountFeature,
   AccountFeatureTypes,
   AccountMultisigArgument,
   AccountRole,
+  LedgerTransactionType,
 } from "../../types"
-import { setupModule } from "../../test/test-utils"
+import { makeMockResponseMessage, setupModule } from "../../test/test-utils"
 import { Account } from "../account"
+import { makeLedgerSendParam } from "../../../../utils"
+import { transactionTypeIndices } from "../../../../const"
 
 describe("Account", () => {
   it("info() should return accountInfo", async () => {
@@ -24,19 +25,27 @@ describe("Account", () => {
     roles.set("mahiclsquy3nnoioxg3zhsci2vltdhmlsmdlbhbaglf5rjtq6c", [
       AccountRole.canMultisigApprove,
     ])
+    const _roles = Array.from(roles).reduce((acc, rolesForAddress) => {
+      const [address, roleList] = rolesForAddress
+      const bytes = Address.fromString(address).toBuffer()
+      acc.set({ value: bytes }, roleList)
+      return acc
+    }, new Map())
+    const features: AccountFeature[] = [
+      [
+        AccountFeatureTypes.accountMultisig,
+        // @ts-ignore
+        new Map([
+          [AccountMultisigArgument.threshold, 2],
+          [AccountMultisigArgument.execute_automatically, false],
+          [AccountMultisigArgument.timeout_in_secs, 86400],
+        ]),
+      ],
+    ]
+    const content = new Map()
+    content.set(0, accountName).set(1, _roles).set(2, features)
     const mockCall = jest.fn(async () => {
-      const features: AccountFeature[] = [
-        [
-          AccountFeatureTypes.accountMultisig,
-          // @ts-ignore
-          new Map([
-            [AccountMultisigArgument.threshold, 2],
-            [AccountMultisigArgument.execute_automatically, false],
-            [AccountMultisigArgument.timeout_in_secs, 86400],
-          ]),
-        ],
-      ]
-      return makeResponseMessage(accountName, roles, features)
+      return makeMockResponseMessage(content)
     })
     const account = setupModule(Account, mockCall)
     const res = await account.info("m123")
@@ -63,39 +72,39 @@ describe("Account", () => {
       },
     })
   })
+
+  it("should submit multig transactions", async () => {
+    const resMultisigToken = new Uint8Array()
+    const mockCall = jest.fn(async () => {
+      return makeMockResponseMessage(new Map().set(0, resMultisigToken))
+    })
+    const account = setupModule(Account, mockCall)
+    const txnData = {
+      amount: BigInt(1),
+      to: "m123",
+      from: "m321",
+      symbol: "m456",
+      memo: "this is a memo",
+    }
+
+    const res = await account.submitMultisigTxn(
+      LedgerTransactionType.send,
+      txnData,
+    )
+
+    const expectedCallArgs = new Map()
+      .set(0, txnData.from)
+      .set(1, txnData.memo)
+      .set(
+        2,
+        new Map()
+          .set(0, transactionTypeIndices[LedgerTransactionType.send])
+          .set(1, makeLedgerSendParam(txnData)),
+      )
+    expect(mockCall).toHaveBeenCalledWith(
+      "account.multisigSubmitTransaction",
+      expectedCallArgs,
+    )
+    expect(res).toEqual({ token: resMultisigToken })
+  })
 })
-
-function makeResponseMessage(
-  accountName: string,
-  roles: Map<string, AccountRole[]>,
-  features: AccountFeature[],
-) {
-  const _roles = Array.from(roles).reduce((acc, rolesForAddress) => {
-    const [address, roleList] = rolesForAddress
-    const bytes = Address.fromString(address).toBuffer()
-    acc.set({ value: bytes }, roleList)
-    return acc
-  }, new Map())
-
-  const mockLedgerInfoResponseContent = new Map([
-    [
-      4,
-      cbor.encode(
-        //@ts-ignore
-        new Map([
-          [0, accountName],
-          [1, _roles],
-          [2, features],
-        ]),
-      ),
-    ],
-  ])
-
-  return new Message(mockLedgerInfoResponseContent)
-}
-
-function makeRole(address: string, roles: AccountRole[]) {
-  const m = new Map()
-  m.set(address, roles)
-  return m
-}

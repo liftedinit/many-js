@@ -27,10 +27,6 @@ export enum LedgerTransactionType {
   accountMultisigSetDefaults = "accountMultisigSetDefaults",
 }
 
-export interface IAccount extends NetworkModule {
-  info: (accountId: string) => Promise<unknown>
-}
-
 export enum AccountFeatureTypes {
   /**
    * adds canLedgerTransact account role
