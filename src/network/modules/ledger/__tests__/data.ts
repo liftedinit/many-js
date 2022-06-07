@@ -1,16 +1,18 @@
-import cbor from "cbor"
 import { Address } from "../../../../identity"
 import { tag } from "../../../../message/cbor"
-import { Message } from "../../../../message"
 import { ONE_MINUTE, transactionTypeIndices } from "../../../../const"
 import { LedgerTransactionType, TransactionTypeIndices } from "../../types"
-import { makeMockResponseMessage } from "../../test/test-utils"
-
-const accountSource = "mqdiclsquy3nnoioxg3zhsci2vltdhmlsmdlbhbaglf5rjtqaaabajj"
-const identityStr1 = "mqbfbahksdwaqeenayy2gxke32hgb7aq4ao4wt745lsfs6wiaaaaqnz"
-const Address1 = Address.fromString(identityStr1).toBuffer()
-const identityStr2 = "maffbahksdwaqeenayy2gxke32hgb7aq4ao4wt745lsfs6wijp"
-const Address2 = Address.fromString(identityStr2).toBuffer()
+import {
+  accountSource,
+  Address1,
+  Address2,
+  identityStr1,
+  identityStr2,
+  makeLedgerSendParamResponse,
+  makeMockResponseMessage,
+  txnSymbolAddress1,
+  txnSymbolAddress2,
+} from "../../test/test-utils"
 
 export const mockSymbolAddress = [tag(10000, Address1), "abc"]
 
@@ -53,8 +55,6 @@ export const expectedBalancesMap = {
   ]),
 }
 
-const txnSymbolAddress1 = "mafw3bxrqe2jdcidvjlonloqcczvytrxr3fl4naybmign3uy6e"
-const txnSymbolAddress2 = "mafxombm6axwsrcvymht5ss3chlpbks7sp7dvl2v7chnuzkyfj"
 const txnTime1 = new Date()
 const txnTime2 = new Date()
 txnTime2.setMinutes(txnTime1.getMinutes() + 1)
@@ -185,29 +185,11 @@ function makeSendTxn({
   return makeTxn({ id, time, txnData: m })
 }
 
-function makeLedgerSendParamResponse({
-  source,
-  destination,
-  amount,
-  symbol,
-}: {
-  source: string
-  destination: string
-  amount: number
-  symbol: string
-}) {
-  return new Map()
-    .set(0, tag(10000, Address.fromString(source).toBuffer()))
-    .set(1, tag(10000, Address.fromString(destination).toBuffer()))
-    .set(2, amount)
-    .set(3, tag(10000, Address.fromString(symbol).toBuffer()))
-}
-
 function makeLedgerListResponseMessage(count: number, transactions: unknown[]) {
   return makeMockResponseMessage(new Map().set(0, count).set(1, transactions))
 }
 
-const _timeout = new Date(new Date().getTime() + ONE_MINUTE)
+const timeout = new Date(new Date().getTime() + ONE_MINUTE)
 export const mockLedgerListMultisigSubmitTxnResponse =
   makeLedgerListResponseMessage(1, [
     makeMultisigSubmitTxnResponse({
@@ -218,7 +200,7 @@ export const mockLedgerListMultisigSubmitTxnResponse =
       threshold: 2,
       memo: "this is a memo",
       execute_automatically: false,
-      timeout: _timeout,
+      timeout,
       submittedTxn: new Map().set(0, transactionTypeIndices.send).set(
         1,
         makeLedgerSendParamResponse({
@@ -242,7 +224,7 @@ export const expectedMockLedgerListMultisigSubmitTxnResponse = {
       account: accountSource,
       memo: "this is a memo",
       token: new Uint8Array(),
-      timeout: _timeout,
+      timeout,
       threshold: 2,
       execute_automatically: false,
       transaction: {
