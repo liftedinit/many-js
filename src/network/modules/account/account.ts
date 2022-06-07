@@ -4,7 +4,6 @@ import { Message } from "../../../message"
 import { CborMap } from "../../../message/cbor"
 import {
   getAddressFromTaggedIdentity,
-  getTxnTypeNameFromIndices,
   makeLedgerSendParam,
   makeTxnData,
 } from "../../../utils"
@@ -17,7 +16,6 @@ import {
   LedgerSendParam,
   LedgerTransactionType,
   NetworkModule,
-  TransactionTypeIndices,
 } from "../types"
 
 type GetAccountInfoReturnType = ReturnType<typeof getAccountInfo>
