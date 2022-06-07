@@ -1,26 +1,84 @@
+import { transactionTypeIndices } from "../../../const"
 import { Address } from "../../../identity"
 import { Message } from "../../../message"
+import { makeLedgerSendParam } from "../../../utils"
 import {
   AccountFeature,
   AccountFeatureTypes,
   AccountInfoPayloadResponseLabels,
   AccountMultisigArgument,
-  IAccount,
+  LedgerSendParam,
+  LedgerTransactionType,
+  NetworkModule,
 } from "../types"
 
-export const Account: IAccount = {
-  _namespace_: "account",
+type GetAccountInfoReturnType = ReturnType<typeof getAccountInfo>
+type GetMultisigTokenReturnType = ReturnType<typeof getMultisigToken>
+type SubmitMultisigTxnData = LedgerSendParam & { memo?: string }
 
-  async info(accountId: string): Promise<ReturnType<typeof getAccountInfo>> {
-    const message = await this.call("account.info", new Map([[0, accountId]]))
-    return getAccountInfo(message)
-  },
+export interface Account extends NetworkModule {
+  info: (accountId: string) => Promise<GetAccountInfoReturnType>
+  submitMultisigTxn: (
+    txnType: LedgerTransactionType,
+    txnData: SubmitMultisigTxnData,
+  ) => Promise<GetMultisigTokenReturnType>
 }
 
 export type AccountInfoData = {
   name: string
   roles: ReturnType<typeof getAccountInfoRolesData>
   features: ReturnType<typeof getAccountInfoFeaturesData>
+}
+
+export const Account: Account = {
+  _namespace_: "account",
+
+  async info(accountId: string): Promise<GetAccountInfoReturnType> {
+    const message = await this.call("account.info", new Map([[0, accountId]]))
+    return getAccountInfo(message)
+  },
+
+  async submitMultisigTxn(
+    txnType: LedgerTransactionType,
+    txnData: SubmitMultisigTxnData,
+  ): Promise<GetMultisigTokenReturnType> {
+    const m = new Map()
+    m.set(0, txnData.from)
+    txnData?.memo && m.set(1, txnData.memo)
+    m.set(2, makeSubmittedTxnData(txnType, txnData))
+    const msg = await this.call("account.multisigSubmitTransaction", m)
+    return getMultisigToken(msg)
+  },
+}
+
+function getMultisigToken(msg: Message) {
+  const res: { token: ArrayBuffer | undefined } = {
+    token: undefined,
+  }
+  const decoded = msg.getPayload()
+  if (decoded) {
+    res.token = decoded.get(0)
+  }
+  return res
+}
+
+function makeSubmittedTxnData(
+  txnType: LedgerTransactionType,
+  txnData: SubmitMultisigTxnData,
+) {
+  const accountMultisigTxn = new Map()
+  let txnTypeIndices
+  let txnParam
+  if (txnType === LedgerTransactionType.send) {
+    txnTypeIndices = transactionTypeIndices[LedgerTransactionType.send]
+    txnParam = makeLedgerSendParam(txnData)
+  }
+  if (txnTypeIndices && txnParam) {
+    accountMultisigTxn.set(0, txnTypeIndices)
+    accountMultisigTxn.set(1, txnParam)
+    return accountMultisigTxn
+  }
+  throw new Error(`transaction type not yet implemented: ${txnType}`)
 }
 
 function getAccountInfo(message: Message): {

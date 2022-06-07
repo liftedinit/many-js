@@ -4,6 +4,7 @@ import { tag } from "../../../../message/cbor"
 import { Message } from "../../../../message"
 import { ONE_MINUTE, transactionTypeIndices } from "../../../../const"
 import { LedgerTransactionType, TransactionTypeIndices } from "../../types"
+import { makeMockResponseMessage } from "../../test/test-utils"
 
 const accountSource = "mqdiclsquy3nnoioxg3zhsci2vltdhmlsmdlbhbaglf5rjtqaaabajj"
 const identityStr1 = "mqbfbahksdwaqeenayy2gxke32hgb7aq4ao4wt745lsfs6wiaaaaqnz"
@@ -22,45 +23,29 @@ export const expectedSymbolsMap = {
   ]),
 }
 
-export const mockLedgerInfoResponseContent = new Map([
-  [
-    4,
-    cbor.encode(
-      new Map([
-        [
-          4,
-          // @ts-ignore
-          new Map([mockSymbolAddress, mockSymbolAddress2]),
-        ],
-      ]),
-    ),
-  ],
-])
-
-export const mockLedgerInfoResponseMessage = new Message(
-  mockLedgerInfoResponseContent,
+export const mockLedgerInfoResponseMessage = makeMockResponseMessage(
+  new Map([
+    [
+      4,
+      // @ts-ignore
+      new Map([mockSymbolAddress, mockSymbolAddress2]),
+    ],
+  ]),
 )
 
 export const mockSymbolBalance = [tag(10000, Address1), 1000000]
 export const mockSymbolBalance2 = [tag(10000, Address2), 5000000]
 
-export const mockLedgerBalanceResponseContent = new Map([
-  [
-    4,
-    cbor.encode(
-      new Map([
-        [
-          0,
-          // @ts-ignore
-          new Map([mockSymbolBalance, mockSymbolBalance2]),
-        ],
-      ]),
-    ),
-  ],
-])
-export const mockLedgerBalanceResponseMessage = new Message(
-  mockLedgerBalanceResponseContent,
+export const mockLedgerBalanceResponseMessage = makeMockResponseMessage(
+  new Map([
+    [
+      0,
+      // @ts-ignore
+      new Map([mockSymbolBalance, mockSymbolBalance2]),
+    ],
+  ]),
 )
+
 export const expectedBalancesMap = {
   balances: new Map([
     [identityStr1, 1000000],
@@ -219,19 +204,7 @@ function makeLedgerSendParamResponse({
 }
 
 function makeLedgerListResponseMessage(count: number, transactions: unknown[]) {
-  const content = new Map([
-    [
-      4,
-      cbor.encode(
-        // @ts-ignore
-        new Map([
-          [0, count],
-          [1, transactions],
-        ]),
-      ),
-    ],
-  ])
-  return new Message(content)
+  return makeMockResponseMessage(new Map().set(0, count).set(1, transactions))
 }
 
 const _timeout = new Date(new Date().getTime() + ONE_MINUTE)
