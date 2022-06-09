@@ -4,4 +4,6 @@ export type {
   Balances,
   ListFilterArgs,
   Transaction,
+  SendTransaction,
+  MultisigTransaction,
 } from "./ledger"

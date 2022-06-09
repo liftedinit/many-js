@@ -6,25 +6,29 @@ import {
   AccountRole,
   LedgerTransactionType,
 } from "../../types"
-import { makeMockResponseMessage, setupModule } from "../../test/test-utils"
+import {
+  accountSource,
+  Address2,
+  identityStr1,
+  identityStr2,
+  identityStr3,
+  makeLedgerSendParamResponse,
+  makeMockResponseMessage,
+  setupModule,
+  txnSymbolAddress1,
+} from "../../test/test-utils"
 import { Account } from "../account"
 import { makeLedgerSendParam } from "../../../../utils"
-import { transactionTypeIndices } from "../../../../const"
+import { ONE_MINUTE, transactionTypeIndices } from "../../../../const"
+import { tag } from "../../../../message/cbor"
 
 describe("Account", () => {
   it("info() should return accountInfo", async () => {
     const accountName = "my-account"
     const roles = new Map()
-    roles.set("maffbahksdwaqeenayy2gxke32hgb7aq4ao4wt745lsfs6wijp", [
-      AccountRole.owner,
-      AccountRole.canMultisigSubmit,
-    ])
-    roles.set("maf7sbcv2z72aa5idufayhphb5cxkong3munpbgpqz4hykbah4", [
-      AccountRole.canMultisigApprove,
-    ])
-    roles.set("mahiclsquy3nnoioxg3zhsci2vltdhmlsmdlbhbaglf5rjtq6c", [
-      AccountRole.canMultisigApprove,
-    ])
+    roles.set(identityStr2, [AccountRole.owner, AccountRole.canMultisigSubmit])
+    roles.set(identityStr1, [AccountRole.canMultisigApprove])
+    roles.set(identityStr3, [AccountRole.canMultisigApprove])
     const _roles = Array.from(roles).reduce((acc, rolesForAddress) => {
       const [address, roleList] = rolesForAddress
       const bytes = Address.fromString(address).toBuffer()
@@ -73,7 +77,7 @@ describe("Account", () => {
     })
   })
 
-  it("should submit multig transactions", async () => {
+  it("should submit multisig transactions", async () => {
     const resMultisigToken = new Uint8Array()
     const mockCall = jest.fn(async () => {
       return makeMockResponseMessage(new Map().set(0, resMultisigToken))
@@ -107,4 +111,61 @@ describe("Account", () => {
     )
     expect(res).toEqual({ token: resMultisigToken })
   })
+
+  it("multisigInfo() should return info about the multisig transaction", async () => {
+    const timeout = new Date(new Date().getTime() + ONE_MINUTE)
+    const mockCall = jest.fn(async () => {
+      return makeMockResponseMessage(makeMultisigInfoResponse({ timeout }))
+    })
+    const account = setupModule(Account, mockCall)
+
+    const res = await account.multisigInfo(new ArrayBuffer(0))
+    expect(mockCall).toHaveBeenCalledWith(
+      "account.multisigInfo",
+      new Map().set(0, new ArrayBuffer(0)),
+    )
+    expect(res).toEqual({
+      info: {
+        memo: "this is a memo",
+        transaction: {
+          type: LedgerTransactionType.send,
+          from: accountSource,
+          to: identityStr1,
+          symbolAddress: txnSymbolAddress1,
+          amount: BigInt(2),
+        },
+        submitter: identityStr2,
+        approvers: [{ address: identityStr2, hasApproved: true }],
+        threshold: 2,
+        execute_automatically: false,
+        timeout,
+        cborData: null,
+      },
+    })
+  })
 })
+
+function makeMultisigInfoResponse({ timeout }: { timeout: Date }) {
+  const accountMultisigTxn = new Map().set(0, transactionTypeIndices.send).set(
+    1,
+    makeLedgerSendParamResponse({
+      source: accountSource,
+      destination: identityStr1,
+      symbol: txnSymbolAddress1,
+      amount: 2,
+    }),
+  )
+  const submitter = tag(10000, Address2)
+  const approvers = new Map().set(submitter, new Map().set(0, true))
+  const threshold = 2
+  const execute_automatically = false
+  return new Map()
+    .set(0, "this is a memo")
+    .set(1, accountMultisigTxn)
+    .set(2, submitter)
+    .set(3, approvers)
+    .set(4, threshold)
+    .set(5, execute_automatically)
+    .set(6, timeout)
+    .set(7, null)
+}

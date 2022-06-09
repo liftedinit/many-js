@@ -58,3 +58,7 @@ export enum AccountInfoPayloadResponseLabels {
 }
 
 export type AccountFeature = number | [number, unknown]
+
+export type MakeTxnDataOpts = {
+  isTxnParamData: boolean
+}

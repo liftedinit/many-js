@@ -1,7 +1,13 @@
 import { transactionTypeIndices } from "../../../const"
 import { Address } from "../../../identity"
 import { Message } from "../../../message"
-import { makeLedgerSendParam } from "../../../utils"
+import { CborMap } from "../../../message/cbor"
+import {
+  getAddressFromTaggedIdentity,
+  makeLedgerSendParam,
+  makeTxnData,
+} from "../../../utils"
+import { Transaction } from "../ledger"
 import {
   AccountFeature,
   AccountFeatureTypes,
@@ -22,12 +28,24 @@ export interface Account extends NetworkModule {
     txnType: LedgerTransactionType,
     txnData: SubmitMultisigTxnData,
   ) => Promise<GetMultisigTokenReturnType>
+  multisigInfo: (token: ArrayBuffer) => Promise<unknown>
 }
 
 export type AccountInfoData = {
   name: string
   roles: ReturnType<typeof getAccountInfoRolesData>
   features: ReturnType<typeof getAccountInfoFeaturesData>
+}
+
+export type MultisigTransactionInfo = {
+  memo?: string
+  transaction?: Omit<Transaction, "id" | "time">
+  submitter: string
+  approvers: { address: string; hasApproved: boolean }[]
+  threshold: number
+  execute_automatically: boolean
+  timeout: Date
+  cborData?: CborMap
 }
 
 export const Account: Account = {
@@ -49,6 +67,51 @@ export const Account: Account = {
     const msg = await this.call("account.multisigSubmitTransaction", m)
     return getMultisigToken(msg)
   },
+
+  async multisigInfo(token: ArrayBuffer) {
+    const res = await this.call("account.multisigInfo", new Map([[0, token]]))
+    return await getMultisigTxnData(res)
+  },
+}
+
+async function getMultisigTxnData(msg: Message) {
+  const result: { info: MultisigTransactionInfo | undefined } = {
+    info: undefined,
+  }
+  const content = msg.getPayload()
+  if (content) {
+    try {
+      result.info = {
+        memo: content.get(0),
+        transaction: await makeTxnData(content.get(1) as Map<number, unknown>, {
+          isTxnParamData: true,
+        }),
+        submitter: await getAddressFromTaggedIdentity(
+          content.get(2) as { value: Uint8Array },
+        ),
+        approvers: await Promise.all(
+          Array.from(content.get(3)).map(async approver => {
+            const [identity, hasApproved] = approver as [
+              { value: Uint8Array },
+              Map<number, boolean>,
+            ]
+            const address = await getAddressFromTaggedIdentity(identity)
+            return {
+              address,
+              hasApproved: hasApproved.get(0)!,
+            }
+          }),
+        ),
+        threshold: content.get(4),
+        execute_automatically: content.get(5),
+        timeout: content.get(6),
+        cborData: content.get(7),
+      }
+    } catch (e) {
+      console.error("error in multisig txn data:", e)
+    }
+  }
+  return result
 }
 
 function getMultisigToken(msg: Message) {
