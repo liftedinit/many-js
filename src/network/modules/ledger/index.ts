@@ -6,4 +6,9 @@ export type {
   Transaction,
   SendTransaction,
   MultisigTransaction,
+  MultisigSubmitTransaction,
+  MultisigApproveTransaction,
+  MultisigExecuteTransaction,
+  MultisigRevokeTransaction,
+  MultisigWithdrawTransaction,
 } from "./ledger"
