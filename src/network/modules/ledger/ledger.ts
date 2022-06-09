@@ -5,7 +5,7 @@ import { makeLedgerSendParam, makeTxnData } from "../../../utils"
 import { LedgerSendParam, LedgerTransactionType, NetworkModule } from "../types"
 
 export interface LedgerInfo {
-  symbols: Map<ReturnType<Address["toString"]>, string>
+  symbols: Map<string, string>
 }
 
 export enum OrderType {
@@ -48,6 +48,26 @@ export interface SendTransaction extends BaseTransaction {
 
 export interface MultisigTransaction extends BaseTransaction {
   account: string
+  token: ArrayBuffer
+}
+
+export interface MultisigApproveTransaction extends MultisigTransaction {
+  approver: string
+}
+export interface MultisigRevokeTransaction extends MultisigTransaction {
+  revoker: string
+}
+
+export interface MultisigExecuteTransaction extends MultisigTransaction {
+  executor: string
+}
+
+export interface MultisigWithdrawTransaction extends MultisigTransaction {
+  withdrawer: string
+}
+
+export interface MultisigSubmitTransaction extends MultisigTransaction {
+  account: string
   execute_automatically: boolean
   memo: string
   submitter: string
@@ -58,7 +78,13 @@ export interface MultisigTransaction extends BaseTransaction {
   data?: CborMap
 }
 
-export type Transaction = SendTransaction | MultisigTransaction
+export type Transaction =
+  | SendTransaction
+  | MultisigSubmitTransaction
+  | MultisigApproveTransaction
+  | MultisigRevokeTransaction
+  | MultisigExecuteTransaction
+  | MultisigWithdrawTransaction
 
 interface TransactionsData {
   count: number

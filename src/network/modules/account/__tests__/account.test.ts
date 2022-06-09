@@ -21,6 +21,7 @@ import { Account } from "../account"
 import { makeLedgerSendParam } from "../../../../utils"
 import { ONE_MINUTE, transactionTypeIndices } from "../../../../const"
 import { tag } from "../../../../message/cbor"
+import { Message } from "../../../../message"
 
 describe("Account", () => {
   it("info() should return accountInfo", async () => {
@@ -135,13 +136,78 @@ describe("Account", () => {
           amount: BigInt(2),
         },
         submitter: identityStr2,
-        approvers: [{ address: identityStr2, hasApproved: true }],
+        approvers: new Map([[identityStr2, true]]),
         threshold: 2,
         execute_automatically: false,
         timeout,
         cborData: null,
       },
     })
+  })
+
+  it("multisigApprove() should approve a transaction", async () => {
+    const mockCall = jest.fn(async () => {
+      return makeMockResponseMessage(undefined)
+    })
+    const account = setupModule(Account, mockCall)
+    const res = await account.multisigApprove(new ArrayBuffer(0))
+    expect(mockCall).toHaveBeenCalledWith(
+      "account.multisigApprove",
+      new Map([[0, new ArrayBuffer(0)]]),
+    )
+  })
+  it("multisigApprove() should throw", async () => {
+    const mockCall = jest.fn(async () => {
+      const content = new Map().set(
+        4,
+        new Map().set(0, -1).set(1, "this is an error message"),
+      )
+
+      return new Message(content)
+    })
+    const account = setupModule(Account, mockCall)
+    try {
+      const res = await account.multisigApprove(new ArrayBuffer(0))
+    } catch (e) {
+      expect(mockCall).toHaveBeenCalledWith(
+        "account.multisigApprove",
+        new Map([[0, new ArrayBuffer(0)]]),
+      )
+      expect((e as Error).message).toBe("this is an error message")
+    }
+  })
+  it("multisigRevoke() should revoke a transaction", async () => {
+    const mockCall = jest.fn(async () => {
+      return makeMockResponseMessage(undefined)
+    })
+    const account = setupModule(Account, mockCall)
+    const res = await account.multisigRevoke(new ArrayBuffer(0))
+    expect(mockCall).toHaveBeenCalledWith(
+      "account.multisigRevoke",
+      new Map([[0, new ArrayBuffer(0)]]),
+    )
+  })
+  it("multisigExecute() should execute a transaction", async () => {
+    const mockCall = jest.fn(async () => {
+      return makeMockResponseMessage(undefined)
+    })
+    const account = setupModule(Account, mockCall)
+    const res = await account.multisigExecute(new ArrayBuffer(0))
+    expect(mockCall).toHaveBeenCalledWith(
+      "account.multisigExecute",
+      new Map([[0, new ArrayBuffer(0)]]),
+    )
+  })
+  it("multisigWithdraw() should execute a transaction", async () => {
+    const mockCall = jest.fn(async () => {
+      return makeMockResponseMessage(undefined)
+    })
+    const account = setupModule(Account, mockCall)
+    const res = await account.multisigWithdraw(new ArrayBuffer(0))
+    expect(mockCall).toHaveBeenCalledWith(
+      "account.multisigWithdraw",
+      new Map([[0, new ArrayBuffer(0)]]),
+    )
   })
 })
 

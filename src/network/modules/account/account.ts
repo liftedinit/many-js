@@ -18,17 +18,25 @@ import {
   NetworkModule,
 } from "../types"
 
-type GetAccountInfoReturnType = ReturnType<typeof getAccountInfo>
+export type GetAccountInfoResponse = ReturnType<typeof getAccountInfo>
 type GetMultisigTokenReturnType = ReturnType<typeof getMultisigToken>
 type SubmitMultisigTxnData = LedgerSendParam & { memo?: string }
 
 export interface Account extends NetworkModule {
-  info: (accountId: string) => Promise<GetAccountInfoReturnType>
+  info: (accountId: string) => Promise<GetAccountInfoResponse>
   submitMultisigTxn: (
     txnType: LedgerTransactionType,
     txnData: SubmitMultisigTxnData,
   ) => Promise<GetMultisigTokenReturnType>
   multisigInfo: (token: ArrayBuffer) => Promise<unknown>
+  multisigApprove: (token: ArrayBuffer) => Promise<unknown>
+  multisigRevoke: (token: ArrayBuffer) => Promise<unknown>
+  multisigExecute: (token: ArrayBuffer) => Promise<unknown>
+  multisigWithdraw: (token: ArrayBuffer) => Promise<unknown>
+}
+
+export type MultisigInfoResponse = {
+  info: MultisigTransactionInfo | undefined
 }
 
 export type AccountInfoData = {
@@ -41,7 +49,7 @@ export type MultisigTransactionInfo = {
   memo?: string
   transaction?: Omit<Transaction, "id" | "time">
   submitter: string
-  approvers: { address: string; hasApproved: boolean }[]
+  approvers: Map<string, boolean>
   threshold: number
   execute_automatically: boolean
   timeout: Date
@@ -51,7 +59,7 @@ export type MultisigTransactionInfo = {
 export const Account: Account = {
   _namespace_: "account",
 
-  async info(accountId: string): Promise<GetAccountInfoReturnType> {
+  async info(accountId: string): Promise<GetAccountInfoResponse> {
     const message = await this.call("account.info", new Map([[0, accountId]]))
     return getAccountInfo(message)
   },
@@ -68,13 +76,49 @@ export const Account: Account = {
     return getMultisigToken(msg)
   },
 
-  async multisigInfo(token: ArrayBuffer) {
+  async multisigInfo(token: ArrayBuffer): Promise<MultisigInfoResponse> {
     const res = await this.call("account.multisigInfo", new Map([[0, token]]))
     return await getMultisigTxnData(res)
   },
+
+  async multisigApprove(token: ArrayBuffer) {
+    const res = await this.call(
+      "account.multisigApprove",
+      new Map([[0, token]]),
+    )
+    return getMultisigActionResponse(res)
+  },
+
+  async multisigRevoke(token: ArrayBuffer) {
+    const res = await this.call("account.multisigRevoke", new Map([[0, token]]))
+    return getMultisigActionResponse(res)
+  },
+
+  async multisigExecute(token: ArrayBuffer) {
+    const res = await this.call(
+      "account.multisigExecute",
+      new Map([[0, token]]),
+    )
+    return getMultisigActionResponse(res)
+  },
+
+  async multisigWithdraw(token: ArrayBuffer) {
+    const res = await this.call(
+      "account.multisigWithdraw",
+      new Map([[0, token]]),
+    )
+    return getMultisigActionResponse(res)
+  },
 }
 
-async function getMultisigTxnData(msg: Message) {
+async function getMultisigActionResponse(msg: Message) {
+  const content = msg?.getContent()?.get(4)
+  if (content instanceof Map && content.get(0) === -1 && content.get(1)) {
+    throw new Error(content.get(1))
+  }
+}
+
+async function getMultisigTxnData(msg: Message): Promise<MultisigInfoResponse> {
   const result: { info: MultisigTransactionInfo | undefined } = {
     info: undefined,
   }
@@ -89,19 +133,18 @@ async function getMultisigTxnData(msg: Message) {
         submitter: await getAddressFromTaggedIdentity(
           content.get(2) as { value: Uint8Array },
         ),
-        approvers: await Promise.all(
-          Array.from(content.get(3)).map(async approver => {
+        approvers: await(async function (): Promise<Map<string, boolean>> {
+          const result: Map<string, boolean> = new Map()
+          for (let approver of Array.from(content.get(3))) {
             const [identity, hasApproved] = approver as [
               { value: Uint8Array },
               Map<number, boolean>,
             ]
             const address = await getAddressFromTaggedIdentity(identity)
-            return {
-              address,
-              hasApproved: hasApproved.get(0)!,
-            }
-          }),
-        ),
+            result.set(address, hasApproved.get(0) as boolean)
+          }
+          return result
+        })(),
         threshold: content.get(4),
         execute_automatically: content.get(5),
         timeout: content.get(6),
