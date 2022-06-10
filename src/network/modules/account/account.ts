@@ -82,40 +82,20 @@ export const Account: Account = {
   },
 
   async multisigApprove(token: ArrayBuffer) {
-    const res = await this.call(
-      "account.multisigApprove",
-      new Map([[0, token]]),
-    )
-    return getMultisigActionResponse(res)
+    return await this.call("account.multisigApprove", new Map([[0, token]]))
   },
 
   async multisigRevoke(token: ArrayBuffer) {
-    const res = await this.call("account.multisigRevoke", new Map([[0, token]]))
-    return getMultisigActionResponse(res)
+    return await this.call("account.multisigRevoke", new Map([[0, token]]))
   },
 
   async multisigExecute(token: ArrayBuffer) {
-    const res = await this.call(
-      "account.multisigExecute",
-      new Map([[0, token]]),
-    )
-    return getMultisigActionResponse(res)
+    return await this.call("account.multisigExecute", new Map([[0, token]]))
   },
 
   async multisigWithdraw(token: ArrayBuffer) {
-    const res = await this.call(
-      "account.multisigWithdraw",
-      new Map([[0, token]]),
-    )
-    return getMultisigActionResponse(res)
+    return await this.call("account.multisigWithdraw", new Map([[0, token]]))
   },
-}
-
-async function getMultisigActionResponse(msg: Message) {
-  const content = msg?.getContent()?.get(4)
-  if (content instanceof Map && content.get(0) === -1 && content.get(1)) {
-    throw new Error(content.get(1))
-  }
 }
 
 async function getMultisigTxnData(msg: Message): Promise<MultisigInfoResponse> {
