@@ -1,7 +1,7 @@
 import { Identity } from "../identity"
 import { Message } from "../message"
 import { CborData } from "../message/cbor"
-import { applyMixins } from "../utils"
+import { applyMixins, throwOnErrorResponse } from "../utils"
 import { NetworkModule } from "./modules"
 import { Async } from "./modules/async"
 

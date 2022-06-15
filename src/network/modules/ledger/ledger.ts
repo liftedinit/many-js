@@ -1,7 +1,12 @@
 import { Address } from "../../../identity"
 import { Message } from "../../../message"
 import { CborMap } from "../../../message/cbor"
-import { makeLedgerSendParam, makeTxnData } from "../../../utils"
+import {
+  getAccountFeaturesData,
+  getAccountRolesData,
+  makeLedgerSendParam,
+  makeTxnData,
+} from "../../../utils"
 import { LedgerSendParam, LedgerTransactionType, NetworkModule } from "../types"
 
 export interface LedgerInfo {
@@ -44,6 +49,13 @@ export interface SendTransaction extends BaseTransaction {
   from: string
   to: string
   symbolAddress: string
+}
+
+export interface CreateAccountTransaction extends BaseTransaction {
+  account: string
+  name: string
+  roles: ReturnType<typeof getAccountRolesData>
+  features: ReturnType<typeof getAccountFeaturesData>
 }
 
 export interface MultisigTransaction extends BaseTransaction {

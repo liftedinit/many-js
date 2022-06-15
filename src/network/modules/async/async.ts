@@ -3,6 +3,7 @@ import { ONE_MINUTE, ONE_SECOND } from "../../../const"
 import { AnonymousIdentity } from "../../../identity"
 import { Message } from "../../../message"
 import { CborMap } from "../../../message/cbor"
+import { throwOnErrorResponse } from "../../../utils"
 import { Network } from "../../network"
 import type { NetworkModule } from "../types"
 
@@ -80,7 +81,9 @@ async function pollAsyncStatus(
     const result = parseAsyncStatusPayload(res.getPayload())
     switch (result.result) {
       case AsyncStatusResult.Done:
-        return new Message(cbor.decode(result.payload).value)
+        return throwOnErrorResponse(
+          new Message(cbor.decode(result.payload).value),
+        )
       case AsyncStatusResult.Expired:
         throw new Error("Async Expired before getting a result")
     }
