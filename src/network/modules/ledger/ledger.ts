@@ -92,6 +92,7 @@ export interface MultisigSubmitTransaction extends MultisigTransaction {
 
 export type Transaction =
   | SendTransaction
+  | CreateAccountTransaction
   | MultisigSubmitTransaction
   | MultisigApproveTransaction
   | MultisigRevokeTransaction
