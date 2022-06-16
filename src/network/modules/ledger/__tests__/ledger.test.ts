@@ -17,6 +17,10 @@ import {
   expectedListResponse,
   mockLedgerListMultisigSubmitTxnResponse,
   expectedMockLedgerListMultisigSubmitTxnResponse,
+  mockLedgerListMultisigTxnsResponse,
+  expectedMockLedgerListMultisigTxnsResponse,
+  expectedMockLedgerListAccountCreateResponse,
+  mockLedgerListAccountCreateResponse,
 } from "./data"
 
 describe("Ledger", () => {
@@ -85,6 +89,22 @@ describe("Ledger", () => {
       const ledger = setupLedger(mockCall)
       const res = await ledger.list()
       expect(res).toEqual(expectedMockLedgerListMultisigSubmitTxnResponse)
+    })
+    it("should return multisig approve, revoke, execute, withdraw transactions", async function () {
+      const mockCall = jest.fn(async () => {
+        return mockLedgerListMultisigTxnsResponse
+      })
+      const ledger = setupLedger(mockCall)
+      const res = await ledger.list()
+      expect(res).toEqual(expectedMockLedgerListMultisigTxnsResponse)
+    })
+    it("should return create account transaction", async function () {
+      const mockCall = jest.fn(async () => {
+        return mockLedgerListAccountCreateResponse
+      })
+      const ledger = setupLedger(mockCall)
+      const res = await ledger.list()
+      expect(res).toEqual(expectedMockLedgerListAccountCreateResponse)
     })
     it("should be called with correct args", async () => {
       const mockCall = jest.fn(async () => {

@@ -1,18 +1,17 @@
 import { transactionTypeIndices } from "../../../const"
-import { Address } from "../../../identity"
 import { Message } from "../../../message"
 import { CborMap } from "../../../message/cbor"
 import {
+  getAccountFeaturesData,
+  getAccountRolesData,
   getAddressFromTaggedIdentity,
+  makeAccountInfoData,
   makeLedgerSendParam,
   makeTxnData,
 } from "../../../utils"
 import { Transaction } from "../ledger"
 import {
-  AccountFeature,
-  AccountFeatureTypes,
   AccountInfoPayloadResponseLabels,
-  AccountMultisigArgument,
   LedgerSendParam,
   LedgerTransactionType,
   NetworkModule,
@@ -41,8 +40,8 @@ export type MultisigInfoResponse = {
 
 export type AccountInfoData = {
   name: string
-  roles: ReturnType<typeof getAccountInfoRolesData>
-  features: ReturnType<typeof getAccountInfoFeaturesData>
+  roles: ReturnType<typeof getAccountRolesData>
+  features: ReturnType<typeof getAccountFeaturesData>
 }
 
 export type MultisigTransactionInfo = {
@@ -82,40 +81,20 @@ export const Account: Account = {
   },
 
   async multisigApprove(token: ArrayBuffer) {
-    const res = await this.call(
-      "account.multisigApprove",
-      new Map([[0, token]]),
-    )
-    return getMultisigActionResponse(res)
+    return await this.call("account.multisigApprove", new Map([[0, token]]))
   },
 
   async multisigRevoke(token: ArrayBuffer) {
-    const res = await this.call("account.multisigRevoke", new Map([[0, token]]))
-    return getMultisigActionResponse(res)
+    return await this.call("account.multisigRevoke", new Map([[0, token]]))
   },
 
   async multisigExecute(token: ArrayBuffer) {
-    const res = await this.call(
-      "account.multisigExecute",
-      new Map([[0, token]]),
-    )
-    return getMultisigActionResponse(res)
+    return await this.call("account.multisigExecute", new Map([[0, token]]))
   },
 
   async multisigWithdraw(token: ArrayBuffer) {
-    const res = await this.call(
-      "account.multisigWithdraw",
-      new Map([[0, token]]),
-    )
-    return getMultisigActionResponse(res)
+    return await this.call("account.multisigWithdraw", new Map([[0, token]]))
   },
-}
-
-async function getMultisigActionResponse(msg: Message) {
-  const content = msg?.getContent()?.get(4)
-  if (content instanceof Map && content.get(0) === -1 && content.get(1)) {
-    throw new Error(content.get(1))
-  }
 }
 
 async function getMultisigTxnData(msg: Message): Promise<MultisigInfoResponse> {
@@ -133,7 +112,7 @@ async function getMultisigTxnData(msg: Message): Promise<MultisigInfoResponse> {
         submitter: await getAddressFromTaggedIdentity(
           content.get(2) as { value: Uint8Array },
         ),
-        approvers: await(async function (): Promise<Map<string, boolean>> {
+        approvers: await (async function (): Promise<Map<string, boolean>> {
           const result: Map<string, boolean> = new Map()
           for (let approver of Array.from(content.get(3))) {
             const [identity, hasApproved] = approver as [
@@ -196,72 +175,12 @@ function getAccountInfo(message: Message): {
   const payload = message.getPayload()
   if (payload instanceof Map) {
     result.accountInfo = {
-      name: payload.get(AccountInfoPayloadResponseLabels.name),
-      roles: getAccountInfoRolesData(
-        payload?.get?.(AccountInfoPayloadResponseLabels.roles),
-      ),
-      features: getAccountInfoFeaturesData(
-        payload?.get?.(AccountInfoPayloadResponseLabels.features),
-      ),
+      ...makeAccountInfoData({
+        name: payload.get(AccountInfoPayloadResponseLabels.name),
+        roles: payload?.get?.(AccountInfoPayloadResponseLabels.roles),
+        features: payload?.get?.(AccountInfoPayloadResponseLabels.features),
+      }),
     }
   }
   return result
-}
-
-function getAccountInfoRolesData(
-  roles: Map<{ value: Uint8Array }, string[]> = new Map(),
-): Map<string, string[]> | undefined {
-  return Array.from(roles).reduce((acc, roleData) => {
-    const [identity, roleList] = roleData
-    const i = identity as { value: Uint8Array }
-    const address = new Address(Buffer.from(i.value)).toString()
-    acc.set(address, roleList)
-    return acc
-  }, new Map())
-}
-
-function getAccountInfoFeaturesData(
-  features: AccountFeature[] = [],
-): Map<AccountFeatureTypes, boolean | unknown> {
-  return features.reduce((acc, feature) => {
-    let featureName
-    let featureValue
-    let featureLabelNum
-    if (Array.isArray(feature)) {
-      const [featureLabelNum, featureArguments] = feature as [number, unknown]
-      featureName = AccountFeatureTypes[featureLabelNum]
-      featureValue = makeAccountFeatureArgumentData(
-        featureLabelNum,
-        featureArguments as Map<number, unknown>,
-      )
-    } else if (typeof feature === "number") {
-      featureLabelNum = feature
-      featureName = AccountFeatureTypes[feature]
-      featureValue = true
-    }
-    if (!featureName && featureLabelNum)
-      console.error("Account feature not implemented:", featureLabelNum)
-    if (featureName && featureValue) acc.set(featureName, featureValue)
-    return acc
-  }, new Map())
-}
-
-function makeAccountFeatureArgumentData(
-  feature: number,
-  argumentData: Map<number, unknown> = new Map(),
-): Map<AccountMultisigArgument, unknown> | undefined {
-  if (feature === AccountFeatureTypes.accountMultisig) {
-    return Array.from(argumentData).reduce((acc, argData) => {
-      const [argLabelNum, value] = argData
-      const argName = AccountMultisigArgument[argLabelNum]
-      if (!argName) {
-        console.error(
-          "Account multisig feature argument not found:",
-          argLabelNum,
-        )
-        return acc
-      } else acc.set(argName, value)
-      return acc
-    }, new Map())
-  }
 }

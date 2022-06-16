@@ -1,3 +1,5 @@
+import { Message } from "../message"
+import { ManyError, SerializedManyError } from "../message/error"
 import { Network, NetworkModule } from "../network"
 
 export * from "./transactions"
@@ -20,4 +22,12 @@ export function applyMixins<N extends Network, M extends NetworkModule[]>(
       }
     })
   })
+}
+
+export function throwOnErrorResponse(msg: Message) {
+  const content = msg.getContent()?.get(4)
+  if (content instanceof Map && content.get(0) === -1) {
+    throw new ManyError(Object.fromEntries(content) as SerializedManyError)
+  }
+  return msg
 }

@@ -1,13 +1,21 @@
 import { Address } from "../../../../identity"
 import { tag } from "../../../../message/cbor"
 import { ONE_MINUTE, transactionTypeIndices } from "../../../../const"
-import { LedgerTransactionType, TransactionTypeIndices } from "../../types"
+import {
+  AccountFeature,
+  AccountFeatureTypes,
+  AccountMultisigArgument,
+  AccountRole,
+  LedgerTransactionType,
+  TransactionTypeIndices,
+} from "../../types"
 import {
   accountSource,
   Address1,
   Address2,
   identityStr1,
   identityStr2,
+  identityStr3,
   makeLedgerSendParamResponse,
   makeMockResponseMessage,
   txnSymbolAddress1,
@@ -106,7 +114,7 @@ export const expectedListResponse = {
   ],
 }
 
-export function makeMultisigSubmitTxnResponse({
+function makeMultisigSubmitTxnResponse({
   id,
   txnTypeIndices = transactionTypeIndices.accountMultisigSubmit,
   submitter,
@@ -148,7 +156,37 @@ export function makeMultisigSubmitTxnResponse({
   return makeTxn({ id, time, txnData: m })
 }
 
-export function makeTxn({
+function makeMultisigTxnResponse({
+  id,
+  txnTypeIndices,
+  accountSource,
+  actor = "",
+  token = new Uint8Array(),
+  time,
+}: {
+  id: number
+  txnTypeIndices?: TransactionTypeIndices
+  accountSource: string
+  token?: ArrayBuffer
+  actor: string
+  time: Date
+}) {
+  const m = new Map()
+    .set(2, token)
+    .set(3, tag(10000, Address.fromString(actor).toBuffer()))
+
+  return makeTxn({
+    id,
+    time,
+    txnData: makeAccountTxnResponse({
+      txnTypeIndices,
+      accountSource,
+      txnData: m,
+    }),
+  })
+}
+
+function makeTxn({
   id,
   time,
   txnData,
@@ -190,8 +228,9 @@ function makeLedgerListResponseMessage(count: number, transactions: unknown[]) {
 }
 
 const timeout = new Date(new Date().getTime() + ONE_MINUTE)
-export const mockLedgerListMultisigSubmitTxnResponse =
-  makeLedgerListResponseMessage(1, [
+export const mockLedgerListMultisigSubmitTxnResponse = makeLedgerListResponseMessage(
+  1,
+  [
     makeMultisigSubmitTxnResponse({
       time: txnTime1,
       id: 1,
@@ -211,8 +250,8 @@ export const mockLedgerListMultisigSubmitTxnResponse =
         }),
       ),
     }),
-  ])
-
+  ],
+)
 export const expectedMockLedgerListMultisigSubmitTxnResponse = {
   count: 1,
   transactions: [
@@ -236,4 +275,176 @@ export const expectedMockLedgerListMultisigSubmitTxnResponse = {
       },
     },
   ],
+}
+
+export const mockLedgerListMultisigTxnsResponse = makeLedgerListResponseMessage(
+  4,
+  [
+    makeMultisigTxnResponse({
+      txnTypeIndices: transactionTypeIndices.accountMultisigApprove,
+      time: txnTime1,
+      id: 4,
+      accountSource,
+      actor: identityStr2,
+    }),
+    makeMultisigTxnResponse({
+      txnTypeIndices: transactionTypeIndices.accountMultisigRevoke,
+      time: txnTime1,
+      id: 3,
+      accountSource,
+      actor: identityStr2,
+    }),
+    makeMultisigTxnResponse({
+      txnTypeIndices: transactionTypeIndices.accountMultisigExecute,
+      time: txnTime1,
+      id: 2,
+      accountSource,
+      actor: identityStr2,
+    }),
+    makeMultisigTxnResponse({
+      txnTypeIndices: transactionTypeIndices.accountMultisigWithdraw,
+      time: txnTime1,
+      id: 1,
+      accountSource,
+      actor: identityStr2,
+    }),
+  ],
+)
+
+export const expectedMockLedgerListMultisigTxnsResponse = {
+  count: 4,
+  transactions: [
+    {
+      id: 4,
+      time: txnTime1,
+      type: LedgerTransactionType.accountMultisigApprove,
+      account: accountSource,
+      token: new Uint8Array(),
+      approver: identityStr2,
+    },
+    {
+      id: 3,
+      time: txnTime1,
+      type: LedgerTransactionType.accountMultisigRevoke,
+      account: accountSource,
+      token: new Uint8Array(),
+      revoker: identityStr2,
+    },
+    {
+      id: 2,
+      time: txnTime1,
+      type: LedgerTransactionType.accountMultisigExecute,
+      account: accountSource,
+      token: new Uint8Array(),
+      executor: identityStr2,
+    },
+    {
+      id: 1,
+      time: txnTime1,
+      type: LedgerTransactionType.accountMultisigWithdraw,
+      account: accountSource,
+      token: new Uint8Array(),
+      withdrawer: identityStr2,
+    },
+  ],
+}
+
+const roles = new Map()
+roles.set(identityStr2, [AccountRole.owner, AccountRole.canMultisigSubmit])
+roles.set(identityStr1, [AccountRole.canMultisigApprove])
+roles.set(identityStr3, [AccountRole.canMultisigApprove])
+
+const _roles = Array.from(roles).reduce((acc, rolesForAddress) => {
+  const [address, roleList] = rolesForAddress
+  const bytes = Address.fromString(address).toBuffer()
+  acc.set({ value: bytes }, roleList)
+  return acc
+}, new Map())
+
+export const mockLedgerListAccountCreateResponse =
+  makeLedgerListResponseMessage(1, [
+    makeAccountCreateTxnResponse({
+      id: 1,
+      time: txnTime1,
+      accountSource,
+      accountName: "Test Account Name",
+    }),
+  ])
+
+function makeAccountCreateTxnResponse({
+  id,
+  time,
+  accountName,
+  accountSource,
+}: {
+  id: number
+  time: Date
+  accountName: string
+  accountSource: string
+}) {
+  const features: AccountFeature[] = [
+    [
+      AccountFeatureTypes.accountMultisig,
+      new Map()
+        .set(AccountMultisigArgument.threshold, 2)
+        .set(AccountMultisigArgument.timeout_in_secs, 86400)
+        .set(AccountMultisigArgument.execute_automatically, false),
+    ],
+  ]
+  const m = new Map().set(2, accountName).set(3, _roles).set(4, features)
+  return makeTxn({
+    id,
+    time,
+    txnData: makeAccountTxnResponse({
+      txnTypeIndices: transactionTypeIndices.accountCreate,
+      accountSource,
+      txnData: m,
+    }),
+  })
+}
+
+export const expectedMockLedgerListAccountCreateResponse = {
+  count: 1,
+  transactions: [
+    {
+      id: 1,
+      time: txnTime1,
+      type: LedgerTransactionType.accountCreate,
+      name: "Test Account Name",
+      account: accountSource,
+      roles,
+      features: new Map([
+        [
+          AccountFeatureTypes[1],
+          new Map()
+            .set(AccountMultisigArgument[AccountMultisigArgument.threshold], 2)
+            .set(
+              AccountMultisigArgument[AccountMultisigArgument.timeout_in_secs],
+              86400,
+            )
+            .set(
+              AccountMultisigArgument[
+                AccountMultisigArgument.execute_automatically
+              ],
+              false,
+            ),
+        ],
+      ]),
+    },
+  ],
+}
+function makeAccountTxnResponse({
+  txnTypeIndices,
+  accountSource,
+  txnData,
+}: {
+  txnTypeIndices?: TransactionTypeIndices
+  txnData: Map<number, unknown>
+  accountSource: string
+}) {
+  let m = new Map()
+    .set(0, txnTypeIndices)
+    .set(1, tag(10000, Address.fromString(accountSource).toBuffer()))
+  m = new Map([...m, ...txnData])
+  return m
 }

@@ -10,6 +10,9 @@ import {
   Transaction,
   TransactionTypeIndices,
   MultisigTransaction,
+  AccountFeatureTypes,
+  AccountFeature,
+  AccountMultisigArgument,
 } from "../../network"
 
 export function makeLedgerSendParam({
@@ -47,7 +50,9 @@ export async function makeTxnData(
 
   if (txnTypeName === LedgerTransactionType.send)
     return await makeSendTransactionData(txn, opts)
-  else if (txnTypeName === LedgerTransactionType.accountMultisigSubmit)
+  else if (txnTypeName === LedgerTransactionType.accountCreate) {
+    return await makeCreateAccountTxnData(txn)
+  } else if (txnTypeName === LedgerTransactionType.accountMultisigSubmit)
     return await makeMultisigSubmitTxnData(txn)
   else if (txnTypeName === LedgerTransactionType.accountMultisigApprove)
     return makeMultisigTxnData(
@@ -74,7 +79,95 @@ export async function makeTxnData(
       txn,
     )
 
-  console.error("txn type not implemented", indices)
+  console.error("txn type not implemented", indices, txn)
+}
+
+async function makeCreateAccountTxnData(txnData: Map<number, unknown>) {
+  return {
+    type: LedgerTransactionType.accountCreate,
+    account: await getAddressFromTaggedIdentity(
+      txnData.get(1) as { value: Uint8Array },
+    ),
+    ...makeAccountInfoData({
+      name: txnData.get(2) as string,
+      roles: txnData.get(3) as Map<{ value: Uint8Array }, string[]>,
+      features: txnData.get(4) as AccountFeature[],
+    }),
+  }
+}
+
+export function makeAccountInfoData({
+  name,
+  roles,
+  features,
+}: {
+  name: string
+  roles: Map<{ value: Uint8Array }, string[]>
+  features: AccountFeature[]
+}) {
+  return {
+    name,
+    roles: getAccountRolesData(roles),
+    features: getAccountFeaturesData(features),
+  }
+}
+
+export function getAccountRolesData(
+  roles: Map<{ value: Uint8Array }, string[]> = new Map(),
+): Map<string, string[]> | undefined {
+  return Array.from(roles).reduce((acc, roleData) => {
+    const [identity, roleList] = roleData
+    const i = identity as { value: Uint8Array }
+    const address = new Address(Buffer.from(i.value)).toString()
+    acc.set(address, roleList)
+    return acc
+  }, new Map())
+}
+
+export function getAccountFeaturesData(
+  features: AccountFeature[] = [],
+): Map<AccountFeatureTypes, boolean | unknown> {
+  return features.reduce((acc, feature) => {
+    let featureName
+    let featureValue
+    let featureLabelNum
+    if (Array.isArray(feature)) {
+      const [featureLabelNum, featureArguments] = feature as [number, unknown]
+      featureName = AccountFeatureTypes[featureLabelNum]
+      featureValue = makeAccountFeatureArgumentData(
+        featureLabelNum,
+        featureArguments as Map<number, unknown>,
+      )
+    } else if (typeof feature === "number") {
+      featureLabelNum = feature
+      featureName = AccountFeatureTypes[feature]
+      featureValue = true
+    }
+    if (!featureName && featureLabelNum)
+      console.error("Account feature not implemented:", featureLabelNum)
+    if (featureName && featureValue) acc.set(featureName, featureValue)
+    return acc
+  }, new Map())
+}
+
+function makeAccountFeatureArgumentData(
+  feature: number,
+  argumentData: Map<number, unknown> = new Map(),
+): Map<AccountMultisigArgument, unknown> | undefined {
+  if (feature === AccountFeatureTypes.accountMultisig) {
+    return Array.from(argumentData).reduce((acc, argData) => {
+      const [argLabelNum, value] = argData
+      const argName = AccountMultisigArgument[argLabelNum]
+      if (!argName) {
+        console.error(
+          "Account multisig feature argument not found:",
+          argLabelNum,
+        )
+        return acc
+      } else acc.set(argName, value)
+      return acc
+    }, new Map())
+  }
 }
 
 async function makeMultisigTxnData(
