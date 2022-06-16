@@ -5,6 +5,7 @@ export type {
   ListFilterArgs,
   Transaction,
   SendTransaction,
+  CreateAccountTransaction,
   MultisigTransaction,
   MultisigSubmitTransaction,
   MultisigApproveTransaction,
