@@ -25,10 +25,6 @@ describe("Events", () => {
       const mockCall = jest.fn(async () => {
         return mockEventInfoResponseMessage
       })
-      // const n = new Network("http://localhost:8000", new AnonymousIdentity())
-      // n.apply([Events])
-      // const res = await n.events.info()
-      // console.log("res is", res)
       const events = setupEvents(mockCall)
       const res = await events.info()
       expect(mockCall).toHaveBeenCalledTimes(1)

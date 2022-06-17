@@ -11,8 +11,6 @@ import {
 } from "../../types"
 import {
   accountSource,
-  Address1,
-  Address2,
   identityStr1,
   identityStr2,
   identityStr3,
@@ -21,9 +19,6 @@ import {
   txnSymbolAddress1,
   txnSymbolAddress2,
 } from "../../test/test-utils"
-
-// export const mockSymbolAddress = [tag(10000, Address1), "abc"]
-// export const mockSymbolAddress2 = [tag(10000, Address2), "cba"]
 
 export const mockEventInfoResponseMessage = makeMockResponseMessage(
   new Map()
