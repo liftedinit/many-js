@@ -197,7 +197,7 @@ function makeEventsListResponseMessage(count: number, events: unknown[]) {
 }
 
 const timeout = new Date(new Date().getTime() + ONE_MINUTE)
-export const mockEventsListMultisigSubmitTxnResponse =
+export const mockEventsListMultisigSubmitEventResponse =
   makeEventsListResponseMessage(1, [
     makeMultisigSubmitTxnResponse({
       time: eventTime1,
@@ -219,7 +219,7 @@ export const mockEventsListMultisigSubmitTxnResponse =
       ),
     }),
   ])
-export const expectedMockEventsListMultisigSubmitTxnResponse = {
+export const expectedMockEventsListMultisigSubmitEventResponse = {
   count: 1,
   events: [
     {

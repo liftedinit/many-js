@@ -9,8 +9,8 @@ import {
 import {
   mockEventsListSendTxnResponseMessage,
   expectedMockEventsListSendResponse,
-  mockEventsListMultisigSubmitTxnResponse,
-  expectedMockEventsListMultisigSubmitTxnResponse,
+  mockEventsListMultisigSubmitEventResponse,
+  expectedMockEventsListMultisigSubmitEventResponse,
   mockEventsListMultisigTxnsResponse,
   expectedMockEventsListMultisigTxnsResponse,
   expectedMockEventsListCreateAccountResponse,
@@ -42,13 +42,13 @@ describe("Events", () => {
       const res = await events.list()
       expect(res).toEqual(expectedMockEventsListSendResponse)
     })
-    it("should return count and list of multisigSubmit transaction", async () => {
+    it("should return count and list of multisigSubmit events", async () => {
       const mockCall = jest.fn(async () => {
-        return mockEventsListMultisigSubmitTxnResponse
+        return mockEventsListMultisigSubmitEventResponse
       })
       const events = setupEvents(mockCall)
       const res = await events.list()
-      expect(res).toEqual(expectedMockEventsListMultisigSubmitTxnResponse)
+      expect(res).toEqual(expectedMockEventsListMultisigSubmitEventResponse)
     })
     it("should return multisig approve, revoke, execute, withdraw events", async function () {
       const mockCall = jest.fn(async () => {
