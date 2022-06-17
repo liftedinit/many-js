@@ -48,7 +48,7 @@ export interface SendEvent extends BaseEvent {
 
 export interface CreateAccountEvent extends BaseEvent {
   account: string
-  name: string
+  description: string
   roles: ReturnType<typeof getAccountRolesData>
   features: ReturnType<typeof getAccountFeaturesData>
 }

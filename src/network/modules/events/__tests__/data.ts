@@ -377,7 +377,7 @@ export const expectedMockEventsListCreateAccountResponse = {
       id: 1,
       time: eventTime1,
       type: EventType.accountCreate,
-      name: "Test Account Name",
+      description: "Test Account Name",
       account: accountSource,
       roles,
       features: new Map([

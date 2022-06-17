@@ -61,7 +61,7 @@ describe("Account", () => {
     )
     expect(res).toEqual({
       accountInfo: {
-        name: accountName,
+        description: accountName,
         roles,
         features: new Map([
           [

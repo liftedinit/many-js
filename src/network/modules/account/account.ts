@@ -1,5 +1,4 @@
 import { eventTypeNameToIndices } from "../../../const"
-import { Address } from "../../../identity"
 import { Message } from "../../../message"
 import { CborMap } from "../../../message/cbor"
 import {
@@ -16,8 +15,6 @@ import {
   LedgerSendParam,
   EventType,
   NetworkModule,
-  AccountMultisigArgument,
-  AccountFeatureTypes,
 } from "../types"
 
 export type GetAccountInfoResponse = ReturnType<typeof getAccountInfo>
@@ -42,7 +39,7 @@ export type MultisigInfoResponse = {
 }
 
 export type AccountInfoData = {
-  name: string
+  description: string
   roles: ReturnType<typeof getAccountRolesData>
   features: ReturnType<typeof getAccountFeaturesData>
 }
@@ -179,7 +176,7 @@ function getAccountInfo(message: Message): {
   if (payload instanceof Map) {
     result.accountInfo = {
       ...makeAccountInfoData({
-        name: payload.get(AccountInfoPayloadResponseLabels.name),
+        description: payload.get(AccountInfoPayloadResponseLabels.name),
         roles: payload?.get?.(AccountInfoPayloadResponseLabels.roles),
         features: payload?.get?.(AccountInfoPayloadResponseLabels.features),
       }),

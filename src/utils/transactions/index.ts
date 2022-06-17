@@ -87,7 +87,7 @@ async function makeCreateAccountEventData(eventData: Map<number, unknown>) {
       eventData.get(1) as { value: Uint8Array },
     ),
     ...makeAccountInfoData({
-      name: eventData.get(2) as string,
+      description: eventData.get(2) as string,
       roles: eventData.get(3) as Map<{ value: Uint8Array }, string[]>,
       features: eventData.get(4) as AccountFeature[],
     }),
@@ -95,16 +95,16 @@ async function makeCreateAccountEventData(eventData: Map<number, unknown>) {
 }
 
 export function makeAccountInfoData({
-  name,
+  description,
   roles,
   features,
 }: {
-  name: string
+  description: string
   roles: Map<{ value: Uint8Array }, string[]>
   features: AccountFeature[]
 }) {
   return {
-    name,
+    description,
     roles: getAccountRolesData(roles),
     features: getAccountFeaturesData(features),
   }
