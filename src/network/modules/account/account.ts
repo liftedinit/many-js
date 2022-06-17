@@ -1,4 +1,5 @@
-import { transactionTypeIndices } from "../../../const"
+import { eventTypeNameToIndices } from "../../../const"
+import { Address } from "../../../identity"
 import { Message } from "../../../message"
 import { CborMap } from "../../../message/cbor"
 import {
@@ -9,12 +10,14 @@ import {
   makeLedgerSendParam,
   makeTxnData,
 } from "../../../utils"
-import { Transaction } from "../ledger"
+import { Event } from "../events"
 import {
   AccountInfoPayloadResponseLabels,
   LedgerSendParam,
-  LedgerTransactionType,
+  EventType,
   NetworkModule,
+  AccountMultisigArgument,
+  AccountFeatureTypes,
 } from "../types"
 
 export type GetAccountInfoResponse = ReturnType<typeof getAccountInfo>
@@ -24,7 +27,7 @@ type SubmitMultisigTxnData = LedgerSendParam & { memo?: string }
 export interface Account extends NetworkModule {
   info: (accountId: string) => Promise<GetAccountInfoResponse>
   submitMultisigTxn: (
-    txnType: LedgerTransactionType,
+    txnType: EventType,
     txnData: SubmitMultisigTxnData,
   ) => Promise<GetMultisigTokenReturnType>
   multisigInfo: (token: ArrayBuffer) => Promise<unknown>
@@ -46,7 +49,7 @@ export type AccountInfoData = {
 
 export type MultisigTransactionInfo = {
   memo?: string
-  transaction?: Omit<Transaction, "id" | "time">
+  transaction?: Omit<Event, "id" | "time">
   submitter: string
   approvers: Map<string, boolean>
   threshold: number
@@ -64,7 +67,7 @@ export const Account: Account = {
   },
 
   async submitMultisigTxn(
-    txnType: LedgerTransactionType,
+    txnType: EventType,
     txnData: SubmitMultisigTxnData,
   ): Promise<GetMultisigTokenReturnType> {
     const m = new Map()
@@ -148,14 +151,14 @@ function getMultisigToken(msg: Message) {
 }
 
 function makeSubmittedTxnData(
-  txnType: LedgerTransactionType,
+  txnType: EventType,
   txnData: SubmitMultisigTxnData,
 ) {
   const accountMultisigTxn = new Map()
   let txnTypeIndices
   let txnParam
-  if (txnType === LedgerTransactionType.send) {
-    txnTypeIndices = transactionTypeIndices[LedgerTransactionType.send]
+  if (txnType === EventType.send) {
+    txnTypeIndices = eventTypeNameToIndices[EventType.send]
     txnParam = makeLedgerSendParam(txnData)
   }
   if (txnTypeIndices && txnParam) {
