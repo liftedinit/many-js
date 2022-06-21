@@ -1,6 +1,6 @@
 import { Address } from "../../../identity"
 import { Message } from "../../../message"
-import { makeLedgerSendParam } from "../../../utils"
+import { makeLedgerSendParam, makeRandomBytes } from "../../../utils"
 import { LedgerSendParam, NetworkModule } from "../types"
 
 export interface LedgerInfo {
@@ -38,7 +38,9 @@ export const Ledger: Ledger = {
   },
 
   async send(param: LedgerSendParam): Promise<unknown> {
-    return await this.call("ledger.send", makeLedgerSendParam(param))
+    return await this.call("ledger.send", makeLedgerSendParam(param), {
+      nonce: makeRandomBytes(16),
+    })
   },
 }
 

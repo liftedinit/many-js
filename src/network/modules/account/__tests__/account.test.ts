@@ -79,6 +79,9 @@ describe("Account", () => {
   })
 
   it("should submit multisig transactions", async () => {
+    const opts = {
+      nonce: new ArrayBuffer(16),
+    }
     const resMultisigToken = new Uint8Array()
     const mockCall = jest.fn(async () => {
       return makeMockResponseMessage(new Map().set(0, resMultisigToken))
@@ -92,7 +95,7 @@ describe("Account", () => {
       memo: "this is a memo",
     }
 
-    const res = await account.submitMultisigTxn(EventType.send, txnData)
+    const res = await account.submitMultisigTxn(EventType.send, txnData, opts)
 
     const expectedCallArgs = new Map()
       .set(0, txnData.from)
@@ -106,6 +109,7 @@ describe("Account", () => {
     expect(mockCall).toHaveBeenCalledWith(
       "account.multisigSubmitTransaction",
       expectedCallArgs,
+      opts,
     )
     expect(res).toEqual({ token: resMultisigToken })
   })
