@@ -61,7 +61,7 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
       publicKey: {
         challenge: challenge ?? makeRandomBytes(),
         timeout: ONE_MINUTE,
-        userVerification: "discouraged",
+        userVerification: "preferred",
         allowCredentials: [
           {
             transports: ["nfc", "usb", "ble"],
