@@ -1,15 +1,15 @@
-import { transactionTypeIndices } from "../../const"
+import { eventTypeNameToIndices } from "../../const"
 import { Address } from "../../identity"
 import { CborMap } from "../../message/cbor"
 import {
   LedgerSendParam,
-  LedgerTransactionType,
+  EventType,
   MakeTxnDataOpts,
-  MultisigSubmitTransaction,
-  SendTransaction,
-  Transaction,
-  TransactionTypeIndices,
-  MultisigTransaction,
+  MultisigSubmitEvent,
+  SendEvent,
+  Event,
+  EventTypeIndices,
+  MultisigEvent,
   AccountFeatureTypes,
   AccountFeature,
   AccountMultisigArgument,
@@ -26,17 +26,15 @@ export function makeLedgerSendParam({
   return m.set(1, to).set(2, amount).set(3, symbol)
 }
 
-export async function getTxnTypeNameFromIndices(
-  indices: TransactionTypeIndices,
-): Promise<LedgerTransactionType | undefined> {
+export async function getEventTypeNameFromIndices(
+  indices: EventTypeIndices,
+): Promise<EventType | undefined> {
   const indicesJson = JSON.stringify(indices)
 
-  for (let k of Object.keys(transactionTypeIndices)) {
-    const val = JSON.stringify(
-      transactionTypeIndices[k as LedgerTransactionType],
-    )
+  for (let k of Object.keys(eventTypeNameToIndices)) {
+    const val = JSON.stringify(eventTypeNameToIndices[k as EventType])
     if (indicesJson === val) {
-      return k as LedgerTransactionType
+      return k as EventType
     }
   }
 }
@@ -44,69 +42,69 @@ export async function getTxnTypeNameFromIndices(
 export async function makeTxnData(
   txn: Map<number, unknown>,
   opts?: MakeTxnDataOpts,
-): Promise<Omit<Transaction, "id" | "time"> | undefined> {
-  const indices = txn.get(0) as TransactionTypeIndices
-  const txnTypeName = await getTxnTypeNameFromIndices(indices)
+): Promise<Omit<Event, "id" | "time"> | undefined> {
+  const indices = txn.get(0) as EventTypeIndices
+  const eventTypeName = await getEventTypeNameFromIndices(indices)
 
-  if (txnTypeName === LedgerTransactionType.send)
-    return await makeSendTransactionData(txn, opts)
-  else if (txnTypeName === LedgerTransactionType.accountCreate) {
-    return await makeCreateAccountTxnData(txn)
-  } else if (txnTypeName === LedgerTransactionType.accountMultisigSubmit)
-    return await makeMultisigSubmitTxnData(txn)
-  else if (txnTypeName === LedgerTransactionType.accountMultisigApprove)
-    return makeMultisigTxnData(
-      LedgerTransactionType.accountMultisigApprove,
+  if (eventTypeName === EventType.send)
+    return await makeSendEventData(txn, opts)
+  else if (eventTypeName === EventType.accountCreate) {
+    return await makeCreateAccountEventData(txn)
+  } else if (eventTypeName === EventType.accountMultisigSubmit)
+    return await makeMultisigSubmitEventData(txn)
+  else if (eventTypeName === EventType.accountMultisigApprove)
+    return makeMultisigEventData(
+      EventType.accountMultisigApprove,
       "approver",
       txn,
     )
-  else if (txnTypeName === LedgerTransactionType.accountMultisigRevoke)
-    return makeMultisigTxnData(
-      LedgerTransactionType.accountMultisigRevoke,
+  else if (eventTypeName === EventType.accountMultisigRevoke)
+    return makeMultisigEventData(
+      EventType.accountMultisigRevoke,
       "revoker",
       txn,
     )
-  else if (txnTypeName === LedgerTransactionType.accountMultisigExecute)
-    return makeMultisigTxnData(
-      LedgerTransactionType.accountMultisigExecute,
+  else if (eventTypeName === EventType.accountMultisigExecute)
+    return makeMultisigEventData(
+      EventType.accountMultisigExecute,
       "executor",
       txn,
     )
-  else if (txnTypeName === LedgerTransactionType.accountMultisigWithdraw)
-    return makeMultisigTxnData(
-      LedgerTransactionType.accountMultisigWithdraw,
+  else if (eventTypeName === EventType.accountMultisigWithdraw)
+    return makeMultisigEventData(
+      EventType.accountMultisigWithdraw,
       "withdrawer",
       txn,
     )
 
-  console.error("txn type not implemented", indices, txn)
+  console.error("event type not implemented", indices, txn)
 }
 
-async function makeCreateAccountTxnData(txnData: Map<number, unknown>) {
+async function makeCreateAccountEventData(eventData: Map<number, unknown>) {
   return {
-    type: LedgerTransactionType.accountCreate,
+    type: EventType.accountCreate,
     account: await getAddressFromTaggedIdentity(
-      txnData.get(1) as { value: Uint8Array },
+      eventData.get(1) as { value: Uint8Array },
     ),
     ...makeAccountInfoData({
-      name: txnData.get(2) as string,
-      roles: txnData.get(3) as Map<{ value: Uint8Array }, string[]>,
-      features: txnData.get(4) as AccountFeature[],
+      description: eventData.get(2) as string,
+      roles: eventData.get(3) as Map<{ value: Uint8Array }, string[]>,
+      features: eventData.get(4) as AccountFeature[],
     }),
   }
 }
 
 export function makeAccountInfoData({
-  name,
+  description,
   roles,
   features,
 }: {
-  name: string
+  description: string
   roles: Map<{ value: Uint8Array }, string[]>
   features: AccountFeature[]
 }) {
   return {
-    name,
+    description,
     roles: getAccountRolesData(roles),
     features: getAccountFeaturesData(features),
   }
@@ -170,66 +168,66 @@ function makeAccountFeatureArgumentData(
   }
 }
 
-async function makeMultisigTxnData(
-  type: LedgerTransactionType,
+async function makeMultisigEventData(
+  type: EventType,
   actorType: "approver" | "revoker" | "executor" | "withdrawer",
-  txnData: Map<number, unknown>,
-): Promise<Omit<MultisigTransaction, "id" | "time">> {
+  eventData: Map<number, unknown>,
+): Promise<Omit<MultisigEvent, "id" | "time">> {
   return {
     type,
     account: await getAddressFromTaggedIdentity(
-      txnData.get(1) as { value: Uint8Array },
+      eventData.get(1) as { value: Uint8Array },
     ),
-    token: txnData.get(2) as ArrayBuffer,
+    token: eventData.get(2) as ArrayBuffer,
     [actorType]: await getAddressFromTaggedIdentity(
-      txnData.get(3) as { value: Uint8Array },
+      eventData.get(3) as { value: Uint8Array },
     ),
   }
 }
 
-async function makeSendTransactionData(
-  txnData: Map<number, unknown>,
+async function makeSendEventData(
+  eventData: Map<number, unknown>,
   opts?: MakeTxnDataOpts,
-): Promise<Omit<SendTransaction, "id" | "time">> {
+): Promise<Omit<SendEvent, "id" | "time">> {
   const { isTxnParamData } = opts || {}
   if (isTxnParamData) {
-    txnData = txnData.get(1) as Map<number, unknown>
+    eventData = eventData.get(1) as Map<number, unknown>
     return {
-      type: LedgerTransactionType.send,
+      type: EventType.send,
       from: await getAddressFromTaggedIdentity(
-        txnData.get(0) as {
+        eventData.get(0) as {
           value: Uint8Array
         },
       ),
       to: await getAddressFromTaggedIdentity(
-        txnData.get(1) as {
+        eventData.get(1) as {
           value: Uint8Array
         },
       ),
       symbolAddress: await getAddressFromTaggedIdentity(
-        txnData.get(3) as {
+        eventData.get(3) as {
           value: Uint8Array
         },
       ),
-      amount: BigInt(txnData.get(2) as number),
+      amount: BigInt(eventData.get(2) as number),
     }
   }
   return {
-    type: LedgerTransactionType.send,
+    type: EventType.send,
     from: await getAddressFromTaggedIdentity(
-      txnData.get(1) as {
+      eventData.get(1) as {
         value: Uint8Array
       },
     ),
     to: await getAddressFromTaggedIdentity(
-      txnData.get(2) as {
+      eventData.get(2) as {
         value: Uint8Array
       },
     ),
     symbolAddress: await getAddressFromTaggedIdentity(
-      txnData.get(3) as { value: Uint8Array },
+      eventData.get(3) as { value: Uint8Array },
     ),
-    amount: BigInt(txnData.get(4) as number),
+    amount: BigInt(eventData.get(4) as number),
   }
 }
 
@@ -240,28 +238,28 @@ export async function getAddressFromTaggedIdentity(taggedIdentity: {
 }
 
 // https://github.com/liftedinit/many-rs/blob/main/src/many/src/types/ledger.rs#L658
-async function makeMultisigSubmitTxnData(
-  txnData: Map<number, unknown>,
-): Promise<Omit<MultisigSubmitTransaction, "id" | "time">> {
-  const submittedTxn = txnData.get(4) as Map<number, unknown>
+async function makeMultisigSubmitEventData(
+  eventData: Map<number, unknown>,
+): Promise<Omit<MultisigSubmitEvent, "id" | "time">> {
+  const submittedTxn = eventData.get(4) as Map<number, unknown>
   const transaction = await makeTxnData(submittedTxn, {
     isTxnParamData: true,
   })
 
   return {
-    type: LedgerTransactionType.accountMultisigSubmit,
+    type: EventType.accountMultisigSubmit,
     submitter: await getAddressFromTaggedIdentity(
-      txnData.get(1) as { value: Uint8Array },
+      eventData.get(1) as { value: Uint8Array },
     ),
     account: await getAddressFromTaggedIdentity(
-      txnData.get(2) as { value: Uint8Array },
+      eventData.get(2) as { value: Uint8Array },
     ),
-    memo: txnData.get(3) as string,
+    memo: eventData.get(3) as string,
     transaction,
-    token: txnData.get(5) as ArrayBuffer,
-    threshold: txnData.get(6) as number,
-    timeout: txnData.get(7) as Date,
-    execute_automatically: txnData.get(8) as boolean,
-    data: txnData.get(9) as CborMap,
+    token: eventData.get(5) as ArrayBuffer,
+    threshold: eventData.get(6) as number,
+    timeout: eventData.get(7) as Date,
+    execute_automatically: eventData.get(8) as boolean,
+    data: eventData.get(9) as CborMap,
   }
 }

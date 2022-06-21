@@ -10,12 +10,13 @@ export type LedgerSendParam = {
   symbol: string
 }
 
-export type TransactionTypeIndices = [number, number | [number, number]]
+export type EventTypeIndices = [number, number | [number, number]]
 
-export enum LedgerTransactionType {
+export enum EventType {
   send = "send",
   accountCreate = "accountCreate",
-  accountDelete = "accountDelete",
+  accountSetDescription = "accountSetDescription",
+  accountDisable = "accountDisable",
   accountAddFeature = "accountAddFeature",
   accountAddRoles = "accountAddRoles",
   accountRemoveRoles = "accountRemoveRoles",
@@ -25,6 +26,7 @@ export enum LedgerTransactionType {
   accountMultisigExecute = "accountMultisigExecute",
   accountMultisigWithdraw = "accountMultisigWithdraw",
   accountMultisigSetDefaults = "accountMultisigSetDefaults",
+  accountMultisigExpired = "accountMultisigExpired",
 }
 
 export enum AccountFeatureTypes {

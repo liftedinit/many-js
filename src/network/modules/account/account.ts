@@ -1,4 +1,4 @@
-import { transactionTypeIndices } from "../../../const"
+import { eventTypeNameToIndices } from "../../../const"
 import { Message } from "../../../message"
 import { CborMap } from "../../../message/cbor"
 import {
@@ -9,11 +9,11 @@ import {
   makeLedgerSendParam,
   makeTxnData,
 } from "../../../utils"
-import { Transaction } from "../ledger"
+import { Event } from "../events"
 import {
   AccountInfoPayloadResponseLabels,
   LedgerSendParam,
-  LedgerTransactionType,
+  EventType,
   NetworkModule,
 } from "../types"
 
@@ -24,7 +24,7 @@ type SubmitMultisigTxnData = LedgerSendParam & { memo?: string }
 export interface Account extends NetworkModule {
   info: (accountId: string) => Promise<GetAccountInfoResponse>
   submitMultisigTxn: (
-    txnType: LedgerTransactionType,
+    txnType: EventType,
     txnData: SubmitMultisigTxnData,
   ) => Promise<GetMultisigTokenReturnType>
   multisigInfo: (token: ArrayBuffer) => Promise<unknown>
@@ -39,14 +39,14 @@ export type MultisigInfoResponse = {
 }
 
 export type AccountInfoData = {
-  name: string
+  description: string
   roles: ReturnType<typeof getAccountRolesData>
   features: ReturnType<typeof getAccountFeaturesData>
 }
 
 export type MultisigTransactionInfo = {
   memo?: string
-  transaction?: Omit<Transaction, "id" | "time">
+  transaction?: Omit<Event, "id" | "time">
   submitter: string
   approvers: Map<string, boolean>
   threshold: number
@@ -64,7 +64,7 @@ export const Account: Account = {
   },
 
   async submitMultisigTxn(
-    txnType: LedgerTransactionType,
+    txnType: EventType,
     txnData: SubmitMultisigTxnData,
   ): Promise<GetMultisigTokenReturnType> {
     const m = new Map()
@@ -148,14 +148,14 @@ function getMultisigToken(msg: Message) {
 }
 
 function makeSubmittedTxnData(
-  txnType: LedgerTransactionType,
+  txnType: EventType,
   txnData: SubmitMultisigTxnData,
 ) {
   const accountMultisigTxn = new Map()
   let txnTypeIndices
   let txnParam
-  if (txnType === LedgerTransactionType.send) {
-    txnTypeIndices = transactionTypeIndices[LedgerTransactionType.send]
+  if (txnType === EventType.send) {
+    txnTypeIndices = eventTypeNameToIndices[EventType.send]
     txnParam = makeLedgerSendParam(txnData)
   }
   if (txnTypeIndices && txnParam) {
@@ -176,7 +176,7 @@ function getAccountInfo(message: Message): {
   if (payload instanceof Map) {
     result.accountInfo = {
       ...makeAccountInfoData({
-        name: payload.get(AccountInfoPayloadResponseLabels.name),
+        description: payload.get(AccountInfoPayloadResponseLabels.name),
         roles: payload?.get?.(AccountInfoPayloadResponseLabels.roles),
         features: payload?.get?.(AccountInfoPayloadResponseLabels.features),
       }),

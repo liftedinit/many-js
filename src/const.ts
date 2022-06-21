@@ -1,24 +1,23 @@
-import {
-  LedgerTransactionType,
-  TransactionTypeIndices,
-} from "./network/modules/types"
+import { EventType, EventTypeIndices } from "./network/modules/types"
 
 export const ONE_SECOND = 1000
 export const ONE_MINUTE = 60000
 
-export const transactionTypeIndices: {
-  [key in LedgerTransactionType]: TransactionTypeIndices
+export const eventTypeNameToIndices: {
+  [key in EventType]: EventTypeIndices
 } = {
-  [LedgerTransactionType.send]: [4, 0],
-  [LedgerTransactionType.accountCreate]: [9, 0],
-  [LedgerTransactionType.accountAddRoles]: [9, 2],
-  [LedgerTransactionType.accountRemoveRoles]: [9, 3],
-  [LedgerTransactionType.accountDelete]: [9, 4],
-  [LedgerTransactionType.accountAddFeature]: [9, 5],
-  [LedgerTransactionType.accountMultisigSubmit]: [9, [1, 0]],
-  [LedgerTransactionType.accountMultisigApprove]: [9, [1, 1]],
-  [LedgerTransactionType.accountMultisigRevoke]: [9, [1, 2]],
-  [LedgerTransactionType.accountMultisigExecute]: [9, [1, 3]],
-  [LedgerTransactionType.accountMultisigWithdraw]: [9, [1, 4]],
-  [LedgerTransactionType.accountMultisigSetDefaults]: [9, [1, 5]],
+  [EventType.send]: [6, 0],
+  [EventType.accountCreate]: [9, 0],
+  [EventType.accountSetDescription]: [9, 1],
+  [EventType.accountAddRoles]: [9, 2],
+  [EventType.accountRemoveRoles]: [9, 3],
+  [EventType.accountDisable]: [9, 4],
+  [EventType.accountAddFeature]: [9, 5],
+  [EventType.accountMultisigSubmit]: [9, [1, 0]],
+  [EventType.accountMultisigApprove]: [9, [1, 1]],
+  [EventType.accountMultisigRevoke]: [9, [1, 2]],
+  [EventType.accountMultisigExecute]: [9, [1, 3]],
+  [EventType.accountMultisigWithdraw]: [9, [1, 4]],
+  [EventType.accountMultisigSetDefaults]: [9, [1, 5]],
+  [EventType.accountMultisigExpired]: [9, [1, 6]],
 }

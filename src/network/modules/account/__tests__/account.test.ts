@@ -4,7 +4,7 @@ import {
   AccountFeatureTypes,
   AccountMultisigArgument,
   AccountRole,
-  LedgerTransactionType,
+  EventType,
 } from "../../types"
 import {
   accountSource,
@@ -19,7 +19,7 @@ import {
 } from "../../test/test-utils"
 import { Account } from "../account"
 import { makeLedgerSendParam } from "../../../../utils"
-import { ONE_MINUTE, transactionTypeIndices } from "../../../../const"
+import { ONE_MINUTE, eventTypeNameToIndices } from "../../../../const"
 import { tag } from "../../../../message/cbor"
 import { Message } from "../../../../message"
 
@@ -61,7 +61,7 @@ describe("Account", () => {
     )
     expect(res).toEqual({
       accountInfo: {
-        name: accountName,
+        description: accountName,
         roles,
         features: new Map([
           [
@@ -92,10 +92,7 @@ describe("Account", () => {
       memo: "this is a memo",
     }
 
-    const res = await account.submitMultisigTxn(
-      LedgerTransactionType.send,
-      txnData,
-    )
+    const res = await account.submitMultisigTxn(EventType.send, txnData)
 
     const expectedCallArgs = new Map()
       .set(0, txnData.from)
@@ -103,7 +100,7 @@ describe("Account", () => {
       .set(
         2,
         new Map()
-          .set(0, transactionTypeIndices[LedgerTransactionType.send])
+          .set(0, eventTypeNameToIndices[EventType.send])
           .set(1, makeLedgerSendParam(txnData)),
       )
     expect(mockCall).toHaveBeenCalledWith(
@@ -129,7 +126,7 @@ describe("Account", () => {
       info: {
         memo: "this is a memo",
         transaction: {
-          type: LedgerTransactionType.send,
+          type: EventType.send,
           from: accountSource,
           to: identityStr1,
           symbolAddress: txnSymbolAddress1,
@@ -212,7 +209,7 @@ describe("Account", () => {
 })
 
 function makeMultisigInfoResponse({ timeout }: { timeout: Date }) {
-  const accountMultisigTxn = new Map().set(0, transactionTypeIndices.send).set(
+  const accountMultisigTxn = new Map().set(0, eventTypeNameToIndices.send).set(
     1,
     makeLedgerSendParamResponse({
       source: accountSource,
