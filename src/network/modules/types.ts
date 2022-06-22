@@ -64,3 +64,16 @@ export type AccountFeature = number | [number, unknown]
 export type MakeTxnDataOpts = {
   isTxnParamData: boolean
 }
+
+export enum NetworkAttributes {
+  base = 0,
+  blockchain = 1,
+  ledger = 2,
+  kvstore = 3,
+  events = 4,
+  ledgerCommands = 6,
+  kvstoreCommands = 7,
+  async = 8,
+  account = 9,
+  idstore = 1002,
+}
