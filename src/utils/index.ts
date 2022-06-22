@@ -1,4 +1,4 @@
-import crypto from "crypto"
+// import crypto from "crypto"
 import { Message } from "../message"
 import { ManyError, SerializedManyError } from "../message/error"
 import { Network, NetworkModule } from "../network"
@@ -38,5 +38,5 @@ export function throwOnErrorResponse(msg: Message) {
 }
 
 export function makeRandomBytes(size = 32) {
-  return crypto.randomBytes(size)
+  return crypto.getRandomValues(new Uint8Array(size))
 }
