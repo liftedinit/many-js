@@ -16,7 +16,7 @@ export type NetworkStatusInfo = {
   address: string
   attributes: NetworkAttributes[]
   serverVersion: string
-  timeDelta: number
+  timeDeltaInSecs: number
   [k: string]: unknown
 }
 
@@ -61,7 +61,7 @@ async function getNetworkStatus(msg: Message): Promise<NetworkStatusResponse> {
       address: await getAddressFromTaggedIdentity(content.get(3)),
       attributes: content.get(4),
       serverVersion: content.get(5),
-      timeDelta: content.get(7),
+      timeDeltaInSecs: content.get(7),
     }
   }
   return result

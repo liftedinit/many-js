@@ -43,7 +43,7 @@ describe("Base", () => {
           .set(-2, new Uint8Array()),
         serverName: "AbciModule(many-ledger)",
         serverVersion: "0.1.0",
-        timeDelta: 300,
+        timeDeltaInSecs: 300,
       },
     })
   })
