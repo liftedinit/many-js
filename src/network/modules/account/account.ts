@@ -7,6 +7,7 @@ import {
   getAddressFromTaggedIdentity,
   makeAccountInfoData,
   makeLedgerSendParam,
+  makeRandomBytes,
   makeTxnData,
 } from "../../../utils"
 import { Event } from "../events"
@@ -26,6 +27,7 @@ export interface Account extends NetworkModule {
   submitMultisigTxn: (
     txnType: EventType,
     txnData: SubmitMultisigTxnData,
+    opts: { nonce?: ArrayBuffer },
   ) => Promise<GetMultisigTokenReturnType>
   multisigInfo: (token: ArrayBuffer) => Promise<unknown>
   multisigApprove: (token: ArrayBuffer) => Promise<unknown>
@@ -66,12 +68,15 @@ export const Account: Account = {
   async submitMultisigTxn(
     txnType: EventType,
     txnData: SubmitMultisigTxnData,
+    { nonce = makeRandomBytes(16) },
   ): Promise<GetMultisigTokenReturnType> {
     const m = new Map()
     m.set(0, txnData.from)
     txnData?.memo && m.set(1, txnData.memo)
     m.set(2, makeSubmittedTxnData(txnType, txnData))
-    const msg = await this.call("account.multisigSubmitTransaction", m)
+    const msg = await this.call("account.multisigSubmitTransaction", m, {
+      nonce,
+    })
     return getMultisigToken(msg)
   },
 

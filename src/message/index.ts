@@ -62,7 +62,7 @@ export class Message {
       content.set(6, obj.id);
     }
     if (obj.nonce) {
-      content.set(7, obj.nonce);
+      content.set(7, cbor.encode(obj.nonce))
     }
     if (obj.attrs) {
       content.set(8, obj.attrs);

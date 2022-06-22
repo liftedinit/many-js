@@ -1,11 +1,10 @@
 import cbor from "cbor"
 import { ONE_MINUTE } from "../../const"
 import { CoseKey, EMPTY } from "../../message/cose"
+import { makeRandomBytes } from "../../utils"
 import { Address } from "../address"
 import { PublicKeyIdentity } from "../types"
 const sha512 = require("js-sha512")
-
-const CHALLENGE_BUFFER = new TextEncoder().encode("lifted")
 
 export class WebAuthnIdentity extends PublicKeyIdentity {
   publicKey: ArrayBuffer
@@ -29,6 +28,7 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
   }
 
   static async create(): Promise<WebAuthnIdentity> {
+    checkBrowserSupport()
     const publicKeyCredential = await createPublicKeyCredential()
     const attestationResponse = publicKeyCredential?.response
     if (!(attestationResponse instanceof AuthenticatorAttestationResponse)) {
@@ -56,11 +56,12 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
     credentialId: ArrayBuffer,
     challenge?: Uint8Array | ArrayBuffer,
   ): Promise<PublicKeyCredential> {
+    checkBrowserSupport()
     let credential = (await window.navigator.credentials.get({
       publicKey: {
-        challenge: challenge ?? CHALLENGE_BUFFER,
+        challenge: challenge ?? makeRandomBytes(),
         timeout: ONE_MINUTE,
-        userVerification: "discouraged",
+        userVerification: "preferred",
         allowCredentials: [
           {
             transports: ["nfc", "usb", "ble"],
@@ -109,7 +110,14 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
   }
 }
 
-export async function createPublicKeyCredential(challenge = CHALLENGE_BUFFER) {
+async function createPublicKeyCredential(challenge = makeRandomBytes()) {
+  if (
+    !(challenge?.buffer instanceof ArrayBuffer) ||
+    !challenge?.BYTES_PER_ELEMENT ||
+    challenge?.byteLength < 32
+  ) {
+    throw new Error("invalid challenge")
+  }
   const publicKey: PublicKeyCredentialCreationOptions = {
     challenge,
 
@@ -118,7 +126,7 @@ export async function createPublicKeyCredential(challenge = CHALLENGE_BUFFER) {
     },
 
     user: {
-      id: window.crypto.getRandomValues(new Uint8Array(32)),
+      id: makeRandomBytes(),
       name: "Lifted",
       displayName: "Lifted",
     },
@@ -157,4 +165,10 @@ function getCosePublicKey(authData: ArrayBuffer): ArrayBuffer {
   const credentialIdLength = dataView.getUint16(0)
   const cosePublicKey = authData.slice(55 + credentialIdLength)
   return cosePublicKey
+}
+
+function checkBrowserSupport() {
+  if (!window.PublicKeyCredential) {
+    throw new Error("Webauthn not supported")
+  }
 }

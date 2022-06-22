@@ -1,7 +1,7 @@
 import { Identity } from "../identity"
 import { Message } from "../message"
 import { CborData } from "../message/cbor"
-import { applyMixins, throwOnErrorResponse } from "../utils"
+import { applyMixins } from "../utils"
 import { NetworkModule } from "./modules"
 import { Async } from "./modules/async"
 
@@ -40,11 +40,12 @@ export class Network {
     return Buffer.from(reply)
   }
 
-  async call(method: string, data?: any) {
+  async call(method: string, data?: any, opts = {}) {
     const req = Message.fromObject({
       method,
       from: this.identity ? await this.identity.getAddress() : undefined,
       data,
+      ...opts,
     })
     return await this.send(req)
   }

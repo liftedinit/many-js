@@ -1,6 +1,6 @@
 import { Address } from "../../../identity"
 import { Message } from "../../../message"
-import { makeLedgerSendParam } from "../../../utils"
+import { makeLedgerSendParam, makeRandomBytes } from "../../../utils"
 import { LedgerSendParam, NetworkModule } from "../types"
 
 export interface LedgerInfo {
@@ -13,7 +13,10 @@ interface Ledger extends NetworkModule {
   balance: (address?: string, symbols?: string[]) => Promise<Balances>
   mint: () => Promise<unknown>
   burn: () => Promise<unknown>
-  send: (data: LedgerSendParam) => Promise<unknown>
+  send: (
+    data: LedgerSendParam,
+    opts: { nonce?: ArrayBuffer },
+  ) => Promise<unknown>
 }
 
 export const Ledger: Ledger = {
@@ -37,8 +40,11 @@ export const Ledger: Ledger = {
     throw new Error("Not implemented")
   },
 
-  async send(param: LedgerSendParam): Promise<unknown> {
-    return await this.call("ledger.send", makeLedgerSendParam(param))
+  async send(
+    param: LedgerSendParam,
+    { nonce = makeRandomBytes(16) },
+  ): Promise<unknown> {
+    return await this.call("ledger.send", makeLedgerSendParam(param), { nonce })
   },
 }
 

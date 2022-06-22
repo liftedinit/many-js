@@ -1,5 +1,5 @@
-import cbor from "cbor"
 import { Message } from "../../../message"
+import { makeRandomBytes } from "../../../utils"
 import type { NetworkModule } from "../types"
 
 export type GetPhraseReturnType = ReturnType<typeof getPhrase>
@@ -11,9 +11,16 @@ interface IdStore extends NetworkModule {
     address: string,
     credId: ArrayBuffer,
     credCosePublicKey: ArrayBuffer,
+    opts: { nonce?: ArrayBuffer },
   ) => Promise<GetPhraseReturnType>
-  getFromRecallPhrase: (phrase: string) => Promise<GetCredentialDataReturnType>
-  getFromAddress: (address: string) => Promise<GetCredentialDataReturnType>
+  getFromRecallPhrase: (
+    phrase: string,
+    opts: { nonce?: ArrayBuffer },
+  ) => Promise<GetCredentialDataReturnType>
+  getFromAddress: (
+    address: string,
+    opts: { nonce?: ArrayBuffer },
+  ) => Promise<GetCredentialDataReturnType>
 }
 
 export const IdStore: IdStore = {
@@ -23,30 +30,44 @@ export const IdStore: IdStore = {
     address: string,
     credId: ArrayBuffer,
     credCosePublicKey: ArrayBuffer,
+    opts = {},
   ): Promise<GetPhraseReturnType> {
+    const { nonce } = opts
     const m = new Map()
     m.set(0, address)
     m.set(1, Buffer.from(credId))
     m.set(2, credCosePublicKey)
-    const message = await this.call("idstore.store", m)
+    const message = await this.call("idstore.store", m, {
+      nonce,
+    })
     return getPhrase(message)
   },
 
   async getFromRecallPhrase(
     phrase: string,
+    { nonce = makeRandomBytes(16) },
   ): Promise<GetCredentialDataReturnType> {
     const val = phrase.trim().split(" ")
     const message = await this.call(
       "idstore.getFromRecallPhrase",
       new Map([[0, val]]),
+      {
+        nonce,
+      },
     )
     return getCredentialData(message)
   },
 
-  async getFromAddress(address: string): Promise<GetCredentialDataReturnType> {
+  async getFromAddress(
+    address: string,
+    { nonce = makeRandomBytes(16) },
+  ): Promise<GetCredentialDataReturnType> {
     const message = await this.call(
       "idstore.getFromAddress",
       new Map([[0, address]]),
+      {
+        nonce,
+      },
     )
     return getCredentialData(message)
   },
