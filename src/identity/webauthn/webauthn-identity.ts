@@ -54,12 +54,13 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
 
   static async getCredential(
     credentialId: ArrayBuffer,
-    challenge?: Uint8Array | ArrayBuffer,
+    challenge: Uint8Array = makeRandomBytes(),
   ): Promise<PublicKeyCredential> {
     checkBrowserSupport()
+    validateChallenge(challenge)
     let credential = (await window.navigator.credentials.get({
       publicKey: {
-        challenge: challenge ?? makeRandomBytes(),
+        challenge,
         timeout: ONE_MINUTE,
         userVerification: "preferred",
         allowCredentials: [
@@ -114,15 +115,11 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
 }
 
 async function createPublicKeyCredential(challenge = makeRandomBytes()) {
-  if (
-    !(challenge?.buffer instanceof ArrayBuffer) ||
-    !challenge?.BYTES_PER_ELEMENT ||
-    challenge?.byteLength < 32
-  ) {
-    throw new Error("invalid challenge")
-  }
+  validateChallenge(challenge)
   const publicKey: PublicKeyCredentialCreationOptions = {
     challenge,
+
+    timeout: ONE_MINUTE,
 
     rp: {
       name: "lifted",
@@ -173,5 +170,15 @@ function getCosePublicKey(authData: ArrayBuffer): ArrayBuffer {
 function checkBrowserSupport() {
   if (!window.PublicKeyCredential) {
     throw new Error("Webauthn not supported")
+  }
+}
+
+function validateChallenge(challenge: Uint8Array) {
+  if (
+    !(challenge?.buffer instanceof ArrayBuffer) ||
+    !challenge?.BYTES_PER_ELEMENT ||
+    challenge?.byteLength < 32
+  ) {
+    throw new Error("invalid challenge")
   }
 }
