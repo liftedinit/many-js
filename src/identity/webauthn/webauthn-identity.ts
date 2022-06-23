@@ -74,6 +74,10 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
     return credential
   }
 
+  async getProtectedHeader(): Promise<Map<string, unknown>> {
+    return new Map().set("webauthn", true)
+  }
+
   async getUnprotectedHeader(
     cborMessageContent: ArrayBuffer,
     cborProtectedHeader: ArrayBuffer,
@@ -88,7 +92,6 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
     const cred = await WebAuthnIdentity.getCredential(this.rawId, challenge)
     const response = cred.response as AuthenticatorAssertionResponse
     const m = new Map()
-    m.set("webauthn", true)
     m.set("authData", response.authenticatorData)
     m.set("clientData", Buffer.from(response.clientDataJSON).toString())
     m.set("signature", response.signature)

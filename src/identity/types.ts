@@ -20,6 +20,9 @@ export abstract class Identity implements Signer, Verifier {
     unprotectedHeader: Map<string, unknown>,
   ): Promise<ArrayBuffer>
   abstract verify(data: ArrayBuffer): Promise<boolean>
+  async getProtectedHeader(): Promise<Map<string, unknown>> {
+    return new Map()
+  }
   async getUnprotectedHeader(
     cborMessageContent: ArrayBuffer,
     cborProtectedHeader: ArrayBuffer,

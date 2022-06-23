@@ -54,7 +54,7 @@ export class CoseMessage {
     message: Message,
     identity: Identity = new AnonymousIdentity(),
   ): Promise<CoseMessage> {
-    const protectedHeader = this.getProtectedHeader(identity)
+    const protectedHeader = await this.getProtectedHeader(identity)
     const cborProtectedHeader = cbor.encodeCanonical(protectedHeader)
     const content = message.getContent()
     const cborContent = cbor.encode(tag(10001, content))
@@ -78,15 +78,22 @@ export class CoseMessage {
     )
   }
 
-  private static getProtectedHeader(
+  private static async getProtectedHeader(
     identity: PublicKeyIdentity | Identity,
-  ): CborMap {
-    const protectedHeader = new Map()
+  ): Promise<CborMap> {
+    let protectedHeader = new Map()
     if ("getCoseKey" in identity) {
       const coseKey = identity.getCoseKey()
       protectedHeader.set(1, coseKey.key.get(3)) // alg
       protectedHeader.set(4, coseKey.keyId) // kid: kid
       protectedHeader.set("keyset", coseKey.toCborData())
+      if (typeof identity?.getProtectedHeader === "function") {
+        console.log(" has getProtectedHeader() >>>>>>>>>>>>>>> ")
+        protectedHeader = new Map([
+          ...protectedHeader,
+          ...(await identity.getProtectedHeader()),
+        ])
+      }
     }
     return protectedHeader
   }
