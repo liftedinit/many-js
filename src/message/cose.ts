@@ -88,7 +88,6 @@ export class CoseMessage {
       protectedHeader.set(4, coseKey.keyId) // kid: kid
       protectedHeader.set("keyset", coseKey.toCborData())
       if (typeof identity?.getProtectedHeader === "function") {
-        console.log(" has getProtectedHeader() >>>>>>>>>>>>>>> ")
         protectedHeader = new Map([
           ...protectedHeader,
           ...(await identity.getProtectedHeader()),
