@@ -42,7 +42,7 @@ export const Ledger: Ledger = {
 
   async send(
     param: LedgerSendParam,
-    { nonce = makeRandomBytes(16) },
+    { nonce } = { nonce: makeRandomBytes(16) },
   ): Promise<unknown> {
     return await this.call("ledger.send", makeLedgerSendParam(param), { nonce })
   },
