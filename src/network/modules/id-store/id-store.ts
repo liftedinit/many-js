@@ -45,7 +45,7 @@ export const IdStore: IdStore = {
 
   async getFromRecallPhrase(
     phrase: string,
-    { nonce = makeRandomBytes(16) },
+    { nonce } = { nonce: makeRandomBytes(16) },
   ): Promise<GetCredentialDataReturnType> {
     const val = phrase.trim().split(" ")
     const message = await this.call(
@@ -60,7 +60,7 @@ export const IdStore: IdStore = {
 
   async getFromAddress(
     address: string,
-    { nonce = makeRandomBytes(16) },
+    { nonce } = { nonce: makeRandomBytes(16) },
   ): Promise<GetCredentialDataReturnType> {
     const message = await this.call(
       "idstore.getFromAddress",

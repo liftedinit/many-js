@@ -68,7 +68,7 @@ export const Account: Account = {
   async submitMultisigTxn(
     txnType: EventType,
     txnData: SubmitMultisigTxnData,
-    { nonce = makeRandomBytes(16) },
+    { nonce } = { nonce: makeRandomBytes(16) },
   ): Promise<GetMultisigTokenReturnType> {
     const m = new Map()
     m.set(0, txnData.from)

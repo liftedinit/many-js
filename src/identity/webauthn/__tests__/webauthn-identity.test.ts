@@ -55,10 +55,14 @@ describe("WebAuthnIdentity", () => {
       cborProtectedHeader,
     )
     expect(getCredentialMock).toHaveBeenCalledTimes(1)
-    expect(unprotectedHeader.get("webauthn")).toBe(true)
     expect(unprotectedHeader.get("authData")).toBe("mockAuthData")
     expect(unprotectedHeader.get("clientData")).toBe("clientDataJSON")
     expect(unprotectedHeader.get("signature")).toBe("mockSignature")
+  })
+  it("getProtectedHeader()", async function () {
+    const identity = setup()
+    const protectedHeader = await identity.getProtectedHeader()
+    expect(protectedHeader.get("webauthn")).toBe(true)
   })
 })
 
