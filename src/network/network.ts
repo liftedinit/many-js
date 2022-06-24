@@ -49,15 +49,4 @@ export class Network {
     })
     return await this.send(req)
   }
-
-  // @TODO: Move these methods to modules/base, modules/ledger, etc.
-
-  get base() {
-    return {
-      // 0 - Base
-      endpoints: (prefix?: string) => this.call("endpoints", { prefix }),
-      heartbeat: () => this.call("heartbeat"),
-      status: () => this.call("status"),
-    }
-  }
 }
