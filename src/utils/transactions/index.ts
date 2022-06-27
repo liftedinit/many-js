@@ -13,6 +13,7 @@ import {
   AccountFeatureTypes,
   AccountFeature,
   AccountMultisigArgument,
+  MultisigSetDefaultsEvent,
 } from "../../network"
 
 export function makeLedgerSendParam({
@@ -85,7 +86,7 @@ export async function makeTxnData(
 
 async function makeMultisigSetDefaultEventData(
   eventData: Map<number, unknown>,
-) {
+): Promise<Omit<MultisigSetDefaultsEvent, "id" | "time">> {
   return {
     type: EventType.accountMultisigSetDefaults,
     submitter: await getAddressFromTaggedIdentity(
@@ -94,9 +95,9 @@ async function makeMultisigSetDefaultEventData(
     account: await getAddressFromTaggedIdentity(
       eventData.get(2) as { value: Uint8Array },
     ),
-    threshold: eventData.get(3),
-    expireInSecs: eventData.get(4),
-    execute_automatically: eventData.get(5),
+    threshold: eventData.get(3) as number,
+    expireInSecs: eventData.get(4) as number,
+    executeAutomatically: eventData.get(5) as boolean,
   }
 }
 
@@ -199,9 +200,11 @@ async function makeMultisigEventData(
       eventData.get(1) as { value: Uint8Array },
     ),
     token: eventData.get(2) as ArrayBuffer,
-    [actorType]: await getAddressFromTaggedIdentity(
-      eventData.get(3) as { value: Uint8Array },
-    ),
+    [actorType]: eventData.get(3)
+      ? await getAddressFromTaggedIdentity(
+          eventData.get(3) as { value: Uint8Array },
+        )
+      : "",
   }
 }
 
@@ -278,8 +281,8 @@ async function makeMultisigSubmitEventData(
     transaction,
     token: eventData.get(5) as ArrayBuffer,
     threshold: eventData.get(6) as number,
-    timeout: eventData.get(7) as Date,
-    execute_automatically: eventData.get(8) as boolean,
+    expireDate: eventData.get(7) as Date,
+    executeAutomatically: eventData.get(8) as boolean,
     data: eventData.get(9) as CborMap,
   }
 }

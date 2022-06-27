@@ -60,8 +60,8 @@ export type MultisigTransactionInfo = {
   submitter: string
   approvers: Map<string, boolean>
   threshold: number
-  execute_automatically: boolean
-  timeout: Date
+  executeAutomatically: boolean
+  expireDate: Date
   cborData?: CborMap
 }
 
@@ -140,7 +140,7 @@ async function getMultisigTxnData(msg: Message): Promise<MultisigInfoResponse> {
         submitter: await getAddressFromTaggedIdentity(
           content.get(2) as { value: Uint8Array },
         ),
-        approvers: await (async function (): Promise<Map<string, boolean>> {
+        approvers: await(async function (): Promise<Map<string, boolean>> {
           const result: Map<string, boolean> = new Map()
           for (let approver of Array.from(content.get(3))) {
             const [identity, hasApproved] = approver as [
@@ -153,8 +153,8 @@ async function getMultisigTxnData(msg: Message): Promise<MultisigInfoResponse> {
           return result
         })(),
         threshold: content.get(4),
-        execute_automatically: content.get(5),
-        timeout: content.get(6),
+        executeAutomatically: content.get(5),
+        expireDate: content.get(6),
         cborData: content.get(7),
       }
     } catch (e) {
