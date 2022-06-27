@@ -210,6 +210,28 @@ describe("Account", () => {
       new Map([[0, new ArrayBuffer(0)]]),
     )
   })
+
+  it("multisigSetDefaults()", async () => {
+    const mockCall = jest.fn(async () => {
+      return makeMockResponseMessage(undefined)
+    })
+    const account = setupModule(Account, mockCall)
+    const res = await account.multisigSetDefaults({
+      account: accountSource,
+      executeAutomatically: true,
+      expireInSecs: 86400,
+      threshold: 3,
+    })
+    const expectedArgs = new Map()
+      .set(0, accountSource)
+      .set(1, 3)
+      .set(2, 86400)
+      .set(3, true)
+    expect(mockCall).toHaveBeenCalledWith(
+      "account.multisigSetDefaults",
+      expectedArgs,
+    )
+  })
 })
 
 function makeMultisigInfoResponse({ timeout }: { timeout: Date }) {

@@ -11,4 +11,5 @@ export type {
   MultisigExecuteEvent,
   MultisigRevokeEvent,
   MultisigWithdrawEvent,
+  MultisigSetDefaultsEvent,
 } from "./events"

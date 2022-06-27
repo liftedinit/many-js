@@ -22,6 +22,13 @@ export type GetAccountInfoResponse = ReturnType<typeof getAccountInfo>
 type GetMultisigTokenReturnType = ReturnType<typeof getMultisigToken>
 type SubmitMultisigTxnData = LedgerSendParam & { memo?: string }
 
+type MultisigSetDefaults = {
+  account: string
+  threshold: number
+  expireInSecs: number
+  executeAutomatically: boolean
+}
+
 export interface Account extends NetworkModule {
   info: (accountId: string) => Promise<GetAccountInfoResponse>
   submitMultisigTxn: (
@@ -34,6 +41,7 @@ export interface Account extends NetworkModule {
   multisigRevoke: (token: ArrayBuffer) => Promise<unknown>
   multisigExecute: (token: ArrayBuffer) => Promise<unknown>
   multisigWithdraw: (token: ArrayBuffer) => Promise<unknown>
+  multisigSetDefaults: (data: MultisigSetDefaults) => Promise<unknown>
 }
 
 export type MultisigInfoResponse = {
@@ -99,6 +107,21 @@ export const Account: Account = {
 
   async multisigWithdraw(token: ArrayBuffer) {
     return await this.call("account.multisigWithdraw", new Map([[0, token]]))
+  },
+
+  async multisigSetDefaults({
+    account,
+    threshold,
+    expireInSecs,
+    executeAutomatically,
+  }: MultisigSetDefaults) {
+    const m = new Map()
+      .set(0, account)
+      .set(1, threshold)
+      .set(2, expireInSecs)
+      .set(3, executeAutomatically)
+    const res = await this.call("account.multisigSetDefaults", m)
+    return res.getPayload()
   },
 }
 

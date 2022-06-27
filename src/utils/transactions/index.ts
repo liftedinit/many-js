@@ -53,31 +53,51 @@ export async function makeTxnData(
   } else if (eventTypeName === EventType.accountMultisigSubmit)
     return await makeMultisigSubmitEventData(txn)
   else if (eventTypeName === EventType.accountMultisigApprove)
-    return makeMultisigEventData(
+    return await makeMultisigEventData(
       EventType.accountMultisigApprove,
       "approver",
       txn,
     )
   else if (eventTypeName === EventType.accountMultisigRevoke)
-    return makeMultisigEventData(
+    return await makeMultisigEventData(
       EventType.accountMultisigRevoke,
       "revoker",
       txn,
     )
   else if (eventTypeName === EventType.accountMultisigExecute)
-    return makeMultisigEventData(
+    return await makeMultisigEventData(
       EventType.accountMultisigExecute,
       "executor",
       txn,
     )
   else if (eventTypeName === EventType.accountMultisigWithdraw)
-    return makeMultisigEventData(
+    return await makeMultisigEventData(
       EventType.accountMultisigWithdraw,
       "withdrawer",
       txn,
     )
+  else if (eventTypeName === EventType.accountMultisigSetDefaults) {
+    return await makeMultisigSetDefaultEventData(txn)
+  }
 
   console.error("event type not implemented", indices, txn)
+}
+
+async function makeMultisigSetDefaultEventData(
+  eventData: Map<number, unknown>,
+) {
+  return {
+    type: EventType.accountMultisigSetDefaults,
+    submitter: await getAddressFromTaggedIdentity(
+      eventData.get(1) as { value: Uint8Array },
+    ),
+    account: await getAddressFromTaggedIdentity(
+      eventData.get(2) as { value: Uint8Array },
+    ),
+    threshold: eventData.get(3),
+    expireInSecs: eventData.get(4),
+    execute_automatically: eventData.get(5),
+  }
 }
 
 async function makeCreateAccountEventData(eventData: Map<number, unknown>) {
@@ -124,7 +144,7 @@ export function getAccountRolesData(
 
 export function getAccountFeaturesData(
   features: AccountFeature[] = [],
-): Map<AccountFeatureTypes, boolean | unknown> {
+): Map<string, boolean | unknown> {
   return features.reduce((acc, feature) => {
     let featureName
     let featureValue

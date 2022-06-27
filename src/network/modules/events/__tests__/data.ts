@@ -16,6 +16,8 @@ import {
   identityStr3,
   makeLedgerSendParamResponse,
   makeMockResponseMessage,
+  taggedIdentity2,
+  taggedAccountSource,
   txnSymbolAddress1,
   txnSymbolAddress2,
 } from "../../test/test-utils"
@@ -244,43 +246,61 @@ export const expectedMockEventsListMultisigSubmitEventResponse = {
   ],
 }
 
-export const mockEventsListMultisigTxnsResponse = makeEventsListResponseMessage(
-  4,
-  [
-    makeMultisigTxnResponse({
-      txnTypeIndices: eventTypeNameToIndices.accountMultisigApprove,
-      time: eventTime1,
-      id: 4,
-      accountSource,
-      actor: identityStr2,
-    }),
-    makeMultisigTxnResponse({
-      txnTypeIndices: eventTypeNameToIndices.accountMultisigRevoke,
-      time: eventTime1,
-      id: 3,
-      accountSource,
-      actor: identityStr2,
-    }),
-    makeMultisigTxnResponse({
-      txnTypeIndices: eventTypeNameToIndices.accountMultisigExecute,
-      time: eventTime1,
-      id: 2,
-      accountSource,
-      actor: identityStr2,
-    }),
-    makeMultisigTxnResponse({
-      txnTypeIndices: eventTypeNameToIndices.accountMultisigWithdraw,
-      time: eventTime1,
-      id: 1,
-      accountSource,
-      actor: identityStr2,
-    }),
-  ],
-)
+export const mockEventsListMultisigTxnsResponse = makeEventsListResponseMessage(5, [
+  makeTxn({
+    id: 5,
+    time: eventTime1,
+    txnData: new Map()
+      .set(0, eventTypeNameToIndices.accountMultisigSetDefaults)
+      .set(1, taggedIdentity2)
+      .set(2, taggedAccountSource)
+      .set(3, 2)
+      .set(4, 86400)
+      .set(5, true),
+  }),
+  makeMultisigTxnResponse({
+    txnTypeIndices: eventTypeNameToIndices.accountMultisigApprove,
+    time: eventTime1,
+    id: 4,
+    accountSource,
+    actor: identityStr2,
+  }),
+  makeMultisigTxnResponse({
+    txnTypeIndices: eventTypeNameToIndices.accountMultisigRevoke,
+    time: eventTime1,
+    id: 3,
+    accountSource,
+    actor: identityStr2,
+  }),
+  makeMultisigTxnResponse({
+    txnTypeIndices: eventTypeNameToIndices.accountMultisigExecute,
+    time: eventTime1,
+    id: 2,
+    accountSource,
+    actor: identityStr2,
+  }),
+  makeMultisigTxnResponse({
+    txnTypeIndices: eventTypeNameToIndices.accountMultisigWithdraw,
+    time: eventTime1,
+    id: 1,
+    accountSource,
+    actor: identityStr2,
+  }),
+])
 
 export const expectedMockEventsListMultisigTxnsResponse = {
-  count: 4,
+  count: 5,
   events: [
+    {
+      id: 5,
+      time: eventTime1,
+      type: EventType.accountMultisigSetDefaults,
+      account: accountSource,
+      submitter: identityStr2,
+      threshold: 2,
+      expireInSecs: 86400,
+      execute_automatically: true,
+    },
     {
       id: 4,
       time: eventTime1,

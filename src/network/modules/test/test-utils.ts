@@ -13,6 +13,10 @@ export const Address2 = Address.fromString(identityStr2).toBuffer()
 export const identityStr3 = "mahiclsquy3nnoioxg3zhsci2vltdhmlsmdlbhbaglf5rjtq6c"
 
 export const taggedIdentity2 = tag(1000, Address2)
+export const taggedAccountSource = tag(
+  1000,
+  Address.fromString(accountSource).toBuffer(),
+)
 
 export const txnSymbolAddress1 =
   "mafw3bxrqe2jdcidvjlonloqcczvytrxr3fl4naybmign3uy6e"

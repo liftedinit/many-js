@@ -73,6 +73,10 @@ export interface MultisigWithdrawEvent extends MultisigEvent {
   withdrawer: string
 }
 
+export interface MultisigSetDefaultsEvent extends MultisigEvent {
+  submitter: string
+}
+
 export interface MultisigSubmitEvent extends MultisigEvent {
   account: string
   execute_automatically: boolean
@@ -93,6 +97,7 @@ export type Event =
   | MultisigRevokeEvent
   | MultisigExecuteEvent
   | MultisigWithdrawEvent
+  | MultisigSetDefaultsEvent
 
 export interface EventsListResponse {
   count: number
