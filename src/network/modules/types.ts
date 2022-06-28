@@ -42,8 +42,8 @@ export enum AccountFeatureTypes {
 
 export enum AccountMultisigArgument {
   threshold = 0,
-  timeout_in_secs = 1,
-  execute_automatically = 2,
+  expireInSecs = 1,
+  executeAutomatically = 2,
 }
 
 export enum AccountRole {

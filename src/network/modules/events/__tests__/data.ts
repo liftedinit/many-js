@@ -16,6 +16,8 @@ import {
   identityStr3,
   makeLedgerSendParamResponse,
   makeMockResponseMessage,
+  taggedIdentity2,
+  taggedAccountSource,
   txnSymbolAddress1,
   txnSymbolAddress2,
 } from "../../test/test-utils"
@@ -92,9 +94,9 @@ function makeMultisigSubmitTxnResponse({
   submittedTxn,
   token = new Uint8Array(),
   threshold,
-  execute_automatically = false,
+  executeAutomatically = false,
   cborData,
-  timeout = new Date(new Date().getTime() + ONE_MINUTE),
+  expireDate = new Date(new Date().getTime() + ONE_MINUTE),
   time,
 }: {
   id: number
@@ -105,9 +107,9 @@ function makeMultisigSubmitTxnResponse({
   submittedTxn: Map<number, unknown>
   token?: ArrayBuffer
   threshold: number
-  execute_automatically: boolean
+  executeAutomatically: boolean
   cborData?: Map<number, unknown>
-  timeout?: Date
+  expireDate?: Date
   time: Date
 }) {
   const m = new Map()
@@ -118,8 +120,8 @@ function makeMultisigSubmitTxnResponse({
     .set(4, submittedTxn)
     .set(5, token)
     .set(6, threshold)
-    .set(7, timeout)
-    .set(8, execute_automatically)
+    .set(7, expireDate)
+    .set(8, executeAutomatically)
     .set(9, cborData)
 
   return makeTxn({ id, time, txnData: m })
@@ -196,7 +198,7 @@ function makeEventsListResponseMessage(count: number, events: unknown[]) {
   return makeMockResponseMessage(new Map().set(0, count).set(1, events))
 }
 
-const timeout = new Date(new Date().getTime() + ONE_MINUTE)
+const expireDate = new Date(new Date().getTime() + ONE_MINUTE)
 export const mockEventsListMultisigSubmitEventResponse =
   makeEventsListResponseMessage(1, [
     makeMultisigSubmitTxnResponse({
@@ -206,8 +208,8 @@ export const mockEventsListMultisigSubmitEventResponse =
       accountSource,
       threshold: 2,
       memo: "this is a memo",
-      execute_automatically: false,
-      timeout,
+      executeAutomatically: false,
+      expireDate,
       submittedTxn: new Map().set(0, eventTypeNameToIndices.send).set(
         1,
         makeLedgerSendParamResponse({
@@ -230,9 +232,9 @@ export const expectedMockEventsListMultisigSubmitEventResponse = {
       account: accountSource,
       memo: "this is a memo",
       token: new Uint8Array(),
-      timeout,
+      expireDate,
       threshold: 2,
-      execute_automatically: false,
+      executeAutomatically: false,
       transaction: {
         type: EventType.send,
         from: accountSource,
@@ -245,8 +247,19 @@ export const expectedMockEventsListMultisigSubmitEventResponse = {
 }
 
 export const mockEventsListMultisigTxnsResponse = makeEventsListResponseMessage(
-  4,
+  5,
   [
+    makeTxn({
+      id: 5,
+      time: eventTime1,
+      txnData: new Map()
+        .set(0, eventTypeNameToIndices.accountMultisigSetDefaults)
+        .set(1, taggedIdentity2)
+        .set(2, taggedAccountSource)
+        .set(3, 2)
+        .set(4, 86400)
+        .set(5, true),
+    }),
     makeMultisigTxnResponse({
       txnTypeIndices: eventTypeNameToIndices.accountMultisigApprove,
       time: eventTime1,
@@ -279,8 +292,18 @@ export const mockEventsListMultisigTxnsResponse = makeEventsListResponseMessage(
 )
 
 export const expectedMockEventsListMultisigTxnsResponse = {
-  count: 4,
+  count: 5,
   events: [
+    {
+      id: 5,
+      time: eventTime1,
+      type: EventType.accountMultisigSetDefaults,
+      account: accountSource,
+      submitter: identityStr2,
+      threshold: 2,
+      expireInSecs: 86400,
+      executeAutomatically: true,
+    },
     {
       id: 4,
       time: eventTime1,
@@ -354,8 +377,8 @@ function makeAccountCreateTxnResponse({
       AccountFeatureTypes.accountMultisig,
       new Map()
         .set(AccountMultisigArgument.threshold, 2)
-        .set(AccountMultisigArgument.timeout_in_secs, 86400)
-        .set(AccountMultisigArgument.execute_automatically, false),
+        .set(AccountMultisigArgument.expireInSecs, 86400)
+        .set(AccountMultisigArgument.executeAutomatically, false),
     ],
   ]
   const m = new Map().set(2, accountName).set(3, _roles).set(4, features)
@@ -386,12 +409,12 @@ export const expectedMockEventsListCreateAccountResponse = {
           new Map()
             .set(AccountMultisigArgument[AccountMultisigArgument.threshold], 2)
             .set(
-              AccountMultisigArgument[AccountMultisigArgument.timeout_in_secs],
+              AccountMultisigArgument[AccountMultisigArgument.expireInSecs],
               86400,
             )
             .set(
               AccountMultisigArgument[
-                AccountMultisigArgument.execute_automatically
+                AccountMultisigArgument.executeAutomatically
               ],
               false,
             ),

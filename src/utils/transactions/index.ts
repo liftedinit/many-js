@@ -13,6 +13,7 @@ import {
   AccountFeatureTypes,
   AccountFeature,
   AccountMultisigArgument,
+  MultisigSetDefaultsEvent,
 } from "../../network"
 
 export function makeLedgerSendParam({
@@ -53,31 +54,51 @@ export async function makeTxnData(
   } else if (eventTypeName === EventType.accountMultisigSubmit)
     return await makeMultisigSubmitEventData(txn)
   else if (eventTypeName === EventType.accountMultisigApprove)
-    return makeMultisigEventData(
+    return await makeMultisigEventData(
       EventType.accountMultisigApprove,
       "approver",
       txn,
     )
   else if (eventTypeName === EventType.accountMultisigRevoke)
-    return makeMultisigEventData(
+    return await makeMultisigEventData(
       EventType.accountMultisigRevoke,
       "revoker",
       txn,
     )
   else if (eventTypeName === EventType.accountMultisigExecute)
-    return makeMultisigEventData(
+    return await makeMultisigEventData(
       EventType.accountMultisigExecute,
       "executor",
       txn,
     )
   else if (eventTypeName === EventType.accountMultisigWithdraw)
-    return makeMultisigEventData(
+    return await makeMultisigEventData(
       EventType.accountMultisigWithdraw,
       "withdrawer",
       txn,
     )
+  else if (eventTypeName === EventType.accountMultisigSetDefaults) {
+    return await makeMultisigSetDefaultEventData(txn)
+  }
 
   console.error("event type not implemented", indices, txn)
+}
+
+async function makeMultisigSetDefaultEventData(
+  eventData: Map<number, unknown>,
+): Promise<Omit<MultisigSetDefaultsEvent, "id" | "time">> {
+  return {
+    type: EventType.accountMultisigSetDefaults,
+    submitter: await getAddressFromTaggedIdentity(
+      eventData.get(1) as { value: Uint8Array },
+    ),
+    account: await getAddressFromTaggedIdentity(
+      eventData.get(2) as { value: Uint8Array },
+    ),
+    threshold: eventData.get(3) as number,
+    expireInSecs: eventData.get(4) as number,
+    executeAutomatically: eventData.get(5) as boolean,
+  }
 }
 
 async function makeCreateAccountEventData(eventData: Map<number, unknown>) {
@@ -124,7 +145,7 @@ export function getAccountRolesData(
 
 export function getAccountFeaturesData(
   features: AccountFeature[] = [],
-): Map<AccountFeatureTypes, boolean | unknown> {
+): Map<string, boolean | unknown> {
   return features.reduce((acc, feature) => {
     let featureName
     let featureValue
@@ -179,9 +200,11 @@ async function makeMultisigEventData(
       eventData.get(1) as { value: Uint8Array },
     ),
     token: eventData.get(2) as ArrayBuffer,
-    [actorType]: await getAddressFromTaggedIdentity(
-      eventData.get(3) as { value: Uint8Array },
-    ),
+    [actorType]: eventData.get(3)
+      ? await getAddressFromTaggedIdentity(
+          eventData.get(3) as { value: Uint8Array },
+        )
+      : "",
   }
 }
 
@@ -258,8 +281,8 @@ async function makeMultisigSubmitEventData(
     transaction,
     token: eventData.get(5) as ArrayBuffer,
     threshold: eventData.get(6) as number,
-    timeout: eventData.get(7) as Date,
-    execute_automatically: eventData.get(8) as boolean,
+    expireDate: eventData.get(7) as Date,
+    executeAutomatically: eventData.get(8) as boolean,
     data: eventData.get(9) as CborMap,
   }
 }

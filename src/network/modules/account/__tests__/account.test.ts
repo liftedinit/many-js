@@ -42,8 +42,8 @@ describe("Account", () => {
         // @ts-ignore
         new Map([
           [AccountMultisigArgument.threshold, 2],
-          [AccountMultisigArgument.execute_automatically, false],
-          [AccountMultisigArgument.timeout_in_secs, 86400],
+          [AccountMultisigArgument.executeAutomatically, false],
+          [AccountMultisigArgument.expireInSecs, 86400],
         ]),
       ],
     ]
@@ -115,9 +115,9 @@ describe("Account", () => {
   })
 
   it("multisigInfo() should return info about the multisig transaction", async () => {
-    const timeout = new Date(new Date().getTime() + ONE_MINUTE)
+    const expireDate = new Date(new Date().getTime() + ONE_MINUTE)
     const mockCall = jest.fn(async () => {
-      return makeMockResponseMessage(makeMultisigInfoResponse({ timeout }))
+      return makeMockResponseMessage(makeMultisigInfoResponse({ expireDate }))
     })
     const account = setupModule(Account, mockCall)
 
@@ -139,8 +139,8 @@ describe("Account", () => {
         submitter: identityStr2,
         approvers: new Map([[identityStr2, true]]),
         threshold: 2,
-        execute_automatically: false,
-        timeout,
+        executeAutomatically: false,
+        expireDate,
         cborData: null,
       },
     })
@@ -210,9 +210,31 @@ describe("Account", () => {
       new Map([[0, new ArrayBuffer(0)]]),
     )
   })
+
+  it("multisigSetDefaults()", async () => {
+    const mockCall = jest.fn(async () => {
+      return makeMockResponseMessage(undefined)
+    })
+    const account = setupModule(Account, mockCall)
+    const res = await account.multisigSetDefaults({
+      account: accountSource,
+      executeAutomatically: true,
+      expireInSecs: 86400,
+      threshold: 3,
+    })
+    const expectedArgs = new Map()
+      .set(0, accountSource)
+      .set(1, 3)
+      .set(2, 86400)
+      .set(3, true)
+    expect(mockCall).toHaveBeenCalledWith(
+      "account.multisigSetDefaults",
+      expectedArgs,
+    )
+  })
 })
 
-function makeMultisigInfoResponse({ timeout }: { timeout: Date }) {
+function makeMultisigInfoResponse({ expireDate }: { expireDate: Date }) {
   const accountMultisigTxn = new Map().set(0, eventTypeNameToIndices.send).set(
     1,
     makeLedgerSendParamResponse({
@@ -225,14 +247,14 @@ function makeMultisigInfoResponse({ timeout }: { timeout: Date }) {
   const submitter = tag(10000, Address2)
   const approvers = new Map().set(submitter, new Map().set(0, true))
   const threshold = 2
-  const execute_automatically = false
+  const executeAutomatically = false
   return new Map()
     .set(0, "this is a memo")
     .set(1, accountMultisigTxn)
     .set(2, submitter)
     .set(3, approvers)
     .set(4, threshold)
-    .set(5, execute_automatically)
-    .set(6, timeout)
+    .set(5, executeAutomatically)
+    .set(6, expireDate)
     .set(7, null)
 }

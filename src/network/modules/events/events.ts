@@ -55,7 +55,7 @@ export interface CreateAccountEvent extends BaseEvent {
 
 export interface MultisigEvent extends BaseEvent {
   account: string
-  token: ArrayBuffer
+  token?: ArrayBuffer
 }
 
 export interface MultisigApproveEvent extends MultisigEvent {
@@ -73,13 +73,20 @@ export interface MultisigWithdrawEvent extends MultisigEvent {
   withdrawer: string
 }
 
+export interface MultisigSetDefaultsEvent extends MultisigEvent {
+  submitter: string
+  threshold: number
+  expireInSecs: number
+  executeAutomatically: boolean
+}
+
 export interface MultisigSubmitEvent extends MultisigEvent {
   account: string
-  execute_automatically: boolean
+  executeAutomatically: boolean
   memo: string
   submitter: string
   threshold: number
-  timeout: Date
+  expireDate: Date
   token: ArrayBuffer
   transaction: Omit<Event, "id" | "time"> | undefined
   data?: CborMap
@@ -93,6 +100,7 @@ export type Event =
   | MultisigRevokeEvent
   | MultisigExecuteEvent
   | MultisigWithdrawEvent
+  | MultisigSetDefaultsEvent
 
 export interface EventsListResponse {
   count: number
