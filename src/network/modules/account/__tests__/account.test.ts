@@ -93,6 +93,9 @@ describe("Account", () => {
       from: "m321",
       symbol: "m456",
       memo: "this is a memo",
+      executeAutomatically: false,
+      threshold: 3,
+      expireInSecs: 3600,
     }
 
     const res = await account.submitMultisigTxn(EventType.send, txnData, opts)
@@ -106,6 +109,9 @@ describe("Account", () => {
           .set(0, eventTypeNameToIndices[EventType.send])
           .set(1, makeLedgerSendParam(txnData)),
       )
+      .set(3, 3)
+      .set(4, 3600)
+      .set(5, false)
     expect(mockCall).toHaveBeenCalledWith(
       "account.multisigSubmitTransaction",
       expectedCallArgs,
