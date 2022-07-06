@@ -20,7 +20,12 @@ import {
 
 export type GetAccountInfoResponse = ReturnType<typeof getAccountInfo>
 type GetMultisigTokenReturnType = ReturnType<typeof getMultisigToken>
-type SubmitMultisigTxnData = LedgerSendParam & { memo?: string }
+type SubmitMultisigTxnData = LedgerSendParam & {
+  memo?: string
+  threshold?: number
+  expireInSecs?: number
+  executeAutomatically?: boolean
+}
 
 type MultisigSetDefaults = {
   account: string
@@ -81,6 +86,10 @@ export const Account: Account = {
     const m = new Map()
     m.set(0, txnData.from)
     txnData?.memo && m.set(1, txnData.memo)
+    txnData?.threshold && m.set(3, txnData.threshold)
+    txnData?.expireInSecs && m.set(4, txnData.expireInSecs)
+    typeof txnData?.executeAutomatically === "boolean" &&
+      m.set(5, txnData.executeAutomatically)
     m.set(2, makeSubmittedTxnData(txnType, txnData))
     const msg = await this.call("account.multisigSubmitTransaction", m, {
       nonce,
@@ -140,7 +149,7 @@ async function getMultisigTxnData(msg: Message): Promise<MultisigInfoResponse> {
         submitter: await getAddressFromTaggedIdentity(
           content.get(2) as { value: Uint8Array },
         ),
-        approvers: await(async function (): Promise<Map<string, boolean>> {
+        approvers: await (async function (): Promise<Map<string, boolean>> {
           const result: Map<string, boolean> = new Map()
           for (let approver of Array.from(content.get(3))) {
             const [identity, hasApproved] = approver as [
@@ -180,10 +189,9 @@ function makeSubmittedTxnData(
   txnData: SubmitMultisigTxnData,
 ) {
   const accountMultisigTxn = new Map()
-  let txnTypeIndices
   let txnParam
+  const txnTypeIndices = eventTypeNameToIndices[txnType]
   if (txnType === EventType.send) {
-    txnTypeIndices = eventTypeNameToIndices[EventType.send]
     txnParam = makeLedgerSendParam(txnData)
   }
   if (txnTypeIndices && txnParam) {
