@@ -16,9 +16,11 @@ import {
   LedgerSendParam,
   EventType,
   NetworkModule,
+  AccountFeature,
 } from "../types"
 
 export type GetAccountInfoResponse = ReturnType<typeof getAccountInfo>
+export type CreateAccountResponse = { address: string }
 type GetMultisigTokenReturnType = ReturnType<typeof getMultisigToken>
 type SubmitMultisigTxnData = LedgerSendParam & {
   memo?: string
@@ -36,6 +38,11 @@ type MultisigSetDefaults = {
 
 export interface Account extends NetworkModule {
   info: (accountId: string) => Promise<GetAccountInfoResponse>
+  create: (
+    name: string,
+    roles: Map<string, string[]>,
+    features: AccountFeature[],
+  ) => Promise<CreateAccountResponse>
   submitMultisigTxn: (
     txnType: EventType,
     txnData: SubmitMultisigTxnData,
@@ -131,6 +138,22 @@ export const Account: Account = {
       .set(3, executeAutomatically)
     const res = await this.call("account.multisigSetDefaults", m)
     return res.getPayload()
+  },
+
+  async create(
+    name: string,
+    roles: Map<string, string[]>,
+    features: AccountFeature[],
+  ) {
+    const m = new Map().set(0, name).set(1, roles).set(2, features)
+    const message = (await this.call("account.create", m)) as Message
+    const decoded = message.getPayload()
+    const address = await getAddressFromTaggedIdentity(
+      decoded?.get(0) as { value: Uint8Array },
+    )
+    return {
+      address,
+    }
   },
 }
 
