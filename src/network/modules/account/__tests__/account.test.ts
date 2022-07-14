@@ -15,6 +15,7 @@ import {
   makeLedgerSendParamResponse,
   makeMockResponseMessage,
   setupModule,
+  taggedAccountSource,
   txnSymbolAddress1,
 } from "../../test/test-utils"
 import { Account } from "../account"
@@ -150,6 +151,33 @@ describe("Account", () => {
         cborData: null,
       },
     })
+  })
+
+  it("create() should create an account and return address", async () => {
+    const mockCall = jest.fn(async () => {
+      return makeMockResponseMessage(new Map().set(0, taggedAccountSource))
+    })
+    const account = setupModule(Account, mockCall)
+    const roles = new Map().set(identityStr1, [
+      AccountRole[AccountRole.canMultisigApprove],
+      AccountRole[AccountRole.canMultisigSubmit],
+    ])
+    const features = [
+      0,
+      [
+        AccountFeatureTypes.accountMultisig,
+        new Map()
+          .set(AccountMultisigArgument.threshold, 2)
+          .set(AccountMultisigArgument.expireInSecs, 3600)
+          .set(AccountMultisigArgument.executeAutomatically, false),
+      ],
+    ]
+    const res = await account.create("account name", roles, features)
+    expect(mockCall).toHaveBeenCalledWith(
+      "account.create",
+      new Map().set(0, "account name").set(1, roles).set(2, features),
+    )
+    expect(res).toEqual({ address: accountSource })
   })
 
   it("multisigApprove() should approve a transaction", async () => {
