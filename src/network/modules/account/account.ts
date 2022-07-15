@@ -36,6 +36,12 @@ type MultisigSetDefaults = {
   executeAutomatically: boolean
 }
 
+type AddFeaturesParams = {
+  account: string
+  roles?: Map<string, string[]>
+  features?: unknown[]
+}
+
 export interface Account extends NetworkModule {
   info: (accountId: string) => Promise<GetAccountInfoResponse>
   create: (
@@ -43,6 +49,7 @@ export interface Account extends NetworkModule {
     roles: Map<string, string[]>,
     features: AccountFeature[],
   ) => Promise<CreateAccountResponse>
+  addFeatures: (data: AddFeaturesParams) => Promise<unknown>
   submitMultisigTxn: (
     txnType: EventType,
     txnData: SubmitMultisigTxnData,
@@ -154,6 +161,14 @@ export const Account: Account = {
     return {
       address,
     }
+  },
+
+  async addFeatures(data: AddFeaturesParams) {
+    const m = new Map().set(0, data.account)
+    data?.roles && m.set(1, data.roles)
+    data?.features && m.set(2, data.features)
+    const res = await this.call("account.addFeatures", m)
+    return res.getPayload()
   },
 }
 

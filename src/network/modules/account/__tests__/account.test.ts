@@ -158,26 +158,33 @@ describe("Account", () => {
       return makeMockResponseMessage(new Map().set(0, taggedAccountSource))
     })
     const account = setupModule(Account, mockCall)
-    const roles = new Map().set(identityStr1, [
-      AccountRole[AccountRole.canMultisigApprove],
-      AccountRole[AccountRole.canMultisigSubmit],
-    ])
-    const features = [
-      0,
-      [
-        AccountFeatureTypes.accountMultisig,
-        new Map()
-          .set(AccountMultisigArgument.threshold, 2)
-          .set(AccountMultisigArgument.expireInSecs, 3600)
-          .set(AccountMultisigArgument.executeAutomatically, false),
-      ],
-    ]
+    const roles = makeRoles()
+    const features: AccountFeature[] = makeAccountFeatures()
     const res = await account.create("account name", roles, features)
     expect(mockCall).toHaveBeenCalledWith(
       "account.create",
       new Map().set(0, "account name").set(1, roles).set(2, features),
     )
     expect(res).toEqual({ address: accountSource })
+  })
+
+  it("addFeatures()", async () => {
+    const mockCall = jest.fn(async () => {
+      return makeMockResponseMessage(null)
+    })
+    const account = setupModule(Account, mockCall)
+    const roles = makeRoles()
+    const features: AccountFeature[] = makeAccountFeatures()
+    const res = await account.addFeatures({
+      account: accountSource,
+      roles,
+      features,
+    })
+    expect(mockCall).toHaveBeenCalledWith(
+      "account.addFeatures",
+      new Map().set(0, accountSource).set(1, roles).set(2, features),
+    )
+    expect(res).toEqual(null)
   })
 
   it("multisigApprove() should approve a transaction", async () => {
@@ -291,4 +298,24 @@ function makeMultisigInfoResponse({ expireDate }: { expireDate: Date }) {
     .set(5, executeAutomatically)
     .set(6, expireDate)
     .set(7, null)
+}
+
+function makeAccountFeatures(): AccountFeature[] {
+  return [
+    AccountFeatureTypes.accountLedger,
+    [
+      AccountFeatureTypes.accountMultisig,
+      new Map()
+        .set(AccountMultisigArgument.threshold, 2)
+        .set(AccountMultisigArgument.expireInSecs, 3600)
+        .set(AccountMultisigArgument.executeAutomatically, false),
+    ],
+  ]
+}
+
+function makeRoles() {
+  return new Map().set(identityStr1, [
+    AccountRole[AccountRole.canMultisigApprove],
+    AccountRole[AccountRole.canMultisigSubmit],
+  ])
 }

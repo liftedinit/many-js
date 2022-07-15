@@ -250,6 +250,29 @@ export const mockEventsListMultisigTxnsResponse = makeEventsListResponseMessage(
   5,
   [
     makeTxn({
+      id: 6,
+      time: eventTime1,
+      txnData: new Map()
+        .set(0, eventTypeNameToIndices.accountAddFeatures)
+        .set(1, taggedAccountSource)
+        .set(
+          2,
+          new Map().set(taggedIdentity2, [
+            AccountRole[AccountRole.canMultisigApprove],
+          ]),
+        )
+        .set(3, [
+          AccountFeatureTypes.accountLedger,
+          [
+            AccountFeatureTypes.accountMultisig,
+            new Map()
+              .set(AccountMultisigArgument.threshold, 2)
+              .set(AccountMultisigArgument.expireInSecs, 3600)
+              .set(AccountMultisigArgument.executeAutomatically, false),
+          ],
+        ]),
+    }),
+    makeTxn({
       id: 5,
       time: eventTime1,
       txnData: new Map()
@@ -294,6 +317,32 @@ export const mockEventsListMultisigTxnsResponse = makeEventsListResponseMessage(
 export const expectedMockEventsListMultisigTxnsResponse = {
   count: 5,
   events: [
+    {
+      id: 6,
+      time: eventTime1,
+      type: EventType.accountAddFeatures,
+      account: accountSource,
+      roles: new Map().set(identityStr2, [
+        AccountRole[AccountRole.canMultisigApprove],
+      ]),
+      features: new Map()
+        .set(AccountFeatureTypes[AccountFeatureTypes.accountLedger], true)
+        .set(
+          AccountFeatureTypes[AccountFeatureTypes.accountMultisig],
+          new Map()
+            .set(AccountMultisigArgument[AccountMultisigArgument.threshold], 2)
+            .set(
+              AccountMultisigArgument[AccountMultisigArgument.expireInSecs],
+              3600,
+            )
+            .set(
+              AccountMultisigArgument[
+                AccountMultisigArgument.executeAutomatically
+              ],
+              false,
+            ),
+        ),
+    },
     {
       id: 5,
       time: eventTime1,

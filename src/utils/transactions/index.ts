@@ -14,6 +14,7 @@ import {
   AccountFeature,
   AccountMultisigArgument,
   MultisigSetDefaultsEvent,
+  AddFeaturesEvent,
 } from "../../network"
 
 export function makeLedgerSendParam({
@@ -51,6 +52,8 @@ export async function makeTxnData(
     return await makeSendEventData(txn, opts)
   else if (eventTypeName === EventType.accountCreate) {
     return await makeCreateAccountEventData(txn)
+  } else if (eventTypeName === EventType.accountAddFeatures) {
+    return await makeAddFeaturesEventData(txn)
   } else if (eventTypeName === EventType.accountMultisigSubmit)
     return await makeMultisigSubmitEventData(txn)
   else if (eventTypeName === EventType.accountMultisigApprove)
@@ -115,6 +118,26 @@ async function makeCreateAccountEventData(eventData: Map<number, unknown>) {
   }
 }
 
+async function makeAddFeaturesEventData(eventData: Map<number, unknown>) {
+  const result: Omit<AddFeaturesEvent, "id" | "time"> = {
+    type: EventType.accountAddFeatures,
+    account: await getAddressFromTaggedIdentity(
+      eventData.get(1) as { value: Uint8Array },
+    ),
+  }
+  if (eventData.get(2) instanceof Map) {
+    result.roles = getAccountRolesData(
+      eventData.get(2) as Map<{ value: Uint8Array }, string[]>,
+    )
+  }
+  if (eventData.get(3) instanceof Array) {
+    result.features = getAccountFeaturesData(
+      eventData.get(3) as AccountFeature[],
+    )
+  }
+  return result
+}
+
 export function makeAccountInfoData({
   description,
   roles,
@@ -145,7 +168,7 @@ export function getAccountRolesData(
 
 export function getAccountFeaturesData(
   features: AccountFeature[] = [],
-): Map<string, boolean | unknown> {
+): Map<string, boolean | Map<string, unknown>> {
   return features.reduce((acc, feature) => {
     let featureName
     let featureValue

@@ -5,6 +5,7 @@ export type {
   SendEvent,
   EventsListResponse,
   CreateAccountEvent,
+  AddFeaturesEvent,
   MultisigEvent,
   MultisigSubmitEvent,
   MultisigApproveEvent,
