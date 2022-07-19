@@ -17,7 +17,7 @@ export enum EventType {
   accountCreate = "accountCreate",
   accountSetDescription = "accountSetDescription",
   accountDisable = "accountDisable",
-  accountAddFeature = "accountAddFeature",
+  accountAddFeatures = "accountAddFeatures",
   accountAddRoles = "accountAddRoles",
   accountRemoveRoles = "accountRemoveRoles",
   accountMultisigSubmit = "accountMultisigSubmit",

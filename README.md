@@ -5,6 +5,15 @@ support the Many Protocol.
 
 ## Usage
 
+Instantiate Network and apply modules.
+
+```ts
+import { Account, Base, Events, IdStore, Ledger, Network } from "many-js"
+
+const network = new Network("/api", identity)
+network.apply([Account, Base, Events, IdStore, Ledger])
+```
+
 Generating key pairs.
 
 ```ts
@@ -47,9 +56,9 @@ network.base.endpoints() // => Decoded and Parsed Response
 network.ledger.info() // => Decoded and Parsed Response
 ```
 
-## Account
+### Account
 
-### create
+#### create
 
 ```ts
 import { Network, Account } from "many-js"
@@ -63,14 +72,37 @@ const roles = new Map().set("ma123....", [
 ])
 
 const features = [
-  AccountFeatureTypes[AccountFeatureTypes.accountLedger],
+  AccountFeatureTypes.accountLedger,
   [
-    AccountFeatureTypes[AccountFeatureTypes.accountMultisig],
+    AccountFeatureTypes.accountMultisig,
     new Map()
       .set(AccountMultisigArgument.threshold, 2)
       .set(AccountMultisigArgument.expireInSecs, 3600)
-      .set(AccountMultisigArgument.executeAutomatically, 0),
+      .set(AccountMultisigArgument.executeAutomatically, false),
   ],
 ]
 await network.account.create("account name", roles, features)
+```
+
+#### addFeatures
+
+```ts
+network.apply([Account])
+
+const roles = new Map("ma321.....", [
+  AccountRole[AccountRole.canLedgerTransact],
+])
+
+const features = [
+  [
+    AccountFeatureTypes.accountLedger,
+    AccountFeatureTypes.accountMultisig,
+    new Map()
+      .set(AccountMultisigArgument.threshold, 2)
+      .set(AccountMultisigArgument.expireInSecs, 3600)
+      .set(AccountMultisigArgument.executeAutomatically, false),
+  ],
+]
+
+await network.account.addFeatures({ account: "ma12345.....", roles, features })
 ```

@@ -36,13 +36,22 @@ type MultisigSetDefaults = {
   executeAutomatically: boolean
 }
 
+type AddFeaturesParams = {
+  account: string
+  roles?: Map<string, string[]>
+  features: AccountFeature[]
+}
+
+type CreateParams = {
+  name?: string
+  roles?: Map<string, string[]>
+  features: AccountFeature[]
+}
+
 export interface Account extends NetworkModule {
   info: (accountId: string) => Promise<GetAccountInfoResponse>
-  create: (
-    name: string,
-    roles: Map<string, string[]>,
-    features: AccountFeature[],
-  ) => Promise<CreateAccountResponse>
+  create: (data: CreateParams) => Promise<CreateAccountResponse>
+  addFeatures: (data: AddFeaturesParams) => Promise<unknown>
   submitMultisigTxn: (
     txnType: EventType,
     txnData: SubmitMultisigTxnData,
@@ -140,12 +149,11 @@ export const Account: Account = {
     return res.getPayload()
   },
 
-  async create(
-    name: string,
-    roles: Map<string, string[]>,
-    features: AccountFeature[],
-  ) {
-    const m = new Map().set(0, name).set(1, roles).set(2, features)
+  async create({ name, roles, features }: CreateParams) {
+    if (!features) throw new Error("Minimum of one feature is required")
+    const m = new Map().set(2, features)
+    name && m.set(0, name)
+    roles && m.set(1, roles)
     const message = (await this.call("account.create", m)) as Message
     const decoded = message.getPayload()
     const address = await getAddressFromTaggedIdentity(
@@ -154,6 +162,14 @@ export const Account: Account = {
     return {
       address,
     }
+  },
+
+  async addFeatures({ account, roles, features }: AddFeaturesParams) {
+    if (!features) throw new Error("Minimum of one feature is required")
+    const m = new Map().set(0, account).set(2, features)
+    roles && m.set(1, roles)
+    const res = await this.call("account.addFeatures", m)
+    return res.getPayload()
   },
 }
 

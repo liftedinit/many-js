@@ -12,7 +12,7 @@ export const eventTypeNameToIndices: {
   [EventType.accountAddRoles]: [9, 2],
   [EventType.accountRemoveRoles]: [9, 3],
   [EventType.accountDisable]: [9, 4],
-  [EventType.accountAddFeature]: [9, 5],
+  [EventType.accountAddFeatures]: [9, 5],
   [EventType.accountMultisigSubmit]: [9, [1, 0]],
   [EventType.accountMultisigApprove]: [9, [1, 1]],
   [EventType.accountMultisigRevoke]: [9, [1, 2]],
