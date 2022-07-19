@@ -161,7 +161,9 @@ export function getAccountRolesData(
     const [identity, roleList] = roleData
     const i = identity as { value: Uint8Array }
     const address = new Address(Buffer.from(i.value)).toString()
-    acc.set(address, roleList)
+    if (Array.isArray(roleList) && roleList.length) {
+      acc.set(address, roleList)
+    }
     return acc
   }, new Map())
 }

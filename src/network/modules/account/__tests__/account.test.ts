@@ -187,6 +187,20 @@ describe("Account", () => {
     expect(res).toEqual(null)
   })
 
+  it("setDescription()", async () => {
+    const mockCall = jest.fn(async () => {
+      return makeMockResponseMessage(null)
+    })
+    const newDescription = "new account name"
+    const account = setupModule(Account, mockCall)
+    const res = await account.setDescription(accountSource, newDescription)
+    expect(mockCall).toHaveBeenCalledWith(
+      "account.setDescription",
+      new Map().set(0, accountSource).set(1, newDescription),
+    )
+    expect(res).toEqual(null)
+  })
+
   it("multisigApprove() should approve a transaction", async () => {
     const mockCall = jest.fn(async () => {
       return makeMockResponseMessage(undefined)
