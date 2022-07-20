@@ -201,6 +201,34 @@ describe("Account", () => {
     expect(res).toEqual(null)
   })
 
+  it("addRoles()", async () => {
+    const mockCall = jest.fn(async () => {
+      return makeMockResponseMessage(null)
+    })
+    const newRoles = makeRoles()
+    const account = setupModule(Account, mockCall)
+    const res = await account.addRoles(accountSource, newRoles)
+    expect(mockCall).toHaveBeenCalledWith(
+      "account.addRoles",
+      new Map().set(0, accountSource).set(1, newRoles),
+    )
+    expect(res).toEqual(null)
+  })
+
+  it("removeRoles()", async () => {
+    const mockCall = jest.fn(async () => {
+      return makeMockResponseMessage(null)
+    })
+    const newRoles = makeRoles()
+    const account = setupModule(Account, mockCall)
+    const res = await account.removeRoles(accountSource, newRoles)
+    expect(mockCall).toHaveBeenCalledWith(
+      "account.removeRoles",
+      new Map().set(0, accountSource).set(1, newRoles),
+    )
+    expect(res).toEqual(null)
+  })
+
   it("multisigApprove() should approve a transaction", async () => {
     const mockCall = jest.fn(async () => {
       return makeMockResponseMessage(undefined)
