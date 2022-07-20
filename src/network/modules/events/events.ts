@@ -59,6 +59,21 @@ export interface AddFeaturesEvent extends BaseEvent {
   features?: ReturnType<typeof getAccountFeaturesData>
 }
 
+export interface SetDescriptionEvent extends BaseEvent {
+  account: string
+  description: string
+}
+
+export interface AddRolesEvent extends BaseEvent {
+  account: string
+  roles: Map<string, string[]>
+}
+
+export interface RemoveRolesEvent extends BaseEvent {
+  account: string
+  roles: Map<string, string[]>
+}
+
 export interface MultisigEvent extends BaseEvent {
   account: string
   token?: ArrayBuffer
@@ -108,6 +123,9 @@ export type Event =
   | MultisigWithdrawEvent
   | MultisigSetDefaultsEvent
   | AddFeaturesEvent
+  | SetDescriptionEvent
+  | AddRolesEvent
+  | RemoveRolesEvent
 
 export interface EventsListResponse {
   count: number

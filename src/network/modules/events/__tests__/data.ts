@@ -247,8 +247,42 @@ export const expectedMockEventsListMultisigSubmitEventResponse = {
 }
 
 export const mockEventsListMultisigTxnsResponse = makeEventsListResponseMessage(
-  5,
+  9,
   [
+    makeTxn({
+      id: 9,
+      time: eventTime1,
+      txnData: new Map()
+        .set(0, eventTypeNameToIndices.accountAddRoles)
+        .set(1, taggedAccountSource)
+        .set(
+          2,
+          new Map().set(taggedIdentity2, [
+            AccountRole[AccountRole.canMultisigSubmit],
+          ]),
+        ),
+    }),
+    makeTxn({
+      id: 8,
+      time: eventTime1,
+      txnData: new Map()
+        .set(0, eventTypeNameToIndices.accountAddRoles)
+        .set(1, taggedAccountSource)
+        .set(
+          2,
+          new Map().set(taggedIdentity2, [
+            AccountRole[AccountRole.canMultisigApprove],
+          ]),
+        ),
+    }),
+    makeTxn({
+      id: 7,
+      time: eventTime1,
+      txnData: new Map()
+        .set(0, eventTypeNameToIndices.accountSetDescription)
+        .set(1, taggedAccountSource)
+        .set(2, "this is the new description"),
+    }),
     makeTxn({
       id: 6,
       time: eventTime1,
@@ -315,8 +349,33 @@ export const mockEventsListMultisigTxnsResponse = makeEventsListResponseMessage(
 )
 
 export const expectedMockEventsListMultisigTxnsResponse = {
-  count: 5,
+  count: 9,
   events: [
+    {
+      id: 9,
+      time: eventTime1,
+      type: EventType.accountAddRoles,
+      account: accountSource,
+      roles: new Map().set(identityStr2, [
+        AccountRole[AccountRole.canMultisigSubmit],
+      ]),
+    },
+    {
+      id: 8,
+      time: eventTime1,
+      type: EventType.accountAddRoles,
+      account: accountSource,
+      roles: new Map().set(identityStr2, [
+        AccountRole[AccountRole.canMultisigApprove],
+      ]),
+    },
+    {
+      id: 7,
+      time: eventTime1,
+      type: EventType.accountSetDescription,
+      account: accountSource,
+      description: "this is the new description",
+    },
     {
       id: 6,
       time: eventTime1,

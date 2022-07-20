@@ -50,7 +50,7 @@ describe("Events", () => {
       const res = await events.list()
       expect(res).toEqual(expectedMockEventsListMultisigSubmitEventResponse)
     })
-    it("should return multisig approve, revoke, execute, withdraw, set defaults, and addFeatures events", async function () {
+    it("should return multisig approve, revoke, execute, withdraw, set defaults, setDescription, addRoles, removeRoles, and addFeatures events", async function () {
       const mockCall = jest.fn(async () => {
         return mockEventsListMultisigTxnsResponse
       })
