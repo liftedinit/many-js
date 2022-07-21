@@ -51,6 +51,9 @@ type CreateParams = {
 export interface Account extends NetworkModule {
   info: (accountId: string) => Promise<GetAccountInfoResponse>
   create: (data: CreateParams) => Promise<CreateAccountResponse>
+  setDescription: (account: string, description: string) => Promise<null>
+  addRoles: (account: string, roles: Map<string, string[]>) => Promise<null>
+  removeRoles: (account: string, roles: Map<string, string[]>) => Promise<null>
   addFeatures: (data: AddFeaturesParams) => Promise<unknown>
   submitMultisigTxn: (
     txnType: EventType,
@@ -162,6 +165,30 @@ export const Account: Account = {
     return {
       address,
     }
+  },
+
+  async setDescription(account: string, description: string) {
+    const res = await this.call(
+      "account.setDescription",
+      new Map().set(0, account).set(1, description),
+    )
+    return res.getPayload()
+  },
+
+  async addRoles(account: string, roles: Map<string, string[]>) {
+    const res = await this.call(
+      "account.addRoles",
+      new Map().set(0, account).set(1, roles),
+    )
+    return res?.getPayload()
+  },
+
+  async removeRoles(account: string, roles: Map<string, string[]>) {
+    const res = await this.call(
+      "account.removeRoles",
+      new Map().set(0, account).set(1, roles),
+    )
+    return res?.getPayload()
   },
 
   async addFeatures({ account, roles, features }: AddFeaturesParams) {

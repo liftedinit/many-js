@@ -89,7 +89,7 @@ await network.account.create("account name", roles, features)
 ```ts
 network.apply([Account])
 
-const roles = new Map("ma321.....", [
+const roles = new Map().set("ma321.....", [
   AccountRole[AccountRole.canLedgerTransact],
 ])
 
@@ -105,4 +105,45 @@ const features = [
 ]
 
 await network.account.addFeatures({ account: "ma12345.....", roles, features })
+```
+
+#### setDescription
+
+```ts
+network.apply([Account])
+
+const accountAddress = "ma987....."
+
+await network.account.setDescription(
+  accountAddress,
+  "new account name-description",
+)
+```
+
+#### addRoles
+
+```ts
+network.apply([Account])
+
+const accountAddress = "ma987....."
+const roles = new Map()
+  .set("ma321.....", [AccountRole[AccountRole.canLedgerTransact]])
+  .set("ma123.....", [
+    AccountRole[AccountRole.canLedgerTransact],
+    AccountRole[AccountRole.canLedgerSubmit],
+  ])
+await network.account.addRoles(accountAddress, roles)
+```
+
+#### removeRoles
+
+```ts
+network.apply([Account])
+
+const accountAddress = "ma987....."
+const roles = new Map().set("ma321.....", [
+  AccountRole[AccountRole.canLedgerTransact],
+])
+
+await network.account.removeRoles(accountAddress, roles)
 ```

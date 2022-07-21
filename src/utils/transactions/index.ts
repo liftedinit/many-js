@@ -54,6 +54,13 @@ export async function makeTxnData(
     return await makeCreateAccountEventData(txn)
   } else if (eventTypeName === EventType.accountAddFeatures) {
     return await makeAddFeaturesEventData(txn)
+  } else if (eventTypeName === EventType.accountSetDescription) {
+    return await makeSetDescriptionEventData(txn)
+  } else if (
+    eventTypeName === EventType.accountAddRoles ||
+    eventTypeName === EventType.accountRemoveRoles
+  ) {
+    return await makeEditRolesEventData(txn, eventTypeName)
   } else if (eventTypeName === EventType.accountMultisigSubmit)
     return await makeMultisigSubmitEventData(txn)
   else if (eventTypeName === EventType.accountMultisigApprove)
@@ -85,6 +92,32 @@ export async function makeTxnData(
   }
 
   console.error("event type not implemented", indices, txn)
+}
+
+async function makeSetDescriptionEventData(eventData: Map<number, unknown>) {
+  return {
+    type: EventType.accountSetDescription,
+    account: await getAddressFromTaggedIdentity(
+      eventData.get(1) as { value: Uint8Array },
+    ),
+    description: eventData.get(2),
+  }
+}
+
+async function makeEditRolesEventData(
+  eventData: Map<number, unknown>,
+  eventTypeName: EventType,
+) {
+  const res = {
+    type: eventTypeName,
+    account: await getAddressFromTaggedIdentity(
+      eventData.get(1) as { value: Uint8Array },
+    ),
+    roles: getAccountRolesData(
+      eventData.get(2) as Map<{ value: Uint8Array }, string[]>,
+    ),
+  }
+  return res
 }
 
 async function makeMultisigSetDefaultEventData(
@@ -161,7 +194,9 @@ export function getAccountRolesData(
     const [identity, roleList] = roleData
     const i = identity as { value: Uint8Array }
     const address = new Address(Buffer.from(i.value)).toString()
-    acc.set(address, roleList)
+    if (Array.isArray(roleList) && roleList.length) {
+      acc.set(address, roleList)
+    }
     return acc
   }, new Map())
 }
