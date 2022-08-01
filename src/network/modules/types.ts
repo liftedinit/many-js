@@ -77,3 +77,11 @@ export enum NetworkAttributes {
   account = 9,
   idstore = 1002,
 }
+
+export enum MultisigTransactionState {
+  pending,
+  executedAutomatically,
+  executedManually,
+  withdrawn,
+  expired,
+}

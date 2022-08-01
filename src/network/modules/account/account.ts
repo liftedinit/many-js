@@ -17,6 +17,7 @@ import {
   EventType,
   NetworkModule,
   AccountFeature,
+  MultisigTransactionState,
 } from "../types"
 
 export type GetAccountInfoResponse = ReturnType<typeof getAccountInfo>
@@ -86,6 +87,7 @@ export type MultisigTransactionInfo = {
   threshold: number
   executeAutomatically: boolean
   expireDate: Date
+  state: string
   cborData?: CborMap
 }
 
@@ -118,7 +120,7 @@ export const Account: Account = {
 
   async multisigInfo(token: ArrayBuffer): Promise<MultisigInfoResponse> {
     const res = await this.call("account.multisigInfo", new Map([[0, token]]))
-    return await getMultisigTxnData(res)
+    return await getMultisigInfo(res)
   },
 
   async multisigApprove(token: ArrayBuffer) {
@@ -200,7 +202,7 @@ export const Account: Account = {
   },
 }
 
-async function getMultisigTxnData(msg: Message): Promise<MultisigInfoResponse> {
+async function getMultisigInfo(msg: Message): Promise<MultisigInfoResponse> {
   const result: { info: MultisigTransactionInfo | undefined } = {
     info: undefined,
   }
@@ -231,6 +233,7 @@ async function getMultisigTxnData(msg: Message): Promise<MultisigInfoResponse> {
         executeAutomatically: content.get(5),
         expireDate: content.get(6),
         cborData: content.get(7),
+        state: MultisigTransactionState[content.get(8)],
       }
     } catch (e) {
       console.error("error in multisig txn data:", e)

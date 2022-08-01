@@ -5,6 +5,7 @@ import {
   AccountMultisigArgument,
   AccountRole,
   EventType,
+  MultisigTransactionState,
 } from "../../types"
 import {
   accountSource,
@@ -124,7 +125,12 @@ describe("Account", () => {
   it("multisigInfo() should return info about the multisig transaction", async () => {
     const expireDate = new Date(new Date().getTime() + ONE_MINUTE)
     const mockCall = jest.fn(async () => {
-      return makeMockResponseMessage(makeMultisigInfoResponse({ expireDate }))
+      return makeMockResponseMessage(
+        makeMultisigInfoResponse({
+          expireDate,
+          txnState: MultisigTransactionState.pending,
+        }),
+      )
     })
     const account = setupModule(Account, mockCall)
 
@@ -149,6 +155,7 @@ describe("Account", () => {
         executeAutomatically: false,
         expireDate,
         cborData: null,
+        state: MultisigTransactionState[MultisigTransactionState.pending],
       },
     })
   })
@@ -317,7 +324,13 @@ describe("Account", () => {
   })
 })
 
-function makeMultisigInfoResponse({ expireDate }: { expireDate: Date }) {
+function makeMultisigInfoResponse({
+  expireDate,
+  txnState,
+}: {
+  expireDate: Date
+  txnState: MultisigTransactionState
+}) {
   const accountMultisigTxn = new Map().set(0, eventTypeNameToIndices.send).set(
     1,
     makeLedgerSendParamResponse({
@@ -340,6 +353,7 @@ function makeMultisigInfoResponse({ expireDate }: { expireDate: Date }) {
     .set(5, executeAutomatically)
     .set(6, expireDate)
     .set(7, null)
+    .set(8, txnState)
 }
 
 function makeAccountFeatures(): AccountFeature[] {
