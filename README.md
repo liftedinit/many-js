@@ -147,3 +147,13 @@ const roles = new Map().set("ma321.....", [
 
 await network.account.removeRoles(accountAddress, roles)
 ```
+
+#### multisigInfo
+
+- get multisig transaction info given a token
+
+```ts
+network.apply([Account])
+
+await network.account.multisigInfo(token)
+```
