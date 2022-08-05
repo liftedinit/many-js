@@ -51,7 +51,10 @@ type CreateParams = {
 
 export interface Account extends NetworkModule {
   info: (accountId: string) => Promise<GetAccountInfoResponse>
-  create: (data: CreateParams) => Promise<CreateAccountResponse>
+  create: (
+    data: CreateParams,
+    opts: { nonce?: ArrayBuffer },
+  ) => Promise<CreateAccountResponse>
   setDescription: (account: string, description: string) => Promise<null>
   addRoles: (account: string, roles: Map<string, string[]>) => Promise<null>
   removeRoles: (account: string, roles: Map<string, string[]>) => Promise<null>
@@ -154,12 +157,15 @@ export const Account: Account = {
     return res.getPayload()
   },
 
-  async create({ name, roles, features }: CreateParams) {
+  async create(
+    { name, roles, features }: CreateParams,
+    { nonce } = { nonce: makeRandomBytes(16) },
+  ) {
     if (!features) throw new Error("Minimum of one feature is required")
     const m = new Map().set(2, features)
     name && m.set(0, name)
     roles && m.set(1, roles)
-    const message = (await this.call("account.create", m)) as Message
+    const message = (await this.call("account.create", m, { nonce })) as Message
     const decoded = message.getPayload()
     const address = await getAddressFromTaggedIdentity(
       decoded?.get(0) as { value: Uint8Array },
