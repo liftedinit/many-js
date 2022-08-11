@@ -1,0 +1,30 @@
+# many-js CI
+# The Lifted Initiative
+version: 2.1
+
+orbs:
+  node: circleci/node@5.0.2
+
+jobs:
+  build_test:
+    executor: node/default
+    steps:
+      - checkout
+      - run:
+          name: Node & NPM version
+          command: |
+            node --version
+            npm --version
+      - node/install-packages:
+          pkg-manager: npm
+      - run:
+          name: Run tests
+          command: npm run test
+      - run:
+          name: Build app
+          command: npm run build
+
+workflows:
+  build_test:
+    jobs:
+      - build_test
