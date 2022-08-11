@@ -164,13 +164,20 @@ describe("Account", () => {
     const mockCall = jest.fn(async () => {
       return makeMockResponseMessage(new Map().set(0, taggedAccountSource))
     })
+    const opts = {
+      nonce: new ArrayBuffer(16),
+    }
     const account = setupModule(Account, mockCall)
     const roles = makeRoles()
     const features: AccountFeature[] = makeAccountFeatures()
-    const res = await account.create({ name: "account name", roles, features })
+    const res = await account.create(
+      { name: "account name", roles, features },
+      opts,
+    )
     expect(mockCall).toHaveBeenCalledWith(
       "account.create",
       new Map().set(0, "account name").set(1, roles).set(2, features),
+      opts,
     )
     expect(res).toEqual({ address: accountSource })
   })
