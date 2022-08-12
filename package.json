@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "main": "dist/index.js",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "dependencies": {
     "@types/crc": "^3.4.0",
     "@types/jest": "^27.0.3",
@@ -25,7 +29,7 @@
   },
   "scripts": {
     "test": "jest",
-    "build": "tsc",
+    "build": "npm run clean && tsc",
     "watch": "npm run clean && npm run build -- -w",
     "clean": "rm -rf ./dist",
     "postinstall": "tsc"
