@@ -32,7 +32,8 @@
     "build": "npm run clean && tsc",
     "watch": "npm run clean && npm run build -- -w",
     "clean": "rm -rf ./dist",
-    "postinstall": "tsc"
+    "postinstall": "tsc",
+    "prepare": "husky install"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser"
@@ -62,5 +63,10 @@
     "transformIgnorePatterns": [
       "node_modules/(?!base32-encode|to-data-view)/.*"
     ]
+  },
+  "devDependencies": {
+    "husky": "^8.0.0",
+    "prettier": "^2.7.1",
+    "pretty-quick": "^3.1.3"
   }
 }
