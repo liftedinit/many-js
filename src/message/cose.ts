@@ -1,5 +1,5 @@
-import cbor from "cbor";
-import { sha3_224 } from "js-sha3";
+import cbor from "cbor"
+import { sha3_224 } from "js-sha3"
 import {
   Address,
   AnonymousIdentity,

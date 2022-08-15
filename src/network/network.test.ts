@@ -1,32 +1,32 @@
-import cbor from "cbor";
-import { Network } from "../network";
-import { tag } from "../message/cbor";
-import { sha3_224 } from "js-sha3";
+import cbor from "cbor"
+import { Network } from "../network"
+import { tag } from "../message/cbor"
+import { sha3_224 } from "js-sha3"
 import {
   expectedSymbolsMap,
   mockSymbolAddress,
   mockSymbolAddress2,
 } from "./modules/ledger/__tests__/data"
-import { Ledger } from "./modules";
+import { Ledger } from "./modules"
 import { Ed25519KeyPairIdentity } from "../identity"
 
-const globalFetch = global.fetch;
+const globalFetch = global.fetch
 
 describe("network", () => {
   afterAll(() => {
-    global.fetch = globalFetch;
-  });
+    global.fetch = globalFetch
+  })
 
   test("can get and set URL and KeyPair", () => {
-    const testnet = new Network("http://example.com");
+    const testnet = new Network("http://example.com")
     const keys = Ed25519KeyPairIdentity.fromMnemonic(
       Ed25519KeyPairIdentity.getMnemonic(),
     )
-    testnet.keys = keys;
+    testnet.keys = keys
 
-    expect(testnet.url).toBe("http://example.com");
-    expect(testnet.keys).toBe(keys);
-  });
+    expect(testnet.url).toBe("http://example.com")
+    expect(testnet.keys).toBe(keys)
+  })
 
   test("getLedgerInfo", async () => {
     // @ts-ignore
@@ -45,10 +45,10 @@ describe("network", () => {
                   [-1, 6],
                   [4, [2]],
                   [-2, Buffer.from([0x00])],
-                ])
-              )
+                ]),
+              ),
             ),
-          "hex"
+          "hex",
         ),
       ],
       [
@@ -65,8 +65,8 @@ describe("network", () => {
           ]),
         ]),
       ],
-    ]);
-    const unprotectedHeader = {};
+    ])
+    const unprotectedHeader = {}
     // @ts-ignore
     const mockContent = new Map([
       [
@@ -83,25 +83,25 @@ describe("network", () => {
         unprotectedHeader,
         cbor.encode(tag(10001, mockContent)),
         new ArrayBuffer(0),
-      ])
-    );
+      ]),
+    )
 
     global.fetch = jest.fn(() =>
       Promise.resolve({
         arrayBuffer: () => Promise.resolve(mockCoseResponse),
-      })
-    ) as jest.Mock;
+      }),
+    ) as jest.Mock
     // global.fetch = globalFetch;
-    const testnet = new Network("http://example.com");
+    const testnet = new Network("http://example.com")
     testnet.apply([Ledger])
     const res = await testnet.ledger.info()
-    expect(res).toEqual(expectedSymbolsMap);
-  });
+    expect(res).toEqual(expectedSymbolsMap)
+  })
 
   it("calls fetch when sending a message", async () => {
-    const testnet = new Network("http://example.com");
+    const testnet = new Network("http://example.com")
 
-    await testnet.call("heartbeat");
-    expect(global.fetch).toHaveBeenCalled();
-  });
-});
+    await testnet.call("heartbeat")
+    expect(global.fetch).toHaveBeenCalled()
+  })
+})
