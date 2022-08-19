@@ -1,8 +1,11 @@
 {
-  "name": "many-js",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@liftedinit/many-js",
+  "version": "0.1.0-alpha",
+  "homepage": "https://github.com/liftedinit/many-js",
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "@types/crc": "^3.4.0",
     "@types/jest": "^27.0.3",
@@ -27,8 +30,7 @@
     "test": "jest",
     "build": "tsc",
     "watch": "npm run clean && npm run build -- -w",
-    "clean": "rm -rf ./dist",
-    "postinstall": "tsc"
+    "clean": "rm -rf ./dist"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser"
