@@ -7,8 +7,12 @@ orbs:
 
 jobs:
   test-build:
-    executor: node/default
-    tag: << parameters.node_version >>
+    parameters:
+      node_version:
+        type: string
+    executor:
+      name: node/default
+      tag: << parameters.node_version >>
     steps:
       - setup
       - run:
