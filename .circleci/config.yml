@@ -8,8 +8,8 @@ orbs:
 jobs:
   test-build:
     executor: node/default
+    tag: << parameters.node_version >>
     steps:
-      - checkout
       - setup
       - run:
           name: Run tests
@@ -45,7 +45,6 @@ jobs:
   publish-npm:
     executor: node/default
     steps:
-      - checkout
       - setup
       - run:
           name: Build app
@@ -59,7 +58,6 @@ jobs:
   create:
     executor: node/default
     steps:
-      - checkout
       - setup
       - run: mkdir -p artifacts
       - run:
@@ -80,7 +78,13 @@ jobs:
 workflows:
   ci:
     jobs:
-      - test-build
+      - test-build:
+          matrix:
+            parameters:
+              node_version:
+                - 'lts'
+                - 'current'
+                - '16.16.0'
 
   release:
     when:
