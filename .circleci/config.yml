@@ -1,0 +1,151 @@
+# many-js CI
+# The Lifted Initiative
+version: 2.1
+
+orbs:
+  node: circleci/node@5.0.2
+
+jobs:
+  test-build:
+    parameters:
+      node_version:
+        type: string
+    executor:
+      name: node/default
+      tag: << parameters.node_version >>
+    steps:
+      - setup
+      - run:
+          name: Run tests
+          command: npm run test
+      - run:
+          name: Build app
+          command: npm run build
+
+  publish-github:
+    parameters:
+      pre-release:
+        type: boolean
+        default: false
+    docker:
+      - image: cibuilds/github:0.10
+    steps:
+      - attach_workspace:
+          at: ~/project/artifacts
+      - when:
+          condition:
+            not: << parameters.pre-release >>
+          steps:
+            - run:
+                name: publish release
+                command: ghr -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} ${CIRCLE_TAG} ~/project/artifacts
+      - when:
+          condition: << parameters.pre-release >>
+          steps:
+            - run:
+                name: publish pre-release
+                command: ghr -prerelease -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} ${CIRCLE_TAG} ~/project/artifacts
+
+  publish-npm:
+    executor: node/default
+    steps:
+      - setup
+      - run:
+          name: Build app
+          command: npm run build
+      - run:
+          name: Publish to NPM
+          command: |
+            npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+            npm publish --access public
+
+  create:
+    executor: node/default
+    steps:
+      - setup
+      - run: mkdir -p artifacts
+      - run:
+          name: Build app
+          command: npm run build
+      - run:
+          name: Compress artifacts
+          command: tar -cvzf artifacts/dist.tar.gz ./dist
+      - run:
+          name: create release shasum
+          command: shasum artifacts/dist.tar.gz > artifacts/shasum_${CIRCLE_TAG}_${CIRCLE_SHA1}_${OSD_ID}_${OSD_VERSION}.txt
+      - persist_to_workspace:
+          root: artifacts
+          paths:
+            - "*.tar.gz"
+            - "*.txt"
+
+workflows:
+  ci:
+    jobs:
+      - test-build:
+          matrix:
+            parameters:
+              node_version:
+                - 'lts'
+                - 'current'
+                - '16.16.0'
+
+  release:
+    when:
+      not:
+        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+    jobs:
+      - create:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only:
+                - /^\d+\.\d+\.\d+$/                         # e.g., 0.1.1, 1.0.0
+                - /^\d+\.\d+\.\d+-(prealpha|alpha|beta).*$/ # e.g., 0.1.1-prealpha.3, 0.1.1-alpha, 0.1.1-alpha-rc.1, 2.3.1-beta, 1.3.4-beta-rc.4
+      - publish-github:
+          pre-release: false
+          context:
+            - GITHUB_CREDS
+          requires:
+            - create
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only:
+                - /^\d+\.\d+\.\d+$/ # e.g., 0.1.1, 1.0.0
+      - publish-github:
+          name: publish-github-pre-release
+          pre-release: true
+          context:
+            - GITHUB_CREDS
+          requires:
+            - create
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only:
+                - /^\d+\.\d+\.\d+-(prealpha|alpha|beta).*$/ # e.g., 0.1.1-prealpha.3, 0.1.1-alpha, 0.1.1-alpha-rc.1, 2.3.1-beta, 1.3.4-beta-rc.4
+      - publish-npm:
+          requires:
+            - create
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only:
+                - /^\d+\.\d+\.\d+$/                         # e.g., 0.1.1, 1.0.0
+                - /^\d+\.\d+\.\d+-(prealpha|alpha|beta).*$/ # e.g., 0.1.1-prealpha.3, 0.1.1-alpha, 0.1.1-alpha-rc.1, 2.3.1-beta, 1.3.4-beta-rc.4
+
+commands:
+  setup:
+    description: 'Checkout and install dependencies'
+    steps:
+      - checkout
+      - run:
+          name: Versions
+          command: node -v && npm -v
+      - node/install-packages:
+          pkg-manager: npm
