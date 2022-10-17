@@ -1,4 +1,4 @@
-export { Events, BoundType, OrderType } from "./events"
+export { Events } from "./events"
 export type {
   ListFilterArgs,
   Event,

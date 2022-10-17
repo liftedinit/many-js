@@ -4,33 +4,21 @@ import {
   getAccountFeaturesData,
   getAccountRolesData,
   getEventTypeNameFromIndices,
+  makeRange,
   makeTxnData,
 } from "../../../utils"
-import { EventType, EventTypeIndices, NetworkModule } from "../types"
-
-export enum OrderType {
-  indeterminate = 0,
-  ascending = 1,
-  descending = 2,
-}
-
-type Bound<T> = [] | [0, T] | [1, T]
-
-type Range<T> = Map<0 | 1, Bound<T>>
-
-interface RangeBound {
-  boundType: BoundType
-  value: unknown
-}
-
-interface TxnRangeBound extends Omit<RangeBound, "value"> {
-  value: Uint8Array
-}
+import {
+  EventType,
+  EventTypeIndices,
+  ListOrderType,
+  NetworkModule,
+  RangeBounds,
+} from "../types"
 
 interface ListArgs {
   count?: number
   filters?: ListFilterArgs
-  order?: OrderType
+  order?: ListOrderType
 }
 
 interface BaseEvent {
@@ -132,16 +120,10 @@ export interface EventsListResponse {
   events: Event[]
 }
 
-export enum BoundType {
-  unbounded = "unbounded",
-  inclusive = "inclusive",
-  exclusive = "exclusive",
-}
-
 export interface ListFilterArgs {
   accounts?: string | string[]
   symbols?: string | string[]
-  txnIdRange?: [TxnRangeBound?, TxnRangeBound?]
+  txnIdRange?: RangeBounds<Uint8Array>
 }
 
 export enum RangeType {
@@ -171,7 +153,7 @@ export const Events: Events = {
   async list({
     filters = {},
     count = 10,
-    order = OrderType.descending,
+    order = ListOrderType.descending,
   }: ListArgs = {}): Promise<EventsListResponse> {
     const res = await this.call(
       "events.list",
@@ -210,11 +192,11 @@ async function getEventsList(message: Message): Promise<EventsListResponse> {
     const events = decodedContent.get(1)
     result.events = (
       await Promise.all(
-        events.map(async (t: Map<number, unknown>) => {
+        events.map(async (t: CborMap) => {
           try {
             return {
               id: t.get(0),
-              time: t.get(1),
+              time: t.get(1)?.value,
               ...(await makeTxnData(t.get(2) as Map<number, unknown>)),
             }
           } catch (e) {
@@ -244,44 +226,8 @@ export function makeListFilters(filters: ListFilterArgs): Map<number, unknown> {
   }
 
   if (txnIdRange) {
-    const rangeMap = new Map()
-    const [lower, upper] = txnIdRange
-    if (lower) {
-      setRangeBound<Uint8Array>({
-        rangeMap,
-        rangeType: RangeType.lower,
-        ...lower,
-      })
-    }
-    if (upper) {
-      setRangeBound<Uint8Array>({
-        rangeMap,
-        rangeType: RangeType.upper,
-        ...upper,
-      })
-    }
-    result.set(3, rangeMap)
+    result.set(3, makeRange(txnIdRange))
   }
 
   return result
-}
-
-export function setRangeBound<T>({
-  rangeMap,
-  rangeType,
-  boundType,
-  value,
-}: {
-  rangeMap: Range<T>
-  rangeType: RangeType
-  boundType: BoundType
-  value: unknown
-}) {
-  const rangeVal = rangeType === RangeType.lower ? 0 : 1
-  const boundVal = (
-    boundType !== BoundType.unbounded
-      ? [boundType === BoundType.inclusive ? 0 : 1, value]
-      : []
-  ) as Bound<T>
-  rangeMap.set(rangeVal, boundVal)
 }

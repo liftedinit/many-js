@@ -97,9 +97,7 @@ export async function makeTxnData(
 async function makeSetDescriptionEventData(eventData: Map<number, unknown>) {
   return {
     type: EventType.accountSetDescription,
-    account: await getAddressFromTaggedIdentity(
-      eventData.get(1) as { value: Uint8Array },
-    ),
+    account: (eventData.get(1) as Address)?.toString(),
     description: eventData.get(2),
   }
 }
@@ -110,12 +108,8 @@ async function makeEditRolesEventData(
 ) {
   const res = {
     type: eventTypeName,
-    account: await getAddressFromTaggedIdentity(
-      eventData.get(1) as { value: Uint8Array },
-    ),
-    roles: getAccountRolesData(
-      eventData.get(2) as Map<{ value: Uint8Array }, string[]>,
-    ),
+    account: (eventData.get(1) as Address)?.toString(),
+    roles: getAccountRolesData(eventData.get(2) as Map<Address, string[]>),
   }
   return res
 }
@@ -125,12 +119,8 @@ async function makeMultisigSetDefaultEventData(
 ): Promise<Omit<MultisigSetDefaultsEvent, "id" | "time">> {
   return {
     type: EventType.accountMultisigSetDefaults,
-    submitter: await getAddressFromTaggedIdentity(
-      eventData.get(1) as { value: Uint8Array },
-    ),
-    account: await getAddressFromTaggedIdentity(
-      eventData.get(2) as { value: Uint8Array },
-    ),
+    submitter: (eventData.get(1) as Address)?.toString()!,
+    account: (eventData.get(2) as Address)?.toString()!,
     threshold: eventData.get(3) as number,
     expireInSecs: eventData.get(4) as number,
     executeAutomatically: eventData.get(5) as boolean,
@@ -140,12 +130,10 @@ async function makeMultisigSetDefaultEventData(
 async function makeCreateAccountEventData(eventData: Map<number, unknown>) {
   return {
     type: EventType.accountCreate,
-    account: await getAddressFromTaggedIdentity(
-      eventData.get(1) as { value: Uint8Array },
-    ),
+    account: (eventData.get(1) as Address)?.toString(),
     ...makeAccountInfoData({
       description: eventData.get(2) as string,
-      roles: eventData.get(3) as Map<{ value: Uint8Array }, string[]>,
+      roles: eventData.get(3) as Map<Address, string[]>,
       features: eventData.get(4) as AccountFeature[],
     }),
   }
@@ -154,13 +142,11 @@ async function makeCreateAccountEventData(eventData: Map<number, unknown>) {
 async function makeAddFeaturesEventData(eventData: Map<number, unknown>) {
   const result: Omit<AddFeaturesEvent, "id" | "time"> = {
     type: EventType.accountAddFeatures,
-    account: await getAddressFromTaggedIdentity(
-      eventData.get(1) as { value: Uint8Array },
-    ),
+    account: (eventData.get(1) as Address)?.toString()!,
   }
   if (eventData.get(2) instanceof Map) {
     result.roles = getAccountRolesData(
-      eventData.get(2) as Map<{ value: Uint8Array }, string[]>,
+      eventData.get(2) as Map<Address, string[]>,
     )
   }
   if (eventData.get(3) instanceof Array) {
@@ -177,7 +163,7 @@ export function makeAccountInfoData({
   features,
 }: {
   description: string
-  roles: Map<{ value: Uint8Array }, string[]>
+  roles: Map<Address, string[]>
   features: AccountFeature[]
 }) {
   return {
@@ -188,12 +174,11 @@ export function makeAccountInfoData({
 }
 
 export function getAccountRolesData(
-  roles: Map<{ value: Uint8Array }, string[]> = new Map(),
+  roles: Map<Address, string[]> = new Map(),
 ): Map<string, string[]> | undefined {
   return Array.from(roles).reduce((acc, roleData) => {
     const [identity, roleList] = roleData
-    const i = identity as { value: Uint8Array }
-    const address = new Address(Buffer.from(i.value)).toString()
+    const address = identity?.toString()
     if (Array.isArray(roleList) && roleList.length) {
       acc.set(address, roleList)
     }
@@ -254,15 +239,9 @@ async function makeMultisigEventData(
 ): Promise<Omit<MultisigEvent, "id" | "time">> {
   return {
     type,
-    account: await getAddressFromTaggedIdentity(
-      eventData.get(1) as { value: Uint8Array },
-    ),
+    account: (eventData.get(1) as Address)?.toString()!,
     token: eventData.get(2) as ArrayBuffer,
-    [actorType]: eventData.get(3)
-      ? await getAddressFromTaggedIdentity(
-          eventData.get(3) as { value: Uint8Array },
-        )
-      : "",
+    [actorType]: (eventData.get(3) as Address)?.toString() ?? "",
   }
 }
 
@@ -275,39 +254,17 @@ async function makeSendEventData(
     eventData = eventData.get(1) as Map<number, unknown>
     return {
       type: EventType.send,
-      from: await getAddressFromTaggedIdentity(
-        eventData.get(0) as {
-          value: Uint8Array
-        },
-      ),
-      to: await getAddressFromTaggedIdentity(
-        eventData.get(1) as {
-          value: Uint8Array
-        },
-      ),
-      symbolAddress: await getAddressFromTaggedIdentity(
-        eventData.get(3) as {
-          value: Uint8Array
-        },
-      ),
+      from: (eventData.get(0) as Address)?.toString()!,
+      to: (eventData.get(1) as Address)?.toString()!,
+      symbolAddress: (eventData.get(3) as Address)?.toString()!,
       amount: BigInt(eventData.get(2) as number),
     }
   }
   return {
     type: EventType.send,
-    from: await getAddressFromTaggedIdentity(
-      eventData.get(1) as {
-        value: Uint8Array
-      },
-    ),
-    to: await getAddressFromTaggedIdentity(
-      eventData.get(2) as {
-        value: Uint8Array
-      },
-    ),
-    symbolAddress: await getAddressFromTaggedIdentity(
-      eventData.get(3) as { value: Uint8Array },
-    ),
+    from: (eventData.get(1) as Address)?.toString()!,
+    to: (eventData.get(2) as Address)?.toString()!,
+    symbolAddress: (eventData.get(3) as Address)?.toString()!,
     amount: BigInt(eventData.get(4) as number),
   }
 }
@@ -320,7 +277,7 @@ export async function getAddressFromTaggedIdentity(taggedIdentity: {
 
 // https://github.com/liftedinit/many-rs/blob/main/src/many/src/types/ledger.rs#L658
 async function makeMultisigSubmitEventData(
-  eventData: Map<number, unknown>,
+  eventData: CborMap,
 ): Promise<Omit<MultisigSubmitEvent, "id" | "time">> {
   const submittedTxn = eventData.get(4) as Map<number, unknown>
   const transaction = await makeTxnData(submittedTxn, {
@@ -329,17 +286,13 @@ async function makeMultisigSubmitEventData(
 
   return {
     type: EventType.accountMultisigSubmit,
-    submitter: await getAddressFromTaggedIdentity(
-      eventData.get(1) as { value: Uint8Array },
-    ),
-    account: await getAddressFromTaggedIdentity(
-      eventData.get(2) as { value: Uint8Array },
-    ),
+    submitter: (eventData.get(1) as Address)?.toString()!,
+    account: (eventData.get(2) as Address)?.toString()!,
     memo: eventData.get(3) as string,
     transaction,
     token: eventData.get(5) as ArrayBuffer,
     threshold: eventData.get(6) as number,
-    expireDate: eventData.get(7) as Date,
+    expireDate: eventData.get(7)?.value,
     executeAutomatically: eventData.get(8) as boolean,
     data: eventData.get(9) as CborMap,
   }

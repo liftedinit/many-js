@@ -11,6 +11,14 @@ import { CborData, CborMap, tag } from "./cbor"
 
 export const ANONYMOUS = Buffer.from([0x00])
 export const EMPTY = Buffer.alloc(0)
+
+export const decoders = {
+  tags: {
+    10000: (value: Uint8Array) => new Address(Buffer.from(value)),
+    1: (value: number) => tag(1, value),
+  },
+}
+
 export class CoseMessage {
   protectedHeader: CborMap
   unprotectedHeader: CborMap
@@ -30,12 +38,6 @@ export class CoseMessage {
   }
 
   static fromCborData(data: CborData): CoseMessage {
-    const decoders = {
-      tags: {
-        10000: (value: Uint8Array) => new Address(Buffer.from(value)),
-        1: (value: number) => tag(1, value),
-      },
-    }
     const cose = cbor.decodeFirstSync(data, decoders).value
     const protectedHeader = cbor.decodeFirstSync(cose[0])
     const unprotectedHeader = cose[1]

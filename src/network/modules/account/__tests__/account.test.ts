@@ -34,8 +34,8 @@ describe("Account", () => {
     roles.set(identityStr3, [AccountRole.canMultisigApprove])
     const _roles = Array.from(roles).reduce((acc, rolesForAddress) => {
       const [address, roleList] = rolesForAddress
-      const bytes = Address.fromString(address).toBuffer()
-      acc.set({ value: bytes }, roleList)
+      const taggedIdentity = tag(10000, Address.fromString(address).toBuffer())
+      acc.set(taggedIdentity, roleList)
       return acc
     }, new Map())
     const features: AccountFeature[] = [
@@ -123,7 +123,7 @@ describe("Account", () => {
   })
 
   it("multisigInfo() should return info about the multisig transaction", async () => {
-    const expireDate = new Date(new Date().getTime() + ONE_MINUTE)
+    const expireDate = new Date(new Date().getTime() + ONE_MINUTE).getTime()
     const mockCall = jest.fn(async () => {
       return makeMockResponseMessage(
         makeMultisigInfoResponse({
@@ -335,7 +335,7 @@ function makeMultisigInfoResponse({
   expireDate,
   txnState,
 }: {
-  expireDate: Date
+  expireDate: number
   txnState: MultisigTransactionState
 }) {
   const accountMultisigTxn = new Map().set(0, eventTypeNameToIndices.send).set(
@@ -358,7 +358,7 @@ function makeMultisigInfoResponse({
     .set(3, approvers)
     .set(4, threshold)
     .set(5, executeAutomatically)
-    .set(6, expireDate)
+    .set(6, tag(1, expireDate))
     .set(7, null)
     .set(8, txnState)
 }

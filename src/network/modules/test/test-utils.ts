@@ -11,10 +11,13 @@ export const Address1 = Address.fromString(identityStr1).toBuffer()
 export const identityStr2 = "maffbahksdwaqeenayy2gxke32hgb7aq4ao4wt745lsfs6wijp"
 export const Address2 = Address.fromString(identityStr2).toBuffer()
 export const identityStr3 = "mahiclsquy3nnoioxg3zhsci2vltdhmlsmdlbhbaglf5rjtq6c"
+export const Address3 = Address.fromString(identityStr3).toBuffer()
 
-export const taggedIdentity2 = tag(1000, Address2)
+export const taggedIdentity1 = tag(10000, Address1)
+export const taggedIdentity2 = tag(10000, Address2)
+export const taggedIdentity3 = tag(10000, Address2)
 export const taggedAccountSource = tag(
-  1000,
+  10000,
   Address.fromString(accountSource).toBuffer(),
 )
 

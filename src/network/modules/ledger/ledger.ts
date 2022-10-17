@@ -1,4 +1,3 @@
-import { Address } from "../../../identity"
 import { Message } from "../../../message"
 import { makeLedgerSendParam, makeRandomBytes } from "../../../utils"
 import { LedgerSendParam, NetworkModule } from "../types"
@@ -56,7 +55,7 @@ export function getLedgerInfo(message: Message): LedgerInfo {
       const symbols = decodedContent.get(4)
 
       for (const symbol of symbols) {
-        const address = new Address(Buffer.from(symbol[0].value)).toString()
+        const address = symbol[0].toString()
         const symbolName = symbol[1]
         result.symbols.set(address, symbolName)
       }
@@ -76,7 +75,7 @@ export function getBalance(message: Message): Balances {
     const symbolsToBalancesMap = messageContent.get(0)
     if (!(symbolsToBalancesMap instanceof Map)) return result
     for (const balanceEntry of symbolsToBalancesMap) {
-      const symbolAddress = new Address(balanceEntry[0].value).toString()
+      const symbolAddress = balanceEntry[0].toString()
       const balance = balanceEntry[1]
       result.balances.set(symbolAddress, balance)
     }

@@ -1,6 +1,5 @@
 import cbor from "cbor"
 import { Message } from "../../../message"
-import { getAddressFromTaggedIdentity } from "../../../utils"
 import { NetworkModule, NetworkAttributes } from "../types"
 
 export interface Base extends NetworkModule {
@@ -58,7 +57,7 @@ async function getNetworkStatus(msg: Message): Promise<NetworkStatusResponse> {
       protocolVersion: content.get(0),
       serverName: content.get(1),
       publicKey,
-      address: await getAddressFromTaggedIdentity(content.get(3)),
+      address: content.get(3)?.toString(),
       attributes: content.get(4),
       serverVersion: content.get(5),
       timeDeltaInSecs: content.get(7),
