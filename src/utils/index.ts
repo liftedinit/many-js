@@ -1,7 +1,15 @@
 // import crypto from "crypto"
 import { Message } from "../message"
 import { ManyError, SerializedManyError } from "../message/error"
-import { Network, NetworkModule } from "../network"
+import {
+  Bound,
+  BoundType,
+  Network,
+  NetworkModule,
+  Range,
+  RangeBounds,
+} from "../network"
+import { RangeType } from "../network/modules/events/events"
 
 export * from "./transactions"
 
@@ -39,4 +47,50 @@ export function throwOnErrorResponse(msg: Message) {
 
 export function makeRandomBytes(size = 32) {
   return crypto.getRandomValues(new Uint8Array(size))
+}
+
+export function setRangeBound<T>({
+  rangeMap,
+  rangeType,
+  boundType,
+  value,
+}: {
+  rangeMap: Range<T>
+  rangeType: RangeType
+  boundType: BoundType
+  value: unknown
+}) {
+  const rangeVal = rangeType === RangeType.lower ? 0 : 1
+  const boundVal = (
+    boundType !== BoundType.unbounded
+      ? [boundType === BoundType.inclusive ? 0 : 1, value]
+      : []
+  ) as Bound<T>
+  rangeMap.set(rangeVal, boundVal)
+}
+
+export function makeRange<T>(range: RangeBounds<T>) {
+  const rangeMap = new Map()
+  if (range && range.length) {
+    const [lower, upper] = range
+    if (lower) {
+      setRangeBound<Uint8Array>({
+        rangeMap,
+        rangeType: RangeType.lower,
+        ...lower,
+      })
+    }
+    if (upper) {
+      setRangeBound<Uint8Array>({
+        rangeMap,
+        rangeType: RangeType.upper,
+        ...upper,
+      })
+    }
+  }
+  return rangeMap
+}
+
+export function arrayBufferToHex(b: ArrayBuffer) {
+  return Buffer.from(b).toString("hex")
 }

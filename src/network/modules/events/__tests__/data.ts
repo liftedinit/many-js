@@ -36,9 +36,8 @@ export const expectedMockEventInfoResponse = {
   events: [EventType.send, EventType.accountCreate],
 }
 
-const eventTime1 = new Date()
-const eventTime2 = new Date()
-eventTime2.setMinutes(eventTime1.getMinutes() + 1)
+const eventTime1 = new Date().getTime()
+const eventTime2 = eventTime1 + 60000
 
 const sendTxn1 = makeSendTxn({
   id: 1,
@@ -96,7 +95,7 @@ function makeMultisigSubmitTxnResponse({
   threshold,
   executeAutomatically = false,
   cborData,
-  expireDate = new Date(new Date().getTime() + ONE_MINUTE),
+  expireDate = new Date(new Date().getTime() + ONE_MINUTE).getTime(),
   time,
 }: {
   id: number
@@ -109,8 +108,8 @@ function makeMultisigSubmitTxnResponse({
   threshold: number
   executeAutomatically: boolean
   cborData?: Map<number, unknown>
-  expireDate?: Date
-  time: Date
+  expireDate?: number
+  time: number
 }) {
   const m = new Map()
   m.set(0, txnTypeIndices)
@@ -120,7 +119,7 @@ function makeMultisigSubmitTxnResponse({
     .set(4, submittedTxn)
     .set(5, token)
     .set(6, threshold)
-    .set(7, expireDate)
+    .set(7, tag(1, expireDate))
     .set(8, executeAutomatically)
     .set(9, cborData)
 
@@ -140,7 +139,7 @@ function makeMultisigTxnResponse({
   accountSource: string
   token?: ArrayBuffer
   actor: string
-  time: Date
+  time: number
 }) {
   const m = new Map()
     .set(2, token)
@@ -163,22 +162,22 @@ function makeTxn({
   txnData,
 }: {
   id: number
-  time: Date
+  time: number
   txnData: Map<number, unknown>
 }) {
-  return new Map().set(0, id).set(1, time).set(2, txnData)
+  return new Map().set(0, id).set(1, tag(1, time)).set(2, txnData)
 }
 
 function makeSendTxn({
   id,
-  time = new Date(),
+  time = new Date().getTime(),
   source,
   destination,
   symbol,
   amount,
 }: {
   id: number
-  time?: Date
+  time?: number
   source: string
   destination: string
   symbol: string
@@ -198,7 +197,7 @@ function makeEventsListResponseMessage(count: number, events: unknown[]) {
   return makeMockResponseMessage(new Map().set(0, count).set(1, events))
 }
 
-const expireDate = new Date(new Date().getTime() + ONE_MINUTE)
+const expireDate = new Date(new Date().getTime() + ONE_MINUTE).getTime()
 export const mockEventsListMultisigSubmitEventResponse =
   makeEventsListResponseMessage(1, [
     makeMultisigSubmitTxnResponse({
@@ -454,8 +453,8 @@ roles.set(identityStr3, [AccountRole.canMultisigApprove])
 
 const _roles = Array.from(roles).reduce((acc, rolesForAddress) => {
   const [address, roleList] = rolesForAddress
-  const bytes = Address.fromString(address).toBuffer()
-  acc.set({ value: bytes }, roleList)
+  const bytes = tag(10000, Address.fromString(address).toBuffer())
+  acc.set(bytes, roleList)
   return acc
 }, new Map())
 
@@ -476,7 +475,7 @@ function makeAccountCreateTxnResponse({
   accountSource,
 }: {
   id: number
-  time: Date
+  time: number
   accountName: string
   accountSource: string
 }) {

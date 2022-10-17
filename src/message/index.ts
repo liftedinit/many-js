@@ -1,7 +1,7 @@
 import cbor from "cbor";
 import { Address, Identity } from "../identity"
 import { CborData, CborMap, tag } from "./cbor";
-import { CoseMessage } from "./cose";
+import { CoseMessage, decoders } from "./cose";
 import { ManyError, SerializedManyError } from "./error";
 import { Attributes, AsyncAttribute } from "./attributes"
 
@@ -35,7 +35,7 @@ export class Message {
   }
 
   getPayload(): CborMap {
-    return cbor.decode(this.content?.get(4))
+    return cbor.decode(this.content?.get(4), decoders)
   }
 
   static fromObject(obj: MessageContent): Message {

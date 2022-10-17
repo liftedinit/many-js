@@ -1,11 +1,6 @@
-import {
-  Events,
-  makeListFilters,
-  OrderType,
-  BoundType,
-  setRangeBound,
-  RangeType,
-} from "../events"
+import { setRangeBound } from "../../../../utils"
+import { BoundType, ListOrderType } from "../../types"
+import { Events, makeListFilters, RangeType } from "../events"
 import {
   mockEventsListSendTxnResponseMessage,
   expectedMockEventsListSendResponse,
@@ -86,7 +81,7 @@ describe("Events", () => {
       mockCall.mockResolvedValueOnce(mockEventsListSendTxnResponseMessage)
       const txnId = new Uint8Array(Buffer.from("txn"))
       await events.list({
-        order: OrderType.ascending,
+        order: ListOrderType.ascending,
         count: 20,
         filters: {
           symbols: "symbol1",
@@ -102,7 +97,7 @@ describe("Events", () => {
         // @ts-ignore
         new Map([
           [0, 20],
-          [1, OrderType.ascending],
+          [1, ListOrderType.ascending],
           [
             2,
             // @ts-ignore

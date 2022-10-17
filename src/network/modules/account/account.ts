@@ -1,10 +1,10 @@
 import { eventTypeNameToIndices } from "../../../const"
+import { Address } from "../../../identity"
 import { Message } from "../../../message"
 import { CborMap } from "../../../message/cbor"
 import {
   getAccountFeaturesData,
   getAccountRolesData,
-  getAddressFromTaggedIdentity,
   makeAccountInfoData,
   makeLedgerSendParam,
   makeRandomBytes,
@@ -18,13 +18,14 @@ import {
   NetworkModule,
   AccountFeature,
   MultisigTransactionState,
+  Memo,
 } from "../types"
 
 export type GetAccountInfoResponse = ReturnType<typeof getAccountInfo>
 export type CreateAccountResponse = { address: string }
 type GetMultisigTokenReturnType = ReturnType<typeof getMultisigToken>
 type SubmitMultisigTxnData = LedgerSendParam & {
-  memo?: string
+  memo?: Memo
   threshold?: number
   expireInSecs?: number
   executeAutomatically?: boolean
@@ -83,7 +84,7 @@ export type AccountInfoData = {
 }
 
 export type MultisigTransactionInfo = {
-  memo?: string
+  memo?: Memo
   transaction?: Omit<Event, "id" | "time">
   submitter: string
   approvers: Map<string, boolean>
@@ -167,9 +168,7 @@ export const Account: Account = {
     roles && m.set(1, roles)
     const message = (await this.call("account.create", m, { nonce })) as Message
     const decoded = message.getPayload()
-    const address = await getAddressFromTaggedIdentity(
-      decoded?.get(0) as { value: Uint8Array },
-    )
+    const address = decoded?.get(0)?.toString()
     return {
       address,
     }
@@ -220,24 +219,21 @@ async function getMultisigInfo(msg: Message): Promise<MultisigInfoResponse> {
         transaction: await makeTxnData(content.get(1) as Map<number, unknown>, {
           isTxnParamData: true,
         }),
-        submitter: await getAddressFromTaggedIdentity(
-          content.get(2) as { value: Uint8Array },
-        ),
+        submitter: content.get(2)?.toString(),
         approvers: await (async function (): Promise<Map<string, boolean>> {
           const result: Map<string, boolean> = new Map()
           for (let approver of Array.from(content.get(3))) {
-            const [identity, hasApproved] = approver as [
-              { value: Uint8Array },
+            const [address, hasApproved] = approver as [
+              Address,
               Map<number, boolean>,
             ]
-            const address = await getAddressFromTaggedIdentity(identity)
-            result.set(address, hasApproved.get(0) as boolean)
+            result.set(address.toString(), hasApproved.get(0) as boolean)
           }
           return result
         })(),
         threshold: content.get(4),
         executeAutomatically: content.get(5),
-        expireDate: content.get(6),
+        expireDate: content.get(6)?.value,
         cborData: content.get(7),
         state: MultisigTransactionState[content.get(8)],
       }

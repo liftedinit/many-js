@@ -10,7 +10,7 @@ export type LedgerSendParam = {
   symbol: string
 }
 
-export type EventTypeIndices = [number, number | [number, number]]
+export type EventTypeIndices = [number, number | EventTypeIndices]
 
 export enum EventType {
   send = "send",
@@ -84,4 +84,29 @@ export enum MultisigTransactionState {
   executedManually,
   withdrawn,
   expired,
+}
+
+export type Memo = string
+
+export enum BoundType {
+  unbounded = "unbounded",
+  inclusive = "inclusive",
+  exclusive = "exclusive",
+}
+
+export type Bound<T> = [] | [0, T] | [1, T]
+
+export type Range<T> = Map<0 | 1, Bound<T>>
+
+export interface RangeBound<T> {
+  boundType: BoundType
+  value: T
+}
+
+export type RangeBounds<T> = [RangeBound<T>?, RangeBound<T>?]
+
+export enum ListOrderType {
+  indeterminate = 0,
+  ascending = 1,
+  descending = 2,
 }
