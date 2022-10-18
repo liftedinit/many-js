@@ -16,12 +16,18 @@ describe("Async", () => {
       .mockImplementationOnce(async () => {
         return makeAsyncStatusPollResponseMessage(
           AsyncStatusResult.Done,
-          cbor.encode(
-            tag(
-              10002,
-              new Map([[4, cbor.encode(new Map([[0, ["data", "returned"]]]))]]),
+          cbor.encode([
+            null,
+            null,
+            cbor.encode(
+              tag(
+                10002,
+                new Map([
+                  [4, cbor.encode(new Map([[0, ["data", "returned"]]]))],
+                ]),
+              ),
             ),
-          ),
+          ]),
         )
       })
     const async = setupAsync(mockCall)
