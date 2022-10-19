@@ -16,6 +16,7 @@ describe("Async", () => {
       .mockImplementationOnce(async () => {
         return makeAsyncStatusPollResponseMessage(
           AsyncStatusResult.Done,
+          // create the CoseSign1 structure that represents the payload
           cbor.encode([
             null,
             null,
