@@ -82,9 +82,11 @@ async function pollAsyncStatus(
     const result = parseAsyncStatusPayload(res.getPayload())
     switch (result.result) {
       case AsyncStatusResult.Done:
-        const coseSign = cbor.decode(result.payload, decoders)
-        const payload = cbor.decode(coseSign?.[2], decoders)?.value
-        return throwOnErrorResponse(new Message(payload))
+        let payload = cbor.decode(result.payload, decoders)
+        if (Array.isArray(payload)) {
+          payload = cbor.decode(payload?.[2], decoders)
+        }
+        return throwOnErrorResponse(new Message(payload?.value))
       case AsyncStatusResult.Expired:
         throw new Error("Async Expired before getting a result")
     }
