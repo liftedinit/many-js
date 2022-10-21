@@ -1,6 +1,6 @@
 {
   "name": "@liftedinit/many-js",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "homepage": "https://github.com/liftedinit/many-js",
   "main": "dist/index.js",
   "files": [
