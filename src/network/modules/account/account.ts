@@ -90,7 +90,7 @@ export type MultisigTransactionInfo = {
   approvers: Map<string, boolean>
   threshold: number
   executeAutomatically: boolean
-  expireDate: Date
+  expireDate: number
   state: string
   cborData?: CborMap
 }

@@ -23,7 +23,7 @@ interface ListArgs {
 
 interface BaseEvent {
   id: ArrayBuffer
-  time: Date
+  time: number
   type: EventType
 }
 
@@ -95,7 +95,7 @@ export interface MultisigSubmitEvent extends MultisigEvent {
   memo: string
   submitter: string
   threshold: number
-  expireDate: Date
+  expireDate: number
   token: ArrayBuffer
   transaction: Omit<Event, "id" | "time"> | undefined
   data?: CborMap
