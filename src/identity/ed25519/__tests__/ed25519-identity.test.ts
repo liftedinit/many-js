@@ -23,10 +23,9 @@ describe("keys", () => {
     }).toThrow()
   })
 
-  test("fromSeed", async function () {
-    const seed =
-      "2690a9878f3e2bf5e7a5df08261334c2baec291b2fd28a12e2546a3b6a7d4ad9"
-    const alice = Ed25519KeyPairIdentity.fromSeed(seed)
+  test("fromHex", async function () {
+    const seed = "2690a9878f3e2bf5e7a5df08261334c2"
+    const alice = Ed25519KeyPairIdentity.fromHex(seed)
     const aliceAddress = (await alice.getAddress()).toString()
     expect(aliceAddress).toBe(
       "maeo2ob5e6mgaxr2lqg6muoqwuqz6j3t6wv3eig4wgymkouafh",

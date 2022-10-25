@@ -30,15 +30,11 @@ export class Ed25519KeyPairIdentity extends PublicKeyIdentity {
       throw new Error("Invalid Mnemonic")
     }
     const seed = bip39.mnemonicToSeedSync(sanitized).slice(0, 32)
-    return Ed25519KeyPairIdentity.fromSeed(seed)
+    return Ed25519KeyPairIdentity.fromHex(seed)
   }
 
-  static fromSeed(seed: string | pki.ed25519.NativeBuffer) {
-    let _seed = seed?.slice(0, 32)
-    if (_seed.length !== 32) {
-      throw new Error("seed should have length of 32")
-    }
-    const keys = ed25519.generateKeyPair({ seed: _seed })
+  static fromHex(hex: string | pki.ed25519.NativeBuffer) {
+    const keys = ed25519.generateKeyPair({ seed: hex })
     return new Ed25519KeyPairIdentity(keys.publicKey, keys.privateKey)
   }
 
@@ -47,7 +43,7 @@ export class Ed25519KeyPairIdentity extends PublicKeyIdentity {
       const der = forge.pem.decode(pem)[0].body
       const asn1 = forge.asn1.fromDer(der.toString())
       const { privateKeyBytes } = ed25519.privateKeyFromAsn1(asn1)
-      return Ed25519KeyPairIdentity.fromSeed(privateKeyBytes)
+      return Ed25519KeyPairIdentity.fromHex(privateKeyBytes)
     } catch (e) {
       throw new Error("Invalid PEM")
     }
