@@ -7,7 +7,7 @@ describe("keys", () => {
     expect(seedWords.split(" ")).toHaveLength(12)
   })
 
-  test("fromSeedWords", async function () {
+  test("fromMnemonic", async function () {
     const seedWords = Ed25519KeyPairIdentity.getMnemonic()
     const badWords = "abandon abandon abandon"
 
@@ -21,6 +21,15 @@ describe("keys", () => {
     expect(() => {
       Ed25519KeyPairIdentity.fromMnemonic(badWords)
     }).toThrow()
+  })
+
+  test("fromHex", async function () {
+    const seed = "2690a9878f3e2bf5e7a5df08261334c2"
+    const alice = Ed25519KeyPairIdentity.fromHex(seed)
+    const aliceAddress = (await alice.getAddress()).toString()
+    expect(aliceAddress).toBe(
+      "maeo2ob5e6mgaxr2lqg6muoqwuqz6j3t6wv3eig4wgymkouafh",
+    )
   })
 
   test("fromPem", async function () {
