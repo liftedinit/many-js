@@ -1,3 +1,4 @@
+import { Message } from "../../../message"
 import { makeRandomBytes } from "../../../utils"
 import {
   TokenInfo,
@@ -8,8 +9,6 @@ import {
   TokensModule,
   TokensUpdateParam,
 } from "./types"
-import { Address } from "../../../identity"
-import { Message } from "../../../message"
 
 export const Tokens: TokensModule = {
   _namespace_: "tokens",
