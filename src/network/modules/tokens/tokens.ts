@@ -75,10 +75,7 @@ export function getTokenInfo(message: Message): TokenInfo {
     summary: getTokenInfoSummary(data.get(1)),
     supply: getTokenInfoSupply(data.get(2)),
   }
-  if (data.get(3)) {
-    result.owner = data.get(3)
-  }
-
+  data.get(3) && (result.owner = data.get(3))
   return result
 }
 
@@ -95,8 +92,6 @@ function getTokenInfoSupply(data: Map<number, any>): TokenInfoSupply {
     total: data.get(0),
     circulating: data.get(1),
   }
-  if (data.get(2)) {
-    result.maximum = data.get(2)
-  }
+  data.get(2) && (result.maximum = data.get(2))
   return result
 }
