@@ -1,16 +1,23 @@
 import { makeRandomBytes } from "../../../utils"
 import {
   TokenInfo,
-  Tokens,
-  TokensCreateParam,
   TokenInfoSummary,
   TokenInfoSupply,
+  TokensCreateParam,
+  TokensInfoParam,
+  TokensModule,
+  TokensUpdateParam,
 } from "./types"
 import { Address } from "../../../identity"
 import { Message } from "../../../message"
 
-export const TokensModule: Tokens = {
+export const Tokens: TokensModule = {
   _namespace_: "tokens",
+  async info(param: TokensInfoParam): Promise<TokenInfo> {
+    const data = new Map([[0, param.address]])
+    const res = await this.call("tokens.info", data)
+    return getTokenInfo(res)
+  },
   async create(
     param: TokensCreateParam,
     { nonce } = { nonce: makeRandomBytes(16) },
@@ -19,19 +26,36 @@ export const TokensModule: Tokens = {
     const res = await this.call("tokens.create", data, { nonce })
     return getTokenInfo(res)
   },
+  async update(
+    param: TokensUpdateParam,
+    { nonce } = { nonce: makeRandomBytes(16) },
+  ): Promise<TokenInfo> {
+    const data = makeTokensUpdateData(param)
+    const res = await this.call("tokens.update", data, { nonce })
+    return getTokenInfo(res)
+  },
 }
 
 // Make maps from objects
 
-export function makeTokensCreateData(
-  param: TokensCreateParam,
-): Map<number, any> {
+function makeTokensCreateData(param: TokensCreateParam): Map<number, any> {
   const data = new Map()
   data.set(0, makeTokenInfoSummary(param.summary))
   param.owner && data.set(1, param.owner)
   param.distribution && data.set(2, param.distribution)
   param.maximumSupply && data.set(3, param.maximumSupply)
   param.extended && data.set(4, param.extended)
+  return data
+}
+
+function makeTokensUpdateData(param: TokensUpdateParam): Map<number, any> {
+  const data = new Map()
+  data.set(0, param.address)
+  param.name && data.set(1, param.name)
+  param.symbol && data.set(2, param.symbol)
+  param.precision && data.set(3, param.precision)
+  param.owner && data.set(4, param.owner)
+  param.memo && data.set(5, param.memo)
   return data
 }
 
@@ -47,15 +71,15 @@ function makeTokenInfoSummary(param: TokenInfoSummary): Map<number, any> {
 
 export function getTokenInfo(message: Message): TokenInfo {
   const data = message.getPayload()
-  const result = {
+  const result: TokenInfo = {
     address: data.get(0),
     summary: getTokenInfoSummary(data.get(1)),
     supply: getTokenInfoSupply(data.get(2)),
-    owner: new Address(),
   }
   if (data.get(3)) {
     result.owner = data.get(3)
   }
+
   return result
 }
 
