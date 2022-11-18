@@ -28,7 +28,7 @@ export interface TokensInfoParam {
 
 export interface TokensCreateParam {
   summary: TokenInfoSummary
-  owner?: Address
+  owner?: Address | null
   distribution?: Map<Address, LedgerAmount>
   maximumSupply?: LedgerAmount
   extended?: Map<number, any>
