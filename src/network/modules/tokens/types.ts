@@ -47,10 +47,10 @@ export interface TokensModule extends NetworkModule {
   info: (data: TokensInfoParam) => Promise<TokenInfo>
   create: (
     data: TokensCreateParam,
-    opts: { nonce?: ArrayBuffer },
+    opts?: { nonce?: ArrayBuffer },
   ) => Promise<TokenInfo>
   update: (
     data: TokensUpdateParam,
-    opts: { nonce?: ArrayBuffer },
+    opts?: { nonce?: ArrayBuffer },
   ) => Promise<TokenInfo>
 }
