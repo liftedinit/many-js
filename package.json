@@ -59,9 +59,6 @@
     },
     "transformIgnorePatterns": [
       "node_modules/(?!base32-encode|to-data-view)/.*"
-    ],
-    "setupFiles": [
-      "./src/setupTests.ts"
     ]
   }
 }
