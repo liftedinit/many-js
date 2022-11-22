@@ -2,6 +2,7 @@ import { Address } from "../../../identity"
 import { NetworkModule } from "../types"
 
 type LedgerAmount = BigInt
+type AttrIndex = number | number[]
 
 export interface TokenInfoSummary {
   name: string
@@ -22,6 +23,8 @@ export interface TokenInfo {
   owner?: Address
 }
 
+export type TokenExtendedInfo = Map<AttrIndex, any>
+
 export interface TokensInfoParam {
   address: Address
 }
@@ -31,7 +34,7 @@ export interface TokensCreateParam {
   owner?: Address | null
   distribution?: Map<Address, LedgerAmount>
   maximumSupply?: LedgerAmount
-  extended?: Map<number, any>
+  extended?: TokenExtendedInfo
 }
 
 export interface TokensUpdateParam {
@@ -41,6 +44,16 @@ export interface TokensUpdateParam {
   precision?: number
   owner?: Address | null
   memo?: string
+}
+
+export interface TokensAddExtendedParam {
+  address: Address
+  extended: TokenExtendedInfo
+}
+
+export interface TokensRemoveExtendedParam {
+  address: Address
+  indices: AttrIndex[]
 }
 
 export interface TokensModule extends NetworkModule {
@@ -53,4 +66,12 @@ export interface TokensModule extends NetworkModule {
     data: TokensUpdateParam,
     opts?: { nonce?: ArrayBuffer },
   ) => Promise<TokenInfo>
+  addExtendedInfo: (
+    data: TokensAddExtendedParam,
+    opts?: { nonce?: ArrayBuffer },
+  ) => void
+  removeExtendedInfo: (
+    data: TokensRemoveExtendedParam,
+    opts?: { nonce?: ArrayBuffer },
+  ) => void
 }

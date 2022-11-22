@@ -4,9 +4,11 @@ import {
   TokenInfo,
   TokenInfoSummary,
   TokenInfoSupply,
+  TokensAddExtendedParam,
   TokensCreateParam,
   TokensInfoParam,
   TokensModule,
+  TokensRemoveExtendedParam,
   TokensUpdateParam,
 } from "./types"
 
@@ -32,6 +34,20 @@ export const Tokens: TokensModule = {
     const data = makeTokensUpdateData(param)
     const res = await this.call("tokens.update", data, { nonce })
     return getTokenInfo(res)
+  },
+  async addExtendedInfo(
+    param: TokensAddExtendedParam,
+    { nonce } = { nonce: makeRandomBytes(16) },
+  ) {
+    const data = makeTokensAddExtendedData(param)
+    await this.call("tokens.addExtendedInfo", data, { nonce })
+  },
+  async removeExtendedInfo(
+    param: TokensRemoveExtendedParam,
+    { nonce } = { nonce: makeRandomBytes(16) },
+  ) {
+    const data = makeTokensRemoveExtendedData(param)
+    await this.call("tokens.removeExtendedInfo", data, { nonce })
   },
 }
 
@@ -63,6 +79,24 @@ function makeTokenInfoSummary(param: TokenInfoSummary): Map<number, any> {
   data.set(0, param.name)
   data.set(1, param.symbol)
   data.set(2, param.precision)
+  return data
+}
+
+function makeTokensAddExtendedData(
+  param: TokensAddExtendedParam,
+): Map<number, any> {
+  const data = new Map()
+  data.set(0, param.address)
+  data.set(1, param.extended)
+  return data
+}
+
+function makeTokensRemoveExtendedData(
+  param: TokensRemoveExtendedParam,
+): Map<number, any> {
+  const data = new Map()
+  data.set(0, param.address)
+  data.set(1, param.indices)
   return data
 }
 
