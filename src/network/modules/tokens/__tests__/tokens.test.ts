@@ -47,7 +47,7 @@ describe("Tokens", () => {
     it("should return information for the updated token", async () => {
       tokens.addExtendedInfo({
         address: mockTokenAddress,
-        extended: new Map([[[11, 1], Buffer.from("BYTES FOR A PNG")]]),
+        extended: new Map([[1, Buffer.from("BYTES FOR A PNG")]]),
       })
 
       expect(mockCall).toHaveBeenCalled()
@@ -57,7 +57,7 @@ describe("Tokens", () => {
     it("should return information for the updated token", async () => {
       tokens.removeExtendedInfo({
         address: mockTokenAddress,
-        indices: [[11, 1]],
+        indices: [1],
       })
 
       expect(mockCall).toHaveBeenCalled()

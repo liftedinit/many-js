@@ -2,7 +2,7 @@ import { Address } from "../../../identity"
 import { NetworkModule } from "../types"
 
 type LedgerAmount = BigInt
-type AttrIndex = number | number[]
+type AttrIndex = number | [number, AttrIndex]
 
 export interface TokenInfoSummary {
   name: string
