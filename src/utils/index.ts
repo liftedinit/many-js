@@ -1,4 +1,4 @@
-// import crypto from "crypto"
+import * as nodeCrypto from "crypto"
 import { Message } from "../message"
 import { ManyError, SerializedManyError } from "../message/error"
 import {
@@ -46,6 +46,9 @@ export function throwOnErrorResponse(msg: Message) {
 }
 
 export function makeRandomBytes(size = 32) {
+  if (typeof globalThis.crypto === "undefined") {
+    return nodeCrypto.randomBytes(size)
+  }
   return crypto.getRandomValues(new Uint8Array(size))
 }
 
