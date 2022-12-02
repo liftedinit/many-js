@@ -3,6 +3,7 @@ import { Message } from "../../../message"
 import { tag } from "../../../message/cbor"
 import { makeRandomBytes } from "../../../utils"
 import {
+  TokenBasicInfo,
   TokenInfo,
   TokenInfoSummary,
   TokenInfoSupply,
@@ -26,18 +27,17 @@ export const Tokens: TokensModule = {
   async create(
     param: TokensCreateParam,
     { nonce } = { nonce: makeRandomBytes(16) },
-  ): Promise<TokenInfo> {
+  ): Promise<TokenBasicInfo> {
     const data = makeTokensCreateData(param)
     const res = await this.call("tokens.create", data, { nonce })
-    return getTokenInfo(res)
+    return getTokenBasicInfo(res)
   },
   async update(
     param: TokensUpdateParam,
     { nonce } = { nonce: makeRandomBytes(16) },
-  ): Promise<TokenInfo> {
+  ) {
     const data = makeTokensUpdateData(param)
-    const res = await this.call("tokens.update", data, { nonce })
-    return getTokenInfo(res)
+    await this.call("tokens.update", data, { nonce })
   },
   async addExtendedInfo(
     param: TokensAddExtendedParam,
@@ -120,6 +120,14 @@ function makeTokensRemoveExtendedData(
 export function getTokenInfo(message: Message): TokenInfo {
   const data = message.getPayload()
   const result: TokenInfo = {
+    info: getTokenBasicInfo(data.get(0)),
+  }
+  data.get(1) && (result.extended = data.get(1))
+  return result
+}
+
+function getTokenBasicInfo(data: Map<number, any>): TokenBasicInfo {
+  const result: TokenBasicInfo = {
     address: data.get(0),
     summary: getTokenInfoSummary(data.get(1)),
     supply: getTokenInfoSupply(data.get(2)),
