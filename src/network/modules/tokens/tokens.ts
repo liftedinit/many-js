@@ -17,7 +17,9 @@ import {
 export const Tokens: TokensModule = {
   _namespace_: "tokens",
   async info(param: TokensInfoParam): Promise<TokenInfo> {
-    const data = new Map([[0, param.address]])
+    const data = new Map([
+      [0, tag(10000, Address.fromString(param.address).toBuffer())],
+    ])
     const res = await this.call("tokens.info", data)
     return getTokenInfo(res)
   },

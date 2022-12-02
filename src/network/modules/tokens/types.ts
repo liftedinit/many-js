@@ -26,7 +26,7 @@ export interface TokenInfo {
 export type TokenExtendedInfo = Map<AttrIndex, any>
 
 export interface TokensInfoParam {
-  address: Address
+  address: string
 }
 
 export interface TokensCreateParam {
