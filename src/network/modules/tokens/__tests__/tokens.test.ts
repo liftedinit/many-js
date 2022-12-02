@@ -1,4 +1,9 @@
-import { mockTokenInfoMsg, mockTokenAddress, expectedTokenInfo } from "./data"
+import {
+  mockTokenInfoMsg,
+  mockTokenAddress,
+  mockTokenString,
+  expectedTokenInfo,
+} from "./data"
 import { Tokens } from "../tokens"
 import { setupModule } from "../../test/test-utils"
 
@@ -8,7 +13,7 @@ describe("Tokens", () => {
 
   describe("info", () => {
     it("should return information for a given token", async () => {
-      const address = mockTokenAddress
+      const address = mockTokenString
       const actual = await tokens.info({ address })
 
       expect(mockCall).toHaveBeenCalled()

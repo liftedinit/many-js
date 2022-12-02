@@ -2,6 +2,7 @@ import { Address } from "../../../../identity"
 import { identityStr1, makeMockResponseMessage } from "../../test/test-utils"
 
 export const mockTokenAddress = Address.fromString(identityStr1)
+export const mockTokenString = identityStr1
 
 export const mockTokenInfoMsg = makeMockResponseMessage(
   new Map()
