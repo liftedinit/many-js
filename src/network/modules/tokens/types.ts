@@ -31,8 +31,8 @@ export interface TokensInfoParam {
 
 export interface TokensCreateParam {
   summary: TokenInfoSummary
-  owner?: Address | null
-  distribution?: Map<Address, LedgerAmount>
+  owner?: string | null
+  distribution?: { [address: string]: LedgerAmount }
   maximumSupply?: LedgerAmount
   extended?: TokenExtendedInfo
 }
@@ -42,7 +42,7 @@ export interface TokensUpdateParam {
   name?: string
   symbol?: string
   precision?: number
-  owner?: Address | null
+  owner?: string | null
   memo?: string
 }
 
