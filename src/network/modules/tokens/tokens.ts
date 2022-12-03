@@ -22,7 +22,8 @@ export const Tokens: TokensModule = {
       [0, tag(10000, Address.fromString(param.address).toBuffer())],
     ])
     const res = await this.call("tokens.info", data)
-    return getTokenInfo(res)
+    const payload = res.getPayload()
+    return getTokenInfo(payload)
   },
   async create(
     param: TokensCreateParam,
@@ -30,7 +31,8 @@ export const Tokens: TokensModule = {
   ): Promise<TokenBasicInfo> {
     const data = makeTokensCreateData(param)
     const res = await this.call("tokens.create", data, { nonce })
-    return getTokenBasicInfo(res)
+    const payload = res.getPayload()
+    return getTokenBasicInfo(payload)
   },
   async update(
     param: TokensUpdateParam,
@@ -117,8 +119,7 @@ function makeTokensRemoveExtendedData(
 
 // Get objects from maps
 
-export function getTokenInfo(message: Message): TokenInfo {
-  const data = message.getPayload()
+export function getTokenInfo(data: Map<number, any>): TokenInfo {
   const result: TokenInfo = {
     info: getTokenBasicInfo(data.get(0)),
   }

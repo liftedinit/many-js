@@ -3,18 +3,19 @@ import {
   mockTokenAddress,
   mockTokenString,
   expectedTokenInfo,
+  mockTokenBasicInfoMsg,
+  expectedTokenBasicInfo,
 } from "./data"
 import { Tokens } from "../tokens"
 import { setupModule } from "../../test/test-utils"
 
 describe("Tokens", () => {
-  const mockCall = jest.fn(async () => mockTokenInfoMsg)
-  const tokens = setupModule(Tokens, mockCall)
-
   describe("info", () => {
     it("should return information for a given token", async () => {
-      const address = mockTokenString
-      const actual = await tokens.info({ address })
+      const mockCall = jest.fn(async () => mockTokenInfoMsg)
+      const tokens = setupModule(Tokens, mockCall)
+
+      const actual = await tokens.info({ address: mockTokenString })
 
       expect(mockCall).toHaveBeenCalled()
       expect(actual).toEqual(expectedTokenInfo)
@@ -22,6 +23,9 @@ describe("Tokens", () => {
   })
   describe("create", () => {
     it("should return information for the created token", async () => {
+      const mockCall = jest.fn(async () => mockTokenBasicInfoMsg)
+      const tokens = setupModule(Tokens, mockCall)
+
       const actual = await tokens.create({
         summary: {
           name: "MyToken",
@@ -31,12 +35,15 @@ describe("Tokens", () => {
       })
 
       expect(mockCall).toHaveBeenCalled()
-      expect(actual).toEqual(expectedTokenInfo)
+      expect(actual).toEqual(expectedTokenBasicInfo)
     })
   })
   describe("update", () => {
     it("should return information for the updated token", async () => {
-      const actual = await tokens.update({
+      const mockCall = jest.fn(async () => {})
+      const tokens = setupModule(Tokens, mockCall)
+
+      tokens.update({
         address: mockTokenAddress,
         name: "OurToken",
         symbol: "OTK",
@@ -45,11 +52,13 @@ describe("Tokens", () => {
       })
 
       expect(mockCall).toHaveBeenCalled()
-      expect(actual).toEqual(expectedTokenInfo)
     })
   })
   describe("addExtendedInfo", () => {
     it("should return information for the updated token", async () => {
+      const mockCall = jest.fn(async () => {})
+      const tokens = setupModule(Tokens, mockCall)
+
       tokens.addExtendedInfo({
         address: mockTokenAddress,
         extended: new Map([[1, Buffer.from("BYTES FOR A PNG")]]),
@@ -60,6 +69,9 @@ describe("Tokens", () => {
   })
   describe("removeExtendedInfo", () => {
     it("should return information for the updated token", async () => {
+      const mockCall = jest.fn(async () => {})
+      const tokens = setupModule(Tokens, mockCall)
+
       tokens.removeExtendedInfo({
         address: mockTokenAddress,
         indices: [1],
