@@ -16,7 +16,7 @@ export interface TokenInfoSupply {
   maximum?: LedgerAmount
 }
 
-export interface TokenInfo {
+export interface TokenBasicInfo {
   address: Address
   summary: TokenInfoSummary
   supply: TokenInfoSupply
@@ -25,14 +25,19 @@ export interface TokenInfo {
 
 export type TokenExtendedInfo = Map<AttrIndex, any>
 
+export interface TokenInfo {
+  info: TokenBasicInfo
+  extended?: TokenExtendedInfo
+}
+
 export interface TokensInfoParam {
-  address: Address
+  address: string
 }
 
 export interface TokensCreateParam {
   summary: TokenInfoSummary
-  owner?: Address | null
-  distribution?: Map<Address, LedgerAmount>
+  owner?: string | null
+  distribution?: { [address: string]: LedgerAmount }
   maximumSupply?: LedgerAmount
   extended?: TokenExtendedInfo
 }
@@ -42,7 +47,7 @@ export interface TokensUpdateParam {
   name?: string
   symbol?: string
   precision?: number
-  owner?: Address | null
+  owner?: string | null
   memo?: string
 }
 
@@ -61,11 +66,8 @@ export interface TokensModule extends NetworkModule {
   create: (
     data: TokensCreateParam,
     opts?: { nonce?: ArrayBuffer },
-  ) => Promise<TokenInfo>
-  update: (
-    data: TokensUpdateParam,
-    opts?: { nonce?: ArrayBuffer },
-  ) => Promise<TokenInfo>
+  ) => Promise<TokenBasicInfo>
+  update: (data: TokensUpdateParam, opts?: { nonce?: ArrayBuffer }) => void
   addExtendedInfo: (
     data: TokensAddExtendedParam,
     opts?: { nonce?: ArrayBuffer },
