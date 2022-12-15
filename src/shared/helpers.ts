@@ -1,31 +1,71 @@
+export type Transform = Record<Key, Field>
 type Key = string | number
+type Field = Key | [Key, Transform?, Options?]
+type Options = { type?: "array" | "map" }
 type CborMap = Map<Key, any>
-type XformField = Key | [Key, Xform]
-type Xform = Record<Key, XformField>
 
-export function mapToObj<T>(map: CborMap, xform: Xform): T {
+export function mapToObj<T>(map: CborMap, xform: Transform): T {
   const obj: Partial<T> = {}
   Object.entries(xform).forEach(([mapKey, objField]) => {
     const value = map.get(parseInt(mapKey))
-    if (typeof objField === "string") {
+    if (value === undefined) {
+      obj[objField as keyof T] = undefined
+    } else if (typeof objField === "string") {
       obj[objField as keyof T] = value
     } else {
-      const [objKey, subXform] = objField as [Key, Xform]
-      obj[objKey as keyof T] = mapToObj(value, subXform)
+      const [objKey, subXform, options] = objField as [Key, Transform, Options]
+      const key = objKey as keyof T
+      switch (options?.type) {
+        case "array":
+          obj[key] = value.map((subValue: any) => mapToObj(subValue, subXform))
+          break
+        case "map":
+          obj[key] = [...value.entries()].reduce(
+            (acc, [subKey, subValue]) => ({
+              ...acc,
+              [subKey]: subXform ? mapToObj(subValue, subXform) : subValue,
+            }),
+            {},
+          )
+          break
+        default:
+          obj[key] = mapToObj(value, subXform)
+      }
     }
   })
   return obj as T
 }
 
-export function objToMap<T>(obj: T, xform: Xform): CborMap {
-  const map = new Map()
+export function objToMap<T>(obj: T, xform: Transform): CborMap {
+  const map: CborMap = new Map()
   Object.entries(xform).forEach(([mapKey, objField]) => {
     let value
-    if (typeof objField === "string") {
+    if (!obj) {
+      value = undefined
+    } else if (typeof objField === "string") {
       value = obj[objField as keyof T]
     } else {
-      const [objKey, subXform] = objField as [Key, Xform]
-      value = objToMap(obj[objKey as keyof T], subXform)
+      const [objKey, subXform, options] = objField as [Key, Transform, Options]
+      const objValue = obj[objKey as keyof T]
+      switch (options?.type) {
+        case "array":
+          value = (objValue as any[]).map((subValue: any) =>
+            objToMap(subValue, subXform),
+          )
+          break
+        case "map":
+          value = Object.entries(objValue as Record<Key, any>).reduce(
+            (acc, [subKey, subValue]) =>
+              acc.set(
+                subKey,
+                subXform ? objToMap(subValue, subXform) : subValue,
+              ),
+            new Map(),
+          )
+          break
+        default:
+          value = objToMap(objValue, subXform)
+      }
     }
     map.set(parseInt(mapKey), value)
   })
