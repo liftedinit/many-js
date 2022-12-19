@@ -1,4 +1,5 @@
 import { Message } from "../../../message"
+import { tag } from "../../../message/cbor"
 import { makeRandomBytes } from "../../../utils"
 import {
   KVStoreDisableParam,
@@ -50,22 +51,22 @@ export const KvStore: KVStoreModule = {
 
 function makeKVStoreGet(param: KVStoreGetParam): Map<number, any> {
   const data = new Map()
-  data.set(0, param.key)
+  data.set(0, Buffer.from(param.key))
   return data
 }
 
 function makeKVStorePut(param: KVStorePutParam): Map<number, any> {
   const data = new Map()
-  data.set(0, param.key)
-  data.set(1, param.value)
-  param.owner && data.set(2, param.owner)
+  data.set(0, Buffer.from(param.key))
+  data.set(1, Buffer.from(param.value))
+  param.owner && data.set(2, tag(10000, param.owner))
   return data
 }
 
 function makeKVStoreDisable(param: KVStoreDisableParam): Map<number, any> {
   const data = new Map()
-  data.set(0, param.key)
-  param.owner && data.set(1, param.owner)
+  data.set(0, Buffer.from(param.key))
+  param.owner && data.set(1, tag(10000, param.owner))
   return data
 }
 
@@ -74,7 +75,7 @@ function makeKVStoreDisable(param: KVStoreDisableParam): Map<number, any> {
 function getKVStoreInfo(message: Message): KVStoreInfo {
   const data = message.getPayload()
   const result: KVStoreInfo = {
-    hash: Buffer.from(data.get(0)).toString(),
+    hash: Buffer.from(data.get(0)).toString("hex"),
   }
   return result
 }
