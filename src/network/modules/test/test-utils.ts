@@ -1,7 +1,7 @@
 import cbor from "cbor"
 import { Address } from "../../../identity"
-import { Message } from "../../../message"
-import { tag } from "../../../message/cbor"
+import { Message } from "../../../message/message"
+import { tag } from "../../../message/encoding"
 
 export const accountSource =
   "mqdiclsquy3nnoioxg3zhsci2vltdhmlsmdlbhbaglf5rjtqaaabajj"

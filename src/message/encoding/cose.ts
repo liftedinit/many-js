@@ -1,11 +1,11 @@
-import cbor from "cbor";
-import { sha3_224 } from "js-sha3";
+import cbor from "cbor"
+import { sha3_224 } from "js-sha3"
 import {
   Address,
   AnonymousIdentity,
   Identity,
   PublicKeyIdentity,
-} from "../identity"
+} from "../../identity"
 import { Message } from "../message"
 import { CborData, CborMap, tag } from "./cbor"
 
@@ -58,7 +58,7 @@ export class CoseMessage {
   ): Promise<CoseMessage> {
     const protectedHeader = await this.getProtectedHeader(identity)
     const cborProtectedHeader = cbor.encodeCanonical(protectedHeader)
-    const content = message.getContent()
+    const content = message.content
     const cborContent = cbor.encode(tag(10001, content))
     const toBeSigned = cbor.encodeCanonical([
       "Signature1",

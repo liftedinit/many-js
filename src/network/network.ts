@@ -1,6 +1,6 @@
 import { Identity } from "../identity"
-import { Message } from "../message"
-import { CborData } from "../message/cbor"
+import { Message } from "../message/message"
+import { CborData } from "../message/encoding"
 import { applyMixins } from "../utils"
 import { NetworkModule } from "./modules"
 import { Async } from "./modules/async"
@@ -20,12 +20,12 @@ export class Network {
   }
 
   async send(req: Message) {
-    const cbor = await req.toCborData(this.identity)
+    const cbor = await req.toBuffer(this.identity)
     const reply = await this.sendEncoded(cbor)
     // @TODO: Verify response
     const res = await Async.handleAsyncToken.call(
       this,
-      Message.fromCborData(reply),
+      Message.fromBuffer(reply),
     )
     return res
   }

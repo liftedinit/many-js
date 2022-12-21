@@ -14,7 +14,10 @@ export interface Info {
 
 const infoMap: Transform = {
   1: "hash",
-  5: ["tokens", { 0: "name", 1: "symbol", 2: "precision" }, { type: "map" }],
+  5: [
+    "tokens",
+    { type: "map", transform: { 0: "name", 1: "symbol", 2: "precision" } },
+  ],
 }
 
 export async function info(server: Server): Promise<Info> {

@@ -1,7 +1,7 @@
 import { eventTypeNameToIndices } from "../../../const"
 import { Address } from "../../../identity"
-import { Message } from "../../../message"
-import { CborMap } from "../../../message/cbor"
+import { Message } from "../../../message/message"
+import { CborMap } from "../../../message/encoding"
 import {
   getAccountFeaturesData,
   getAccountRolesData,

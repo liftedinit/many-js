@@ -1,4 +1,4 @@
-import { Message } from "../../../message"
+import { Message } from "../../../message/message"
 import { makeLedgerSendParam, makeRandomBytes } from "../../../utils"
 import { LedgerSendParam, NetworkModule } from "../types"
 

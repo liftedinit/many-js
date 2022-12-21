@@ -1,7 +1,7 @@
 import { pki } from "node-forge"
-import { Message } from "../message"
-import { CoseMessage } from "./cose"
-import { Ed25519KeyPairIdentity } from "../identity"
+import { Message } from "../../message"
+import { CoseMessage } from "../cose"
+import { Ed25519KeyPairIdentity } from "../../../identity"
 const ed25519 = pki.ed25519
 
 describe("CoseMessage", () => {

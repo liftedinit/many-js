@@ -1,5 +1,5 @@
 import cbor from "cbor"
-import { Message } from "../../../message"
+import { Message } from "../../../message/message"
 import { NetworkModule, NetworkAttributes } from "../types"
 
 export interface Base extends NetworkModule {

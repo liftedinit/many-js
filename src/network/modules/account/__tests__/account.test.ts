@@ -22,8 +22,8 @@ import {
 import { Account } from "../account"
 import { makeLedgerSendParam } from "../../../../utils"
 import { ONE_MINUTE, eventTypeNameToIndices } from "../../../../const"
-import { tag } from "../../../../message/cbor"
-import { Message } from "../../../../message"
+import { tag } from "../../../../message/encoding"
+import { Message } from "../../../../message/message"
 
 describe("Account", () => {
   it("info() should return accountInfo", async () => {

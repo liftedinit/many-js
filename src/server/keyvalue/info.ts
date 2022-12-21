@@ -1,12 +1,12 @@
 import { Server } from "../server"
-import { mapToObj } from "../../shared/helpers"
+import { mapToObj, Transform } from "../../shared/helpers"
 
 export interface Info {
   hash: string
 }
 
-const infoMap = {
-  0: "hash",
+const infoMap: Transform = {
+  0: ["hash", { type: "bytes" }],
 }
 
 export async function info(server: Server): Promise<Info> {

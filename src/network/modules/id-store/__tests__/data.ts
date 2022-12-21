@@ -1,5 +1,5 @@
 import cbor from "cbor"
-import { Message } from "../../../../message"
+import { Message } from "../../../../message/message"
 
 export const mockStoreResponseContent = new Map([
   [4, cbor.encode(new Map([[0, ["recovery", "phrase"]]]))],

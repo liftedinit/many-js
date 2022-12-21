@@ -1,6 +1,6 @@
 import { Async } from "../async"
-import { Message } from "../../../../message"
-import { tag } from "../../../../message/cbor"
+import { Message } from "../../../../message/message"
+import { tag } from "../../../../message/encoding"
 import cbor from "cbor"
 import { Network } from "../../.."
 import { AnonymousIdentity } from "../../../../identity"

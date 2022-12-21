@@ -1,6 +1,6 @@
 import cbor from "cbor"
 import { ONE_MINUTE } from "../../const"
-import { CoseKey, EMPTY } from "../../message/cose"
+import { CoseKey, EMPTY } from "../../message/encoding"
 import { makeRandomBytes } from "../../utils"
 import { Address } from "../address"
 import { PublicKeyIdentity } from "../types"

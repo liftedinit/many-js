@@ -1,6 +1,6 @@
 import { eventTypeNameToIndices } from "../../const"
 import { Address } from "../../identity"
-import { CborMap } from "../../message/cbor"
+import { CborMap } from "../../message/encoding"
 import {
   LedgerSendParam,
   EventType,

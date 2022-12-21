@@ -1,5 +1,5 @@
 import { Server } from "../server"
-import { objToMap } from "../../shared/helpers"
+import { objToMap, Transform } from "../../shared/helpers"
 
 export interface PutArgs {
   key: string
@@ -7,9 +7,9 @@ export interface PutArgs {
   owner?: string
 }
 
-const putArgsMap = {
-  0: "key",
-  1: "value",
+const putArgsMap: Transform = {
+  0: ["key", { type: "bytes" }],
+  1: ["value", { type: "bytes" }],
   2: "owner",
 }
 

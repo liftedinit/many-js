@@ -1,4 +1,4 @@
-import { Message } from "../../../message"
+import { Message } from "../../../message/message"
 import { makeRandomBytes } from "../../../utils"
 import type { NetworkModule } from "../types"
 

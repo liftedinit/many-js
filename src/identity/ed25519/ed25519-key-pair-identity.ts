@@ -1,6 +1,6 @@
 import forge, { pki } from "node-forge"
 import * as bip39 from "bip39"
-import { CoseKey } from "../../message/cose"
+import { CoseKey } from "../../message/encoding"
 const ed25519 = pki.ed25519
 import { PublicKeyIdentity } from "../types"
 import { Address } from "../address"

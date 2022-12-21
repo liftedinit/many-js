@@ -1,5 +1,5 @@
 import { Identity } from "../types"
-import { EMPTY } from "../../message/cose"
+import { EMPTY } from "../../message/encoding"
 import { Address } from "../address"
 
 export class AnonymousIdentity extends Identity {

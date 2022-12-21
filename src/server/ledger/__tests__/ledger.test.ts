@@ -1,4 +1,4 @@
-import { Ledger } from "../../ledger"
+import { Ledger } from "../ledger"
 import {
   mockBalanceMap,
   mockBalanceObj,

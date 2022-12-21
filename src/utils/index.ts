@@ -1,5 +1,5 @@
 import * as nodeCrypto from "crypto"
-import { Message } from "../message"
+import { Message } from "../message/message"
 import { ManyError, SerializedManyError } from "../message/error"
 import {
   Bound,
@@ -34,7 +34,7 @@ export function applyMixins<N extends Network, M extends NetworkModule[]>(
 }
 
 export function throwOnErrorResponse(msg: Message) {
-  const content = msg.getContent()?.get(4)
+  const content = msg.content.get(4)
   if (
     content instanceof Map &&
     typeof content.get(0) === "number" &&

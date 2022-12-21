@@ -1,4 +1,4 @@
-import { CoseKey } from "../message/cose"
+import { CoseKey } from "../message/encoding"
 import { Address } from "./address"
 
 export interface Signer {

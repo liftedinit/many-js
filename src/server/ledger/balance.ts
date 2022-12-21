@@ -11,7 +11,7 @@ export interface BalanceArgs {
 }
 
 const balanceMap: Transform = {
-  0: ["balances", undefined, { type: "map" }],
+  0: ["balances", { type: "map" }],
 }
 
 const balanceArgsMap = {

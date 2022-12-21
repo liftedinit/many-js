@@ -1,4 +1,4 @@
-import { Message } from "../message/message"
+import { Message } from "../../message"
 
 describe("Message", () => {
   test("can be constructed from an object", () => {
