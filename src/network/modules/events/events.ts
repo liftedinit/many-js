@@ -1,4 +1,4 @@
-import { Message } from "../../../message/message"
+import { Response } from "../../../message"
 import { CborMap } from "../../../message/encoding"
 import {
   getAccountFeaturesData,
@@ -167,7 +167,7 @@ export const Events: Events = {
   },
 }
 
-async function getEventsInfo(message: Message) {
+async function getEventsInfo(message: Response) {
   const payload = message.getPayload()
   return {
     count: message?.content.has(4) ? message?.getPayload()?.get(0) : 0,
@@ -181,7 +181,7 @@ async function getEventsInfo(message: Message) {
   }
 }
 
-async function getEventsList(message: Message): Promise<EventsListResponse> {
+async function getEventsList(message: Response): Promise<EventsListResponse> {
   const result: EventsListResponse = {
     count: 0,
     events: [],

@@ -1,10 +1,10 @@
 import cbor from "cbor"
-
 import { Address } from "../../identity"
 import { objToMap, Transform } from "../../shared/helpers"
 import { Message } from "../message"
+import { CoseSign1 } from "../encoding"
 
-export interface RequestObj {
+export interface RequestArgs {
   version?: number
   from?: Address
   to?: Address
@@ -18,49 +18,32 @@ export interface RequestObj {
 
 const requestMap: Transform = {
   0: "version",
-  1: ["from", { fn: (value: Address) => value.toString() }],
+  1: ["from", { fn: (value?: Address) => value?.toString() }],
+  2: ["to", { fn: (value?: Address) => value?.toString() }],
+  3: "method",
+  4: [
+    "data",
+    { fn: (value?: any) => (value ? cbor.encode(value) : undefined) },
+  ],
+  5: ["timestamp", { fn: (value: number) => new cbor.Tagged(1, value) }],
+  6: "id",
+  7: ["nonce", { fn: (value: string) => cbor.encode(value) }],
+  8: "attrs",
 }
 
 export class Request extends Message {
-  static fromObject(obj: RequestObj): Message {
+  static fromObject(obj: RequestArgs): Request {
+    if (!obj.method) {
+      throw new Error("Property 'method' is required.")
+    }
     const defaults = {
       version: 1,
       timestamp: Math.floor(Date.now() / 1000),
     }
+    return new Request(objToMap({ ...defaults, ...obj }, requestMap))
+  }
 
-    // const contentArgs = objToMap(obj, requestMap)
-
-    if (!obj.method) {
-      throw new Error("Property 'method' is required.")
-    }
-    const content = new Map()
-    content.set(0, obj.version ? obj.version : 1)
-    if (obj.from) {
-      content.set(1, obj.from.toString())
-    }
-    if (obj.to) {
-      content.set(2, obj.to.toString())
-    }
-    content.set(3, obj.method)
-    if (obj.data) {
-      content.set(4, cbor.encode(obj.data))
-    }
-    content.set(
-      5,
-      new cbor.Tagged(
-        1,
-        obj.timestamp ? obj.timestamp : Math.floor(Date.now() / 1000),
-      ),
-    )
-    if (obj.id) {
-      content.set(6, obj.id)
-    }
-    if (obj.nonce) {
-      content.set(7, cbor.encode(obj.nonce))
-    }
-    if (obj.attrs) {
-      content.set(8, obj.attrs)
-    }
-    return new Message(content)
+  static fromBuffer(data: Buffer): Request {
+    return new Request(CoseSign1.fromBuffer(data).payload)
   }
 }

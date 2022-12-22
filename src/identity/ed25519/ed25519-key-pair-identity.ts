@@ -19,9 +19,8 @@ export class Ed25519KeyPairIdentity extends PublicKeyIdentity {
     return bip39.generateMnemonic()
   }
 
-  async getAddress(): Promise<Address> {
-    const coseKey = this.getCoseKey()
-    return coseKey.toAddress()
+  getAddress(): Address {
+    return this.getCoseKey().toAddress()
   }
 
   static fromMnemonic(mnemonic: string): Ed25519KeyPairIdentity {

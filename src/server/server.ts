@@ -4,12 +4,12 @@ import { Request, Response } from "../message"
 export abstract class Server {
   constructor(public url: string, public id?: Identity | undefined) {}
 
-  async send(message: Request) {
+  async send(message: Request): Promise<Response> {
     const encoded = await message.toBuffer(this.id)
     const cborData = await this.sendEncoded(encoded)
     // @TODO: Verify response
     // @TODO: Handle pending "async" request
-    return Response.fromBuffer(cborData)
+    return Response.fromBuffer(cborData) as Response
   }
 
   async sendEncoded(encoded: Buffer) {
@@ -23,8 +23,7 @@ export abstract class Server {
   }
 
   async call(method: string, data?: any, options = {}) {
-    // @TODO: Make synchronous
-    const from = this.id ? await this.id.getAddress() : undefined
+    const from = this.id ? this.id.getAddress() : undefined
     const manyReq = Request.fromObject({ method, from, data, ...options })
     const manyRes = await this.send(manyReq)
     // @TODO: Handle errors

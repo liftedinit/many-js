@@ -39,20 +39,17 @@ export class CoseSign1 {
     return new CoseSign1(protectedHeader, unprotectedHeader, payload, signature)
   }
 
-  // @TODO: Make this synchronous
-  static async getProtectedHeader(
-    identity: PublicKeyIdentity | Identity,
-  ): Promise<CborMap> {
+  static getProtectedHeader(identity: PublicKeyIdentity | Identity): CborMap {
     let protectedHeader = new Map()
     if ("getCoseKey" in identity) {
       const coseKey = identity.getCoseKey()
       protectedHeader.set(1, coseKey.key.get(3)) // alg
       protectedHeader.set(4, coseKey.keyId) // kid: kid
-      protectedHeader.set("keyset", coseKey.toCborData())
+      protectedHeader.set("keyset", coseKey.toBuffer())
       if (typeof identity?.getProtectedHeader === "function") {
         protectedHeader = new Map([
           ...protectedHeader,
-          ...(await identity.getProtectedHeader()),
+          ...identity.getProtectedHeader(),
         ])
       }
     }

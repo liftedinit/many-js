@@ -1,4 +1,4 @@
-import { CoseKey } from "../message/encoding"
+import { CoseKey } from "../message/encoding/cose-key"
 import { Address } from "./address"
 
 export interface Signer {
@@ -13,16 +13,18 @@ export interface Verifier {
 }
 
 export abstract class Identity implements Signer, Verifier {
-  abstract getAddress(): Promise<Address>
+  abstract getAddress(): Address
   abstract toJSON(): unknown
   abstract sign(
     data: ArrayBuffer,
     unprotectedHeader: Map<string, unknown>,
   ): Promise<ArrayBuffer>
   abstract verify(data: ArrayBuffer): Promise<boolean>
-  async getProtectedHeader(): Promise<Map<string, unknown>> {
+
+  getProtectedHeader(): Map<string, unknown> {
     return new Map()
   }
+
   async getUnprotectedHeader(
     cborMessageContent: ArrayBuffer,
     cborProtectedHeader: ArrayBuffer,

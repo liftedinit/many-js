@@ -1,4 +1,4 @@
-import { Message } from "../../../message/message"
+import { Response } from "../../../message"
 import { makeRandomBytes } from "../../../utils"
 import {
   TokenInfo,
@@ -102,7 +102,7 @@ function makeTokensRemoveExtendedData(
 
 // Get objects from maps
 
-export function getTokenInfo(message: Message): TokenInfo {
+export function getTokenInfo(message: Response): TokenInfo {
   const data = message.getPayload()
   const result: TokenInfo = {
     address: data.get(0),

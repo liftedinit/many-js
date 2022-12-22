@@ -1,17 +1,18 @@
-import { Message } from "../../message"
+import { Request } from "../../../message"
 
-describe("Message", () => {
+describe("Request", () => {
   test("can be constructed from an object", () => {
     const msg = { method: "info" }
-    const req = Message.fromObject(msg)
+    const req = Request.fromObject(msg)
 
     expect(req).toHaveProperty("content")
+    expect(req.content.get(3)).toBe("info")
   })
   test("can be serialized/deserialized", async () => {
     const msg = { method: "info" }
-    const req = Message.fromObject(msg)
+    const req = Request.fromObject(msg)
     const cbor = await req.toBuffer()
 
-    expect(Message.fromBuffer(cbor)).toStrictEqual(req)
+    expect(Request.fromBuffer(cbor)).toStrictEqual(req)
   })
 })

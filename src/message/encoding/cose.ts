@@ -88,7 +88,7 @@ export class CoseMessage {
       const coseKey = identity.getCoseKey()
       protectedHeader.set(1, coseKey.key.get(3)) // alg
       protectedHeader.set(4, coseKey.keyId) // kid: kid
-      protectedHeader.set("keyset", coseKey.toCborData())
+      protectedHeader.set("keyset", coseKey.toBuffer())
       if (typeof identity?.getProtectedHeader === "function") {
         protectedHeader = new Map([
           ...protectedHeader,

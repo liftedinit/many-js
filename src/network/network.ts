@@ -1,9 +1,9 @@
 import { Identity } from "../identity"
-import { Message } from "../message/message"
 import { CborData } from "../message/encoding"
 import { applyMixins } from "../utils"
 import { NetworkModule } from "./modules"
 import { Async } from "./modules/async"
+import { Request, Response } from "../message"
 
 export class Network {
   [k: string]: any
@@ -19,18 +19,17 @@ export class Network {
     applyMixins(this, modules)
   }
 
-  async send(req: Message) {
+  async send(req: Request): Promise<Response> {
     const cbor = await req.toBuffer(this.identity)
     const reply = await this.sendEncoded(cbor)
-    // @TODO: Verify response
     const res = await Async.handleAsyncToken.call(
       this,
-      Message.fromBuffer(reply),
+      Response.fromBuffer(reply) as Response,
     )
-    return res
+    return res as Response
   }
 
-  async sendEncoded(body: CborData) {
+  async sendEncoded(body: CborData): Promise<Buffer> {
     const res = await fetch(this.url, {
       method: "POST",
       headers: { "Content-Type": "application/cbor" },
@@ -40,10 +39,10 @@ export class Network {
     return Buffer.from(reply)
   }
 
-  async call(method: string, data?: any, opts = {}) {
-    const req = Message.fromObject({
+  async call(method: string, data?: any, opts = {}): Promise<Response> {
+    const req = Request.fromObject({
       method,
-      from: this.identity ? await this.identity.getAddress() : undefined,
+      from: this.identity ? this.identity.getAddress() : undefined,
       data,
       ...opts,
     })

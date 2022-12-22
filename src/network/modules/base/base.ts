@@ -1,5 +1,5 @@
 import cbor from "cbor"
-import { Message } from "../../../message/message"
+import { Response } from "../../../message"
 import { NetworkModule, NetworkAttributes } from "../types"
 
 export interface Base extends NetworkModule {
@@ -46,7 +46,7 @@ export const Base: Base = {
   },
 }
 
-async function getNetworkStatus(msg: Message): Promise<NetworkStatusResponse> {
+async function getNetworkStatus(msg: Response): Promise<NetworkStatusResponse> {
   const result: NetworkStatusResponse = {
     status: undefined,
   }
@@ -66,7 +66,7 @@ async function getNetworkStatus(msg: Message): Promise<NetworkStatusResponse> {
   return result
 }
 
-async function getEndpoints(msg: Message): Promise<NetworkEndpointsResponse> {
+async function getEndpoints(msg: Response): Promise<NetworkEndpointsResponse> {
   const result: NetworkEndpointsResponse = {
     endpoints: [],
   }

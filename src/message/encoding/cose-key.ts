@@ -1,14 +1,14 @@
 import cbor from "cbor"
 import { sha3_224 } from "js-sha3"
 
-import { CborMap, CborData } from "./cbor"
 import { Address } from "../../identity"
 
 export const ANONYMOUS = Buffer.from([0x00])
+type CborMap = Map<number | string, any>
 
 export class CoseKey {
   key: CborMap
-  keyId: CborData
+  keyId: Buffer
   private common: CborMap
 
   constructor(commonParams: Map<number, any> = new Map()) {
@@ -32,7 +32,7 @@ export class CoseKey {
     return key
   }
 
-  toCborData(): CborData {
+  toBuffer(): Buffer {
     return cbor.encodeCanonical([this.key])
   }
 

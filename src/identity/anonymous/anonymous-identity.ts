@@ -10,7 +10,7 @@ export class AnonymousIdentity extends Identity {
     return false
   }
 
-  async getAddress(): Promise<Address> {
+  getAddress(): Address {
     return Address.anonymous()
   }
 

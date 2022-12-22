@@ -18,7 +18,7 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
     this.rawId = rawId
   }
 
-  async getAddress(): Promise<Address> {
+  getAddress(): Address {
     return this.getCoseKey().toAddress()
   }
 
@@ -75,7 +75,7 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
     return credential
   }
 
-  async getProtectedHeader(): Promise<Map<string, unknown>> {
+  getProtectedHeader(): Map<string, unknown> {
     return new Map().set("webauthn", true)
   }
 
