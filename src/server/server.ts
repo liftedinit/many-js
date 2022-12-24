@@ -46,21 +46,25 @@ export abstract class Server {
     if (result.ok) {
       const [status, value] = (result.value as CborMap).values()
       switch (status) {
-        case 0:
-          throw new Error("Unknown request token")
-        case 1:
-        case 2:
+        case 0: // Unknown
+          throw new Error(`Unknown request token: ${token.toString("hex")}`)
+        case 1: // Queued
+        case 2: // Processing
           await sleep(ms)
           return await this.poll(token, ms * 1.5)
-        case 3:
-          // @TODO: Might need to decode first?
+        case 3: // Done
           return value
-        case 4:
+        case 4: // Expired
           throw new Error("Request token expired")
         default:
           throw new Error("Unknown request status")
       }
     }
     throw result.error
+  }
+
+  as(id: Identity) {
+    this.id = id
+    return this
   }
 }
