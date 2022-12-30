@@ -11,6 +11,7 @@ export class CoseKey {
   keyId: Buffer
   private common: CborMap
 
+  // @TODO: Enumerate required parameters
   constructor(commonParams: Map<number, any> = new Map()) {
     this.common = commonParams
     this.keyId = this.getKeyId()
@@ -32,10 +33,13 @@ export class CoseKey {
     return key
   }
 
+  // @TODO: toPublicKey
+
   toBuffer(): Buffer {
     return cbor.encodeCanonical([this.key])
   }
 
+  // @TODO: Deprecate "Address"
   toAddress(): Address {
     return new Address(this.keyId)
   }

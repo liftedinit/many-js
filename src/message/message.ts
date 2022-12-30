@@ -20,10 +20,12 @@ export class Message {
       Buffer.alloc(0),
       cborContent,
     ])
+    // @TODO: Only sign unprotected header if ID doesn't support ed25519
     const unprotectedHeader = await identity.getUnprotectedHeader(
       cborContent,
       cborProtectedHeader,
     )
+    // @TODO: Why do we sign both toBeSigned and unprotectedHeader?
     const signature = await identity.sign(toBeSigned, unprotectedHeader)
     return new CoseSign1(protectedHeader, unprotectedHeader, payload, signature)
   }
