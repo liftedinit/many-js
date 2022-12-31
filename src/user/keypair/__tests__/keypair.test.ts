@@ -63,7 +63,7 @@ describe("KeyPair", () => {
       )
       const coseKey = keypair.toCoseKey()
 
-      expect(coseKey.key.get(-2)).toStrictEqual(keypair.publicKey)
+      expect(coseKey.publicKey).toStrictEqual(keypair.publicKey)
     })
   })
   describe("fromString", () => {

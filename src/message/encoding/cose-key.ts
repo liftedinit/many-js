@@ -18,6 +18,10 @@ export class CoseKey {
     this.key = this.getKey()
   }
 
+  get publicKey() {
+    return this.key.get(-2)
+  }
+
   private getKeyId() {
     if (Buffer.compare(this.common.get(-2), ANONYMOUS) === 0) {
       return ANONYMOUS
@@ -32,8 +36,6 @@ export class CoseKey {
     key.set(2, this.keyId) // kid: Key ID
     return key
   }
-
-  // @TODO: toPublicKey
 
   toBuffer(): Buffer {
     return cbor.encodeCanonical([this.key])
