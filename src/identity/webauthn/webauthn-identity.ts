@@ -3,13 +3,18 @@ import { ONE_MINUTE } from "../../const"
 import { CoseKey, EMPTY } from "../../message/cose"
 import { makeRandomBytes } from "../../utils"
 import { Address } from "../address"
-import { PublicKeyIdentity } from "../types"
+import {Identity, PublicKeyIdentity} from "../types"
 const sha512 = require("js-sha512")
 
 export class WebAuthnIdentity extends PublicKeyIdentity {
   publicKey: ArrayBuffer
   rawId: ArrayBuffer
   cosePublicKey: ArrayBuffer
+
+  // This constant string is from a previous mangling of the constructor name
+  // and should be used to maintained backward compatibility with existing
+  // local storages.
+  static dataType = 'c'
 
   constructor(cosePublicKey: ArrayBuffer, rawId: ArrayBuffer) {
     super()
@@ -107,7 +112,7 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
 
   toJSON(): { dataType: string; rawId: string; cosePublicKey: ArrayBuffer } {
     return {
-      dataType: this.constructor.name,
+      dataType: (this.constructor as typeof Identity).dataType,
       rawId: Buffer.from(this.rawId).toString("base64"),
       cosePublicKey: this.cosePublicKey,
     }

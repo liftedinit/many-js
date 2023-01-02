@@ -3,6 +3,11 @@ import { EMPTY } from "../../message/cose"
 import { Address } from "../address"
 
 export class AnonymousIdentity extends Identity {
+  // This constant string is from a previous mangling of the constructor name
+  // and should be used to maintained backward compatibility with existing
+  // local storages.
+  static dataType = 'r'
+
   async sign() {
     return EMPTY
   }
@@ -15,6 +20,6 @@ export class AnonymousIdentity extends Identity {
   }
 
   toJSON(): { dataType: string } {
-    return { dataType: this.constructor.name }
+    return { dataType: (this.constructor as typeof Identity).dataType }
   }
 }
