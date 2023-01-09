@@ -16,11 +16,12 @@ describe("Anonymous", () => {
     })
   })
   describe("sign", () => {
-    it("should return an empty buffer", () => {
+    it("should return an empty buffer", async () => {
       const anon = new Anonymous()
-      const data = Buffer.from("abc")
 
-      expect(anon.sign(data)).toStrictEqual(Buffer.alloc(0))
+      const sig = await anon.sign(Buffer.from("foo"))
+
+      expect(sig).toStrictEqual(Buffer.alloc(0))
     })
   })
   describe("toString", () => {

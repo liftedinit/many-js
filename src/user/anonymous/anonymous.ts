@@ -1,7 +1,7 @@
 import { Identifier } from "../identifier"
 
 export class Anonymous extends Identifier {
-  sign(_: ArrayBuffer): ArrayBuffer {
+  async sign(_: ArrayBuffer): Promise<ArrayBuffer> {
     return Buffer.alloc(0)
   }
 

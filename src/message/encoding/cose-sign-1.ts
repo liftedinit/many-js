@@ -39,6 +39,7 @@ export class CoseSign1 {
     return new CoseSign1(protectedHeader, unprotectedHeader, payload, signature)
   }
 
+  // @TODO: Deprecate knowledge of identities in CoseSign1
   static getProtectedHeader(identity: PublicKeyIdentity | Identity): CborMap {
     let protectedHeader = new Map()
     if ("getCoseKey" in identity) {

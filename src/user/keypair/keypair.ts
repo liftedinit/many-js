@@ -16,7 +16,7 @@ export class KeyPair extends Identifier {
     }
   }
 
-  sign(data: ArrayBuffer): ArrayBuffer {
+  async sign(data: ArrayBuffer): Promise<ArrayBuffer> {
     return ed25519.sign({
       message: data as Uint8Array,
       privateKey: this.privateKey as Uint8Array,
@@ -35,7 +35,7 @@ export class KeyPair extends Identifier {
   }
 
   static fromString(_: string): KeyPair {
-    throw new Error("Cannot create a KeyPair from a string")
+    throw new Error("Cannot create a KeyPair identifier from a string")
   }
 
   static getMnemonic(): string {

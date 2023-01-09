@@ -25,15 +25,16 @@ describe("KeyPair", () => {
     })
   })
   describe("sign", () => {
-    it("should return a signature", () => {
+    it("should return a signature", async () => {
       const keypair = new KeyPair(
         new Uint8Array(1),
         new Uint8Array(new Array(32).fill(2)),
       )
-      const data1 = Buffer.from("foo")
-      const data2 = Buffer.from("bar")
 
-      expect(keypair.sign(data1)).not.toStrictEqual(keypair.sign(data2))
+      const sig1 = await keypair.sign(Buffer.from("foo"))
+      const sig2 = await keypair.sign(Buffer.from("bar"))
+
+      expect(sig1).not.toStrictEqual(sig2)
     })
   })
   describe("toString", () => {

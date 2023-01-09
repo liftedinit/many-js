@@ -5,7 +5,7 @@ import crc from "crc"
 export class Identifier {
   constructor(readonly publicKey: ArrayBuffer = new Uint8Array([0x00])) {}
 
-  sign(_: ArrayBuffer): ArrayBuffer {
+  async sign(_: ArrayBuffer): Promise<ArrayBuffer> {
     throw new Error("Generic identifier cannot sign")
   }
 

@@ -1,4 +1,5 @@
 import cbor from "cbor"
+import { makeRandomBytes } from "../../../utils"
 
 export const mockPublicKeyCredential: PublicKeyCredential = {
   type: "public-key",
@@ -24,7 +25,21 @@ export const mockPublicKeyCredential: PublicKeyCredential = {
         ),
       ]),
     }),
+    signature: makeRandomBytes(),
   } as AuthenticatorResponse,
   // @ts-ignore
   getClientExtensionResults: () => {},
+}
+
+export function makeMockPublicKeyCredential(
+  options: CredentialRequestOptions,
+): PublicKeyCredential {
+  const signature = options.publicKey?.challenge
+  return {
+    ...mockPublicKeyCredential,
+    response: {
+      ...mockPublicKeyCredential.response,
+      signature,
+    } as AuthenticatorResponse,
+  }
 }
