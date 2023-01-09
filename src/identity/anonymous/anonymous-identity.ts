@@ -3,10 +3,7 @@ import { EMPTY } from "../../message/cose"
 import { Address } from "../address"
 
 export class AnonymousIdentity extends Identity {
-  // This constant string is from a previous mangling of the constructor name
-  // and should be used to maintained backward compatibility with existing
-  // local storages.
-  static dataType = 'r'
+  static dataType = 'anonymous'
 
   async sign() {
     return EMPTY

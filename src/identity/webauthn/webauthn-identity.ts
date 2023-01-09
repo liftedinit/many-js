@@ -11,10 +11,7 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
   rawId: ArrayBuffer
   cosePublicKey: ArrayBuffer
 
-  // This constant string is from a previous mangling of the constructor name
-  // and should be used to maintained backward compatibility with existing
-  // local storages.
-  static dataType = 'c'
+  static dataType = 'webauthn'
 
   constructor(cosePublicKey: ArrayBuffer, rawId: ArrayBuffer) {
     super()
