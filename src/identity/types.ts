@@ -13,6 +13,8 @@ export interface Verifier {
 }
 
 export abstract class Identity implements Signer, Verifier {
+  static dataType: string
+
   abstract getAddress(): Promise<Address>
   abstract toJSON(): unknown
   abstract sign(
