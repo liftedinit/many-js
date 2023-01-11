@@ -58,7 +58,15 @@ network.ledger.info() // => Decoded and Parsed Response
 
 ### Account
 
+```ts
+// add the Account module
+import { Account } from "@liftedinit/many-js"
+network.apply([Account])
+```
+
 #### create
+
+- create an account with roles and features
 
 ```ts
 import { Network, Account } from "many-js"
@@ -86,6 +94,8 @@ await network.account.create("account name", roles, features)
 
 #### addFeatures
 
+- add roles and features to an existing account
+
 ```ts
 network.apply([Account])
 
@@ -109,6 +119,8 @@ await network.account.addFeatures({ account: "ma12345.....", roles, features })
 
 #### setDescription
 
+- modify the description of an existing account
+
 ```ts
 network.apply([Account])
 
@@ -121,6 +133,8 @@ await network.account.setDescription(
 ```
 
 #### addRoles
+
+- add roles to an existing account
 
 ```ts
 network.apply([Account])
@@ -136,6 +150,8 @@ await network.account.addRoles(accountAddress, roles)
 ```
 
 #### removeRoles
+
+- remove roles to an existing account
 
 ```ts
 network.apply([Account])
@@ -156,4 +172,68 @@ await network.account.removeRoles(accountAddress, roles)
 network.apply([Account])
 
 await network.account.multisigInfo(token)
+```
+
+### Blockchain
+
+```ts
+// first apply the blockchain module
+import { Blockchain } from "@liftedinit/many-js"
+network.apply([Blockchain])
+```
+
+#### info
+
+- get info about blockchain
+
+```ts
+const res = await network.blockchain.info()
+```
+
+#### block
+
+- get info about a single block by block hash or height
+
+```ts
+const res = await network.blockchain.block(SingleBlockQueryType.height, 12345)
+```
+
+#### list
+
+- get a list of blocks by height or time
+
+```ts
+const res = await network.blockchain.list({
+  queryType: RangeBlockQueryType.height,
+  count: 10,
+  order: ListOrderType.ascending,
+  range: [
+    { boundType: BoundType.inclusive, value: 95 },
+    { boundType: BoundType.inclusive, value: 100 },
+  ],
+})
+```
+
+#### transaction
+
+- get transaction by transaction hash
+
+```ts
+const res = await network.blockchain.transaction(txnHash)
+```
+
+#### request
+
+- get request data of a transaction via transaction hash
+
+```ts
+const res = await network.blockchain.request(txnHash)
+```
+
+#### response
+
+- get response data of a transaction via transaction hash
+
+```ts
+const res = await network.blockchain.response(txnHash)
 ```
