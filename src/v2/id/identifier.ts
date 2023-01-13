@@ -1,6 +1,7 @@
 import base32Decode from "base32-decode"
 import base32Encode from "base32-encode"
 import crc from "crc"
+import { CoseKey } from "../message/encoding/cose"
 
 export class Identifier {
   constructor(readonly publicKey: ArrayBuffer = new Uint8Array([0x00])) {}
@@ -20,6 +21,10 @@ export class Identifier {
     })
     const base32Checksum = base32Encode(checksum, "RFC4648").slice(0, 2)
     return (leader + base32Address + base32Checksum).toLowerCase()
+  }
+
+  toCoseKey(): CoseKey {
+    throw new Error("Cannot convert generic identifier to CoseKey")
   }
 
   withSubresource(sub: number): Identifier {

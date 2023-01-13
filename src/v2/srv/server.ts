@@ -63,7 +63,8 @@ export abstract class Server {
     throw result.error
   }
 
-  as(id: Identity) {
+  // For chaining, like server.as(id).call()
+  as(id: Identity): this {
     this.id = id
     return this
   }

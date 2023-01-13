@@ -1,3 +1,4 @@
+import { CoseKey } from "../../message/encoding/cose"
 import { Identifier } from "../identifier"
 
 export class Anonymous extends Identifier {
@@ -7,6 +8,10 @@ export class Anonymous extends Identifier {
 
   toString(): string {
     return "maa"
+  }
+
+  toCoseKey(): CoseKey {
+    throw new Error("Cannot convert Anonymous identifier to CoseKey")
   }
 
   static fromString(string: string): Anonymous {

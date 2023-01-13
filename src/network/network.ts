@@ -24,7 +24,7 @@ export class Network {
     const reply = await this.sendEncoded(cbor)
     const res = await Async.handleAsyncToken.call(
       this,
-      Response.fromBuffer(reply) as Response,
+      Response.fromBuffer(reply),
     )
     return res as Response
   }

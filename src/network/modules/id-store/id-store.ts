@@ -69,7 +69,7 @@ export const IdStore: IdStore = {
         nonce,
       },
     )
-    return getCredentialData(message as Response)
+    return getCredentialData(message)
   },
 }
 
