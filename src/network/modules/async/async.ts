@@ -1,29 +1,30 @@
 import cbor from "cbor"
 import { ONE_MINUTE, ONE_SECOND } from "../../../const"
 import { AnonymousIdentity } from "../../../identity"
-import { decoders, CborMap } from "../../../message/encoding"
+import { Message } from "../../../message"
+import { CborMap } from "../../../message/cbor"
+import { decoders } from "../../../message/cose"
 import { throwOnErrorResponse } from "../../../utils"
 import { Network } from "../../network"
 import type { NetworkModule } from "../types"
-import { Response } from "../../../message"
 
 const sleep = async (time: number) => new Promise(r => setTimeout(r, time))
 
 interface Async extends NetworkModule {
-  handleAsyncToken: (res: Response, n?: Network) => Promise<unknown>
+  handleAsyncToken: (message: Message, n?: Network) => Promise<unknown>
 }
 
 export const Async: Async = {
   _namespace_: "async",
 
-  async handleAsyncToken(res: Response, n?: Network) {
-    const asyncToken = res.getAsyncToken()
+  async handleAsyncToken(message: Message, n?: Network) {
+    const asyncToken = message.getAsyncToken()
     return asyncToken
       ? await pollAsyncStatus(
           n ?? new Network(this.url, new AnonymousIdentity()),
           asyncToken,
         )
-      : res
+      : message
   },
 }
 
@@ -69,7 +70,7 @@ async function pollAsyncStatus(
     timeoutInMsec?: number
     waitTimeInMsec?: number
   } = {},
-): Promise<Response> {
+): Promise<Message> {
   const timeoutInMsec = options.timeoutInMsec ?? ONE_MINUTE
   let waitTimeInMsec = options.waitTimeInMsec ?? ONE_SECOND
   const end = +new Date() + timeoutInMsec
@@ -77,7 +78,7 @@ async function pollAsyncStatus(
     const res = (await n.call(
       "async.status",
       new Map([[0, asyncToken]]),
-    )) as Response
+    )) as Message
     const result = parseAsyncStatusPayload(res.getPayload())
     switch (result.result) {
       case AsyncStatusResult.Done:
@@ -85,7 +86,7 @@ async function pollAsyncStatus(
         if (Array.isArray(payload)) {
           payload = cbor.decode(payload?.[2], decoders)
         }
-        return throwOnErrorResponse(new Response(payload?.value))
+        return throwOnErrorResponse(new Message(payload?.value))
       case AsyncStatusResult.Expired:
         throw new Error("Async Expired before getting a result")
     }

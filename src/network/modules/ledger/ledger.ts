@@ -1,4 +1,4 @@
-import { Response } from "../../../message"
+import { Message } from "../../../message"
 import { makeLedgerSendParam, makeRandomBytes } from "../../../utils"
 import { LedgerSendParam, NetworkModule } from "../types"
 
@@ -47,7 +47,7 @@ export const Ledger: Ledger = {
   },
 }
 
-export function getLedgerInfo(message: Response): LedgerInfo {
+export function getLedgerInfo(message: Message): LedgerInfo {
   const result: LedgerInfo = { symbols: new Map() }
   const decodedContent = message.getPayload()
   if (decodedContent) {
@@ -68,7 +68,7 @@ export interface Balances {
   balances: Map<string, bigint>
 }
 
-export function getBalance(message: Response): Balances {
+export function getBalance(message: Message): Balances {
   const result = { balances: new Map() }
   const messageContent = message.getPayload()
   if (messageContent && messageContent.has(0)) {

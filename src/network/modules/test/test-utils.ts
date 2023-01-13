@@ -1,7 +1,7 @@
 import cbor from "cbor"
 import { Address } from "../../../identity"
-import { Response } from "../../../message"
-import { tag } from "../../../message/encoding"
+import { Message } from "../../../message"
+import { tag } from "../../../message/cbor"
 
 export const accountSource =
   "mqdiclsquy3nnoioxg3zhsci2vltdhmlsmdlbhbaglf5rjtqaaabajj"
@@ -37,7 +37,7 @@ export function setupModule<M>(module: M, callImpl?: jest.Mock) {
 export function makeMockResponseMessage(responseData: unknown) {
   const content = new Map([[4, cbor.encode(responseData)]])
 
-  return new Response(content)
+  return new Message(content)
 }
 
 export function makeLedgerSendParamResponse({

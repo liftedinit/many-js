@@ -1,4 +1,4 @@
-import { tag } from "../../../../message/encoding"
+import { tag } from "../../../../message/cbor"
 import {
   Address1,
   Address2,

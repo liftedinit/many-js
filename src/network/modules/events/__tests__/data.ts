@@ -1,5 +1,5 @@
 import { Address } from "../../../../identity"
-import { tag } from "../../../../message/encoding"
+import { tag } from "../../../../message/cbor"
 import { ONE_MINUTE, eventTypeNameToIndices } from "../../../../const"
 import {
   AccountFeature,

@@ -1,6 +1,9 @@
-import { Response } from "../../../message"
+import { Address } from "../../../identity"
+import { Message } from "../../../message"
+import { tag } from "../../../message/cbor"
 import { makeRandomBytes } from "../../../utils"
 import {
+  TokenBasicInfo,
   TokenInfo,
   TokenInfoSummary,
   TokenInfoSupply,
@@ -15,25 +18,28 @@ import {
 export const Tokens: TokensModule = {
   _namespace_: "tokens",
   async info(param: TokensInfoParam): Promise<TokenInfo> {
-    const data = new Map([[0, param.address]])
+    const data = new Map([
+      [0, tag(10000, Address.fromString(param.address).toBuffer())],
+    ])
     const res = await this.call("tokens.info", data)
-    return getTokenInfo(res)
+    const payload = res.getPayload()
+    return getTokenInfo(payload)
   },
   async create(
     param: TokensCreateParam,
     { nonce } = { nonce: makeRandomBytes(16) },
-  ): Promise<TokenInfo> {
+  ): Promise<TokenBasicInfo> {
     const data = makeTokensCreateData(param)
     const res = await this.call("tokens.create", data, { nonce })
-    return getTokenInfo(res)
+    const payload = res.getPayload()
+    return getTokenBasicInfo(payload)
   },
   async update(
     param: TokensUpdateParam,
     { nonce } = { nonce: makeRandomBytes(16) },
-  ): Promise<TokenInfo> {
+  ) {
     const data = makeTokensUpdateData(param)
-    const res = await this.call("tokens.update", data, { nonce })
-    return getTokenInfo(res)
+    await this.call("tokens.update", data, { nonce })
   },
   async addExtendedInfo(
     param: TokensAddExtendedParam,
@@ -55,8 +61,18 @@ export const Tokens: TokensModule = {
 
 function makeTokensCreateData(param: TokensCreateParam): Map<number, any> {
   const data = new Map()
+  const distribution = new Map()
+  if (param.distribution) {
+    Object.entries(param.distribution).forEach(([address, amount]) => {
+      distribution.set(
+        tag(10000, Address.fromString(address).toBuffer()),
+        amount,
+      )
+    })
+  }
   data.set(0, makeTokenInfoSummary(param.summary))
-  param.owner && data.set(1, param.owner)
+  param.owner &&
+    data.set(1, tag(10000, Address.fromString(param.owner).toBuffer()))
   param.distribution && data.set(2, param.distribution)
   param.maximumSupply && data.set(3, param.maximumSupply)
   param.extended && data.set(4, param.extended)
@@ -69,7 +85,8 @@ function makeTokensUpdateData(param: TokensUpdateParam): Map<number, any> {
   param.name && data.set(1, param.name)
   param.symbol && data.set(2, param.symbol)
   param.precision && data.set(3, param.precision)
-  param.owner && data.set(4, param.owner)
+  param.owner &&
+    data.set(4, tag(10000, Address.fromString(param.owner).toBuffer()))
   param.memo && data.set(5, param.memo)
   return data
 }
@@ -102,9 +119,16 @@ function makeTokensRemoveExtendedData(
 
 // Get objects from maps
 
-export function getTokenInfo(message: Response): TokenInfo {
-  const data = message.getPayload()
+export function getTokenInfo(data: Map<number, any>): TokenInfo {
   const result: TokenInfo = {
+    info: getTokenBasicInfo(data.get(0)),
+  }
+  data.get(1) && (result.extended = data.get(1))
+  return result
+}
+
+function getTokenBasicInfo(data: Map<number, any>): TokenBasicInfo {
+  const result: TokenBasicInfo = {
     address: data.get(0),
     summary: getTokenInfoSummary(data.get(1)),
     supply: getTokenInfoSupply(data.get(2)),

@@ -1,4 +1,4 @@
-import { Response } from "../response"
+import { Message } from ".."
 
 export class Attributes {
   private attributes
@@ -8,8 +8,8 @@ export class Attributes {
   getAttributes() {
     return this.attributes
   }
-  static getFromMessage(m: Response): Attributes | undefined {
-    const attrs = m.content.get(8)
+  static getFromMessage(m: Message): Attributes | undefined {
+    const attrs = m.getContent().get(8)
     if (Array.isArray(attrs)) return new Attributes(attrs)
     return undefined
   }

@@ -1,4 +1,4 @@
-import { Response } from "../../../message"
+import { Message } from "../../../message"
 import { makeRandomBytes } from "../../../utils"
 import type { NetworkModule } from "../types"
 
@@ -73,7 +73,7 @@ export const IdStore: IdStore = {
   },
 }
 
-function getPhrase(m: Response): { phrase: string } {
+function getPhrase(m: Message): { phrase: string } {
   const result = { phrase: "" }
   const payload = m.getPayload()
   if (payload) {
@@ -82,7 +82,7 @@ function getPhrase(m: Response): { phrase: string } {
   return result
 }
 
-function getCredentialData(m: Response): {
+function getCredentialData(m: Message): {
   credentialId?: ArrayBuffer
   cosePublicKey?: ArrayBuffer
 } {

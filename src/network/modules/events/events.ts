@@ -1,5 +1,5 @@
-import { Response } from "../../../message"
-import { CborMap } from "../../../message/encoding"
+import { Message } from "../../../message"
+import { CborMap } from "../../../message/cbor"
 import {
   getAccountFeaturesData,
   getAccountRolesData,
@@ -167,10 +167,10 @@ export const Events: Events = {
   },
 }
 
-async function getEventsInfo(message: Response) {
+async function getEventsInfo(message: Message) {
   const payload = message.getPayload()
   return {
-    count: message?.content.has(4) ? message?.getPayload()?.get(0) : 0,
+    count: message?.getContent().has(4) ? message?.getPayload()?.get(0) : 0,
     events: (
       await Promise.all(
         payload.get(1).map(async (eventType: EventTypeIndices) => {
@@ -181,7 +181,7 @@ async function getEventsInfo(message: Response) {
   }
 }
 
-async function getEventsList(message: Response): Promise<EventsListResponse> {
+async function getEventsList(message: Message): Promise<EventsListResponse> {
   const result: EventsListResponse = {
     count: 0,
     events: [],

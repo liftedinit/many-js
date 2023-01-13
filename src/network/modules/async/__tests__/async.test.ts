@@ -1,6 +1,6 @@
 import { Async } from "../async"
-import { Response } from "../../../../message"
-import { tag } from "../../../../message/encoding"
+import { Message } from "../../../../message"
+import { tag } from "../../../../message/cbor"
 import cbor from "cbor"
 import { Network } from "../../.."
 import { AnonymousIdentity } from "../../../../identity"
@@ -35,9 +35,9 @@ describe("Async", () => {
     const n = new Network("/api", new AnonymousIdentity())
     n.call = mockCall
     const res = (await async.handleAsyncToken(
-      new Response(new Map([[8, [[1, new ArrayBuffer(0)]]]])),
+      new Message(new Map([[8, [[1, new ArrayBuffer(0)]]]])),
       n,
-    )) as Response
+    )) as Message
     const content = res.getPayload()
     expect(content instanceof Map).toBe(true)
     expect(content.get(0)).toEqual(["data", "returned"])
@@ -59,5 +59,5 @@ function makeAsyncStatusPollResponseMessage(
   const result = new Map()
   result.set(0, statusResult)
   if (payload) result.set(1, payload)
-  return new Response(new Map([[4, cbor.encode(result)]]))
+  return new Message(new Map([[4, cbor.encode(result)]]))
 }

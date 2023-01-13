@@ -1,35 +1,48 @@
 import { Identity } from "../identity"
-import { CborData } from "../message/encoding"
+import { Message } from "../message"
+import { CborData } from "../message/cbor"
 import { applyMixins } from "../utils"
 import { NetworkModule } from "./modules"
 import { Async } from "./modules/async"
-import { Request, Response } from "../message"
+
+interface Options {
+  DEBUG?: boolean
+}
 
 export class Network {
   [k: string]: any
   url: string
   identity: Identity | undefined
+  options: Options
 
-  constructor(url: string, identity?: Identity) {
+  constructor(url: string, identity?: Identity, options?: Options) {
     this.url = url
     this.identity = identity
+    this.options = options ?? { DEBUG: false }
   }
 
   apply(modules: NetworkModule[]) {
     applyMixins(this, modules)
   }
 
-  async send(req: Request): Promise<Response> {
-    const cbor = await req.toBuffer(this.identity)
+  async send(req: Message) {
+    const cbor = await req.toCborData(this.identity)
+    if (this.options.DEBUG) {
+      console.log(cbor.toString("hex"))
+    }
     const reply = await this.sendEncoded(cbor)
+    if (this.options.DEBUG) {
+      console.log(reply.toString("hex"))
+    }
+    // @TODO: Verify response
     const res = await Async.handleAsyncToken.call(
       this,
-      Response.fromBuffer(reply),
+      Message.fromCborData(reply),
     )
-    return res as Response
+    return res
   }
 
-  async sendEncoded(body: CborData): Promise<Buffer> {
+  async sendEncoded(body: CborData) {
     const res = await fetch(this.url, {
       method: "POST",
       headers: { "Content-Type": "application/cbor" },
@@ -39,10 +52,10 @@ export class Network {
     return Buffer.from(reply)
   }
 
-  async call(method: string, data?: any, opts = {}): Promise<Response> {
-    const req = Request.fromObject({
+  async call(method: string, data?: any, opts = {}) {
+    const req = Message.fromObject({
       method,
-      from: this.identity ? this.identity.getAddress() : undefined,
+      from: this.identity ? await this.identity.getAddress() : undefined,
       data,
       ...opts,
     })

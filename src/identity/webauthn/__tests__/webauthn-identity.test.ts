@@ -1,5 +1,6 @@
 import cbor from "cbor"
-import { CoseKey, tag } from "../../../message/encoding"
+import { tag } from "../../../message/cbor"
+import { CoseKey } from "../../../message/cose"
 import * as WebAuthnIdentityModule from "../webauthn-identity"
 
 const { WebAuthnIdentity } = WebAuthnIdentityModule

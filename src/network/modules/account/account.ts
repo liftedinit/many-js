@@ -1,7 +1,7 @@
 import { eventTypeNameToIndices } from "../../../const"
 import { Address } from "../../../identity"
-import { Response } from "../../../message"
-import { CborMap } from "../../../message/encoding"
+import { Message } from "../../../message"
+import { CborMap } from "../../../message/cbor"
 import {
   getAccountFeaturesData,
   getAccountRolesData,
@@ -166,9 +166,7 @@ export const Account: Account = {
     const m = new Map().set(2, features)
     name && m.set(0, name)
     roles && m.set(1, roles)
-    const message = (await this.call("account.create", m, {
-      nonce,
-    })) as Response
+    const message = (await this.call("account.create", m, { nonce })) as Message
     const decoded = message.getPayload()
     const address = decoded?.get(0)?.toString()
     return {
@@ -209,7 +207,7 @@ export const Account: Account = {
   },
 }
 
-async function getMultisigInfo(msg: Response): Promise<MultisigInfoResponse> {
+async function getMultisigInfo(msg: Message): Promise<MultisigInfoResponse> {
   const result: { info: MultisigTransactionInfo | undefined } = {
     info: undefined,
   }
@@ -246,7 +244,7 @@ async function getMultisigInfo(msg: Response): Promise<MultisigInfoResponse> {
   return result
 }
 
-function getMultisigToken(msg: Response) {
+function getMultisigToken(msg: Message) {
   const res: { token: ArrayBuffer | undefined } = {
     token: undefined,
   }
@@ -275,7 +273,7 @@ function makeSubmittedTxnData(
   throw new Error(`transaction type not yet implemented: ${txnType}`)
 }
 
-function getAccountInfo(message: Response): {
+function getAccountInfo(message: Message): {
   accountInfo: AccountInfoData | undefined
 } {
   let result: { accountInfo: AccountInfoData | undefined } = {
