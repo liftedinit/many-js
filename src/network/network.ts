@@ -5,14 +5,20 @@ import { applyMixins } from "../utils"
 import { NetworkModule } from "./modules"
 import { Async } from "./modules/async"
 
+interface Options {
+  DEBUG?: boolean
+}
+
 export class Network {
   [k: string]: any
   url: string
   identity: Identity | undefined
+  options: Options
 
-  constructor(url: string, identity?: Identity) {
+  constructor(url: string, identity?: Identity, options?: Options) {
     this.url = url
     this.identity = identity
+    this.options = options ?? { DEBUG: false }
   }
 
   apply(modules: NetworkModule[]) {
@@ -21,7 +27,13 @@ export class Network {
 
   async send(req: Message) {
     const cbor = await req.toCborData(this.identity)
+    if (this.options.DEBUG) {
+      console.log(cbor.toString("hex"))
+    }
     const reply = await this.sendEncoded(cbor)
+    if (this.options.DEBUG) {
+      console.log(reply.toString("hex"))
+    }
     // @TODO: Verify response
     const res = await Async.handleAsyncToken.call(
       this,

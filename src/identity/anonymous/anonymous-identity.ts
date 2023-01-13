@@ -3,6 +3,8 @@ import { EMPTY } from "../../message/cose"
 import { Address } from "../address"
 
 export class AnonymousIdentity extends Identity {
+  static dataType = 'anonymous'
+
   async sign() {
     return EMPTY
   }
@@ -15,6 +17,6 @@ export class AnonymousIdentity extends Identity {
   }
 
   toJSON(): { dataType: string } {
-    return { dataType: this.constructor.name }
+    return { dataType: (this.constructor as typeof Identity).dataType }
   }
 }
