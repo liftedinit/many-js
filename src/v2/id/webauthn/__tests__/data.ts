@@ -1,5 +1,5 @@
 import cbor from "cbor"
-import { makeRandomBytes } from "../../../utils"
+import { makeRandomBytes } from "../../../shared/utils"
 
 export const mockPublicKeyCredential: PublicKeyCredential = {
   type: "public-key",

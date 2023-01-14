@@ -1,6 +1,6 @@
 import cbor from "cbor"
 import { CoseKey } from "../../message/encoding"
-import { makeRandomBytes } from "../../utils"
+import { makeRandomBytes } from "../../shared/utils"
 import { Identifier } from "../identifier"
 
 export class WebAuthn extends Identifier {

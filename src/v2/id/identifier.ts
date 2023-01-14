@@ -1,7 +1,7 @@
 import base32Decode from "base32-decode"
 import base32Encode from "base32-encode"
 import crc from "crc"
-import { CoseKey } from "../message/encoding/cose"
+import { CoseKey } from "../message/encoding"
 
 export class Identifier {
   constructor(readonly publicKey: ArrayBuffer = new Uint8Array([0x00])) {}

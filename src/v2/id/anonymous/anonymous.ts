@@ -1,4 +1,4 @@
-import { CoseKey } from "../../message/encoding/cose"
+import { CoseKey } from "../../message/encoding"
 import { Identifier } from "../identifier"
 
 export class Anonymous extends Identifier {

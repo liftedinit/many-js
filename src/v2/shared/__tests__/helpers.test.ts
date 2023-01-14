@@ -1,4 +1,4 @@
-import { mapToObj, objToMap, Transform } from "../helpers"
+import { mapToObj, objToMap, Transform } from "../transform"
 
 type Simple = { name: string }
 type List = { names: Simple[] }
