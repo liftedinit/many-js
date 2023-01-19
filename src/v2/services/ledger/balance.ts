@@ -1,14 +1,6 @@
 import { Server } from "../server"
 import { mapToObj, objToMap, Transform } from "../../shared/transform"
-
-export interface Balance {
-  balances: Map<string, number>
-}
-
-export interface BalanceArgs {
-  address?: string
-  tokens?: string[]
-}
+import { Balance, BalanceArgs } from "./types"
 
 const balanceMap: Transform = {
   0: ["balances", { type: "map" }],

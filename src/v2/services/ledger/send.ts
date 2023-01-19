@@ -1,12 +1,6 @@
 import { Server } from "../server"
 import { objToMap } from "../../shared/transform"
-
-export interface SendArgs {
-  from?: string
-  to: string
-  amount: number
-  token: string
-}
+import { SendArgs } from "./types"
 
 const sendArgsMap = { 0: "from", 1: "to", 2: "amount", 3: "token" }
 

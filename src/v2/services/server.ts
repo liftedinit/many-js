@@ -10,7 +10,6 @@ export abstract class Server {
 
   async send(message: Request): Promise<Response> {
     const encoded = await message.toBuffer(this.id)
-    console.log(encoded.toString("hex"))
     const cborData = await this.sendEncoded(encoded)
     // @TODO: Verify response
     return Response.fromBuffer(cborData)

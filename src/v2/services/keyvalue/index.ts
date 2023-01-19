@@ -1,1 +1,2 @@
-export { KeyValue } from "./keyvalue"
+export { KeyValueService } from "./keyvalue"
+export * from "./types"

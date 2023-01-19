@@ -1,10 +1,6 @@
 import { Server } from "../server"
 import { objToMap } from "../../shared/transform"
-
-export interface DisableArgs {
-  key: string
-  owner?: string
-}
+import { KeyValueDisableArgs } from "./types"
 
 const disableArgsMap = {
   0: "key",
@@ -13,7 +9,7 @@ const disableArgsMap = {
 
 export async function disable(
   server: Server,
-  disableArgs: DisableArgs,
+  disableArgs: KeyValueDisableArgs,
 ): Promise<void> {
   const args = objToMap(disableArgs, disableArgsMap)
   await server.call("kvstore.disable", args)

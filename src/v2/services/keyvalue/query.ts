@@ -1,14 +1,6 @@
 import { Server } from "../server"
 import { mapToObj, objToMap } from "../../shared/transform"
-
-export interface Query {
-  owner: string
-  enabled: boolean
-}
-
-export interface QueryArgs {
-  key: string
-}
+import { KeyValueQuery, KeyValueQueryArgs } from "./types"
 
 const queryMap = {
   0: "owner",
@@ -21,9 +13,9 @@ const queryArgsMap = {
 
 export async function query(
   server: Server,
-  queryArgs: QueryArgs,
-): Promise<Query> {
+  queryArgs: KeyValueQueryArgs,
+): Promise<KeyValueQuery> {
   const args = objToMap(queryArgs, queryArgsMap)
   const payload = await server.call("kvstore.query", args)
-  return mapToObj<Query>(payload, queryMap)
+  return mapToObj<KeyValueQuery>(payload, queryMap)
 }

@@ -1,6 +1,6 @@
 import { mapToObj } from "../../shared/transform"
 import { Server } from "../server"
-import { Status } from "./types"
+import { BaseStatus } from "./types"
 
 const statusMap = {
   0: "protocolVersion",
@@ -12,8 +12,10 @@ const statusMap = {
   6: "timeDeltaInSecs",
 }
 
-export async function status(server: Server): Promise<Status> {
+export async function status(server: Server): Promise<BaseStatus> {
   const payload = await server.call("status")
   console.log(payload)
-  return mapToObj<Status>(payload, statusMap)
+  const obj = mapToObj<BaseStatus>(payload, statusMap)
+  console.log(obj)
+  return mapToObj<BaseStatus>(payload, statusMap)
 }

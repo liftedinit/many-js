@@ -4,6 +4,7 @@ import { Result, Ok, Err } from "../../shared/result"
 import { CborMap, CoseSign1 } from "../encoding"
 import { ManyError } from "../error"
 import { Message } from "../message"
+import Tagged from "cbor/types/lib/tagged"
 
 type AsyncAttr = [1, Buffer]
 
@@ -31,9 +32,9 @@ const responseMap: Transform = {
           : Ok(cbor.decode(value as Buffer, decoders)),
     },
   ],
-  5: ["timestamp", { fn: (value: number) => new cbor.Tagged(1, value) }],
+  5: ["timestamp", { fn: (value: Tagged) => value.value }],
   6: "id",
-  7: ["nonce", { fn: (value: string) => cbor.encode(value) }],
+  7: ["nonce", { fn: (value: Buffer) => value.toString("hex") }],
   8: "attrs",
 }
 
@@ -65,12 +66,7 @@ export class Response extends Message {
   }
 
   toJSON(): ResponseObj {
-    const obj: ResponseObj = mapToObj(this.content, responseMap)
-    const { result } = obj
-    if (result.ok) {
-      result.value = Object.fromEntries(result.value)
-    }
-    return { ...obj, result }
+    return mapToObj(this.content, responseMap)
   }
 
   static fromCoseSign1(cose: CoseSign1): Response {

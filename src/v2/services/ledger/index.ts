@@ -1,1 +1,2 @@
-export { Ledger } from "./ledger"
+export { LedgerService } from "./ledger"
+export * from "./types"

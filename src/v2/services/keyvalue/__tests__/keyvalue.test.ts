@@ -1,4 +1,4 @@
-import { KeyValue } from "../keyvalue"
+import { KeyValueService } from "../keyvalue"
 import {
   mockGetMap,
   mockGetObj,
@@ -7,8 +7,8 @@ import {
   mockPutMap,
 } from "./data"
 
-const mockCall = jest.spyOn(KeyValue.prototype, "call")
-const server = new KeyValue("localhost")
+const mockCall = jest.spyOn(KeyValueService.prototype, "call")
+const server = new KeyValueService("localhost")
 
 describe("keyvalue", () => {
   describe("info", () => {

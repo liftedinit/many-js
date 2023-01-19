@@ -1,10 +1,11 @@
-import { Base as BaseServer } from "../base"
+import { BaseService } from "../base"
 
-import { balance, BalanceArgs } from "./balance"
+import { balance } from "./balance"
 import { info } from "./info"
-import { send, SendArgs } from "./send"
+import { send } from "./send"
+import { BalanceArgs, SendArgs } from "./types"
 
-export class Ledger extends BaseServer {
+export class LedgerService extends BaseService {
   info = () => info(this)
   balance = (args?: BalanceArgs) => balance(this, args!)
   sendTxn = (args: SendArgs) => send(this, args)

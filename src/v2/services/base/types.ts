@@ -1,8 +1,8 @@
-export interface Endpoints {
+export interface BaseEndpoints {
   endpoints: string[]
 }
 
-export interface Status {
+export interface BaseStatus {
   protocolVersion: number
   serverName: string
   publicKey: unknown

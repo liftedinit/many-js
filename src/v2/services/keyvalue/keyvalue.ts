@@ -1,15 +1,21 @@
-import { Base as BaseServer } from "../base"
+import { BaseService } from "../base"
 
-import { disable, DisableArgs } from "./disable"
-import { get, GetArgs } from "./get"
+import { disable } from "./disable"
+import { get } from "./get"
 import { info } from "./info"
-import { put, PutArgs } from "./put"
-import { query, QueryArgs } from "./query"
+import { put } from "./put"
+import { query } from "./query"
+import {
+  KeyValueDisableArgs,
+  KeyValueGetArgs,
+  KeyValuePutArgs,
+  KeyValueQueryArgs,
+} from "./types"
 
-export class KeyValue extends BaseServer {
+export class KeyValueService extends BaseService {
   info = () => info(this)
-  get = (args: GetArgs) => get(this, args)
-  put = (args: PutArgs) => put(this, args)
-  query = (args: QueryArgs) => query(this, args)
-  disable = (args: DisableArgs) => disable(this, args)
+  get = (args: KeyValueGetArgs) => get(this, args)
+  put = (args: KeyValuePutArgs) => put(this, args)
+  query = (args: KeyValueQueryArgs) => query(this, args)
+  disable = (args: KeyValueDisableArgs) => disable(this, args)
 }

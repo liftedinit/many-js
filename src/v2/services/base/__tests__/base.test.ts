@@ -1,4 +1,4 @@
-import { Base } from "../base"
+import { BaseService } from "../base"
 import {
   mockEndpointsMap,
   mockEndpointsObj,
@@ -6,8 +6,8 @@ import {
   mockStatusObj,
 } from "./data"
 
-const mockCall = jest.spyOn(Base.prototype, "call")
-const server = new Base("localhost")
+const mockCall = jest.spyOn(BaseService.prototype, "call")
+const server = new BaseService("localhost")
 
 describe("base", () => {
   describe("endpoints", () => {
