@@ -14,8 +14,5 @@ const statusMap = {
 
 export async function status(server: Server): Promise<BaseStatus> {
   const payload = await server.call("status")
-  console.log(payload)
-  const obj = mapToObj<BaseStatus>(payload, statusMap)
-  console.log(obj)
   return mapToObj<BaseStatus>(payload, statusMap)
 }

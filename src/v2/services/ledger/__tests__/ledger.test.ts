@@ -1,4 +1,4 @@
-import { Ledger } from "../ledger"
+import { LedgerService } from "../ledger"
 import {
   mockBalanceMap,
   mockBalanceObj,
@@ -6,8 +6,8 @@ import {
   mockInfoObj,
 } from "./data"
 
-const mockCall = jest.spyOn(Ledger.prototype, "call")
-const server = new Ledger("localhost")
+const mockCall = jest.spyOn(LedgerService.prototype, "call")
+const server = new LedgerService("localhost")
 
 describe("ledger", () => {
   describe("info", () => {
