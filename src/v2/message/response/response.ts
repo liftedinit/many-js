@@ -1,5 +1,4 @@
 import cbor from "cbor"
-import { Attributes, AsyncAttribute } from "../attributes"
 import { mapToObj, Transform } from "../../shared/transform"
 import { Result, Ok, Err } from "../../shared/result"
 import { CborMap, CoseSign1 } from "../encoding"
@@ -46,33 +45,32 @@ const decoders = {
 }
 
 export class Response extends Message {
-  readonly token?: Buffer
-
-  constructor(content: CborMap) {
+  constructor(public content: CborMap) {
     super(content)
-    this.token = this.getToken()
   }
 
-  private getToken() {
-    const { attrs } = this.toObject()
+  get token(): Buffer | undefined {
+    const { attrs } = this.toJSON()
     if (!attrs) {
       return
     }
     return (
-      attrs.find(attr => Array.isArray(attr) && attr[0] === 1) as AsyncAttr
+      attrs?.find(attr => Array.isArray(attr) && attr[0] === 1) as AsyncAttr
     )[1]
   }
 
-  // @TODO: Deprecate method in favor of res.token
-  getAsyncToken(): ArrayBuffer | undefined {
-    const attributes = Attributes.getFromMessage(this)
-    return attributes
-      ? AsyncAttribute.getFromAttributes(attributes)?.getToken()
-      : undefined
+  get result(): Result<any, ManyError> {
+    const { result } = this.toJSON()
+    return result
   }
 
-  toObject(): ResponseObj {
-    return mapToObj(this.content, responseMap)
+  toJSON(): ResponseObj {
+    const obj: ResponseObj = mapToObj(this.content, responseMap)
+    const { result } = obj
+    if (result.ok) {
+      result.value = Object.fromEntries(result.value)
+    }
+    return { ...obj, result }
   }
 
   static fromCoseSign1(cose: CoseSign1): Response {

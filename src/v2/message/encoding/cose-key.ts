@@ -16,11 +16,11 @@ export class CoseKey {
     this.key = this.getKey()
   }
 
-  get publicKey() {
+  get publicKey(): Uint8Array {
     return this.key.get(-2)
   }
 
-  private getKeyId() {
+  private getKeyId(): Buffer {
     if (Buffer.compare(this.common.get(-2), ANONYMOUS) === 0) {
       return ANONYMOUS
     }
@@ -29,7 +29,7 @@ export class CoseKey {
     return Buffer.from(pk, "hex")
   }
 
-  private getKey() {
+  private getKey(): CborMap {
     const key = new Map(this.common)
     key.set(2, this.keyId) // kid: Key ID
     return key

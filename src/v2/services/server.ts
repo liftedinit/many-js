@@ -10,6 +10,7 @@ export abstract class Server {
 
   async send(message: Request): Promise<Response> {
     const encoded = await message.toBuffer(this.id)
+    console.log(encoded.toString("hex"))
     const cborData = await this.sendEncoded(encoded)
     // @TODO: Verify response
     return Response.fromBuffer(cborData)
@@ -19,6 +20,7 @@ export abstract class Server {
     const httpRes = await fetch(this.url, {
       method: "POST",
       headers: { "Content-Type": "application/cbor" },
+      mode: "no-cors",
       body: encoded,
     })
     const arrayBuffer = await httpRes.arrayBuffer()
@@ -29,7 +31,7 @@ export abstract class Server {
     const from = this.id.toString()
     const req = Request.fromObject({ method, from, data, ...options })
     const res = await this.send(req)
-    const { result } = res.toObject()
+    const result = res.result
     if (result.ok) {
       if (res.token) {
         return this.poll(res.token)

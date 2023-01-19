@@ -1,15 +1,6 @@
-import { Server } from "../server"
 import { mapToObj } from "../../shared/transform"
-
-export interface Status {
-  protocolVersion: number
-  serverName: string
-  publicKey: unknown
-  address: string
-  attributes: string[]
-  serverVersion: string
-  timeDeltaInSecs: number
-}
+import { Server } from "../server"
+import { Status } from "./types"
 
 const statusMap = {
   0: "protocolVersion",
@@ -23,5 +14,6 @@ const statusMap = {
 
 export async function status(server: Server): Promise<Status> {
   const payload = await server.call("status")
+  console.log(payload)
   return mapToObj<Status>(payload, statusMap)
 }

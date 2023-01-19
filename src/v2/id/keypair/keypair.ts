@@ -6,10 +6,7 @@ import { Identifier } from "../identifier"
 const ed25519 = pki.ed25519
 
 export class KeyPair extends Identifier {
-  constructor(
-    readonly publicKey: ArrayBuffer,
-    private privateKey: ArrayBuffer,
-  ) {
+  constructor(public publicKey: Uint8Array, private privateKey: Uint8Array) {
     super()
     if (new Uint8Array(privateKey).length !== 32) {
       throw new Error("Private key must have 32 bytes")
@@ -21,6 +18,11 @@ export class KeyPair extends Identifier {
       message: data as Uint8Array,
       privateKey: this.privateKey as Uint8Array,
     })
+  }
+
+  toString(): string {
+    const coseKey = this.toCoseKey()
+    return new Identifier(coseKey.keyId).toString()
   }
 
   // @TODO: Use objToMap?

@@ -15,4 +15,12 @@ describe("Request", () => {
 
     expect(Request.fromBuffer(cbor)).toStrictEqual(req)
   })
+  test("can be stringified", () => {
+    const msg = { method: "status" }
+    const req = Request.fromObject(msg)
+    const json = req.toJSON()
+
+    expect(json).toHaveProperty("method")
+    expect(json.method).toBe("status")
+  })
 })

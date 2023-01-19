@@ -46,6 +46,13 @@ describe("KeyPair", () => {
 
       expect(keypair.toString()).toMatch(/^m\w+$/)
     })
+    it("should return the expected Many address", () => {
+      const keypair = KeyPair.fromMnemonic(
+        "solid review dwarf scare armor slide spoil hawk tonight brown cable hip",
+      )
+      const address = "mafiktgsq4ch6xfmvu66o44vydn27hsv22o4g5nqkdwgqucy7c"
+      expect(keypair.toString()).toBe(address)
+    })
   })
   describe("toCoseKey", () => {
     it("should return a COSE Key", () => {

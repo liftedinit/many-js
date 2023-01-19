@@ -5,7 +5,7 @@ const sha512 = require("js-sha512")
 
 type CborMap = Map<number | string, any>
 
-export class Message {
+export abstract class Message {
   constructor(public content: CborMap) {}
 
   async toCoseSign1(id: Identifier): Promise<CoseSign1> {
@@ -92,11 +92,5 @@ export class Message {
     return (await this.toCoseSign1(id)).toBuffer()
   }
 
-  static fromCoseSign1(cose: CoseSign1): Message {
-    return new Message(cose.payload)
-  }
-
-  static fromBuffer(data: Buffer): Message {
-    return Message.fromCoseSign1(CoseSign1.fromBuffer(data))
-  }
+  abstract toJSON(): {}
 }

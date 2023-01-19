@@ -4,7 +4,7 @@ import crc from "crc"
 import { CoseKey } from "../message/encoding"
 
 export class Identifier {
-  constructor(readonly publicKey: ArrayBuffer = new Uint8Array([0x00])) {}
+  constructor(public publicKey: Uint8Array = new Uint8Array([0x00])) {}
 
   async sign(_: ArrayBuffer): Promise<ArrayBuffer> {
     throw new Error("Generic identifier cannot sign")
