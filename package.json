@@ -1,6 +1,6 @@
 {
   "name": "@liftedinit/many-js",
-  "version": "0.1.0-alpha.5",
+  "version": "0.1.0-alpha.7",
   "homepage": "https://github.com/liftedinit/many-js",
   "main": "dist/index.js",
   "files": [
@@ -12,6 +12,7 @@
     "bip39": "^3.0.4",
     "cbor": "^8.1.0",
     "crc": "^3.8.0",
+    "isomorphic-fetch": "^3.0.0",
     "jest": "^28.1.3",
     "js-sha3": "^0.8.0",
     "js-sha512": "^0.8.0",
