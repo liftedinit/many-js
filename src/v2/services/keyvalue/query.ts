@@ -1,6 +1,14 @@
 import { Server } from "../server"
 import { mapToObj, objToMap } from "../../shared/transform"
-import { KeyValueQuery, KeyValueQueryArgs } from "./types"
+
+export interface KeyValueQuery {
+  owner: string
+  enabled: boolean
+}
+
+export interface KeyValueQueryArgs {
+  key: string
+}
 
 const queryMap = {
   0: "owner",

@@ -1,5 +1,8 @@
 import { Server } from "../server"
-import { BaseEndpoints } from "./types"
+
+export interface BaseEndpoints {
+  endpoints: string[]
+}
 
 export async function endpoints(server: Server): Promise<BaseEndpoints> {
   const payload = await server.call("endpoints")

@@ -1,2 +1,4 @@
 export { LedgerService } from "./ledger"
-export * from "./types"
+
+export type { LedgerBalance, LedgerBalanceArgs } from "./balance"
+export type { LedgerSendArgs } from "./send"

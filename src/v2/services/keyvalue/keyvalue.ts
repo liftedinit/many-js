@@ -1,16 +1,10 @@
 import { BaseService } from "../base"
 
-import { disable } from "./disable"
-import { get } from "./get"
+import { disable, KeyValueDisableArgs } from "./disable"
+import { get, KeyValueGetArgs } from "./get"
 import { info } from "./info"
-import { put } from "./put"
-import { query } from "./query"
-import {
-  KeyValueDisableArgs,
-  KeyValueGetArgs,
-  KeyValuePutArgs,
-  KeyValueQueryArgs,
-} from "./types"
+import { put, KeyValuePutArgs } from "./put"
+import { query, KeyValueQueryArgs } from "./query"
 
 export class KeyValueService extends BaseService {
   info = () => info(this)

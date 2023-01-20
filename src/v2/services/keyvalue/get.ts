@@ -1,6 +1,13 @@
 import { Server } from "../server"
 import { mapToObj, objToMap, Transform } from "../../shared/transform"
-import { KeyValueGet, KeyValueGetArgs } from "./types"
+
+export interface KeyValueGet {
+  value?: string
+}
+
+export interface KeyValueGetArgs {
+  key: string
+}
 
 const getMap: Transform = {
   0: ["value", { fn: (value: Buffer) => value.toString() }],

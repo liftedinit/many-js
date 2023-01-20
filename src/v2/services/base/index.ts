@@ -1,2 +1,4 @@
 export { BaseService } from "./base"
-export * from "./types"
+
+export type { BaseEndpoints } from "./endpoints"
+export type { BaseStatus } from "./status"

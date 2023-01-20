@@ -1,6 +1,14 @@
 import { Server } from "../server"
 import { mapToObj, objToMap, Transform } from "../../shared/transform"
-import { Balance, BalanceArgs } from "./types"
+
+export interface LedgerBalance {
+  balances: Map<string, number>
+}
+
+export interface LedgerBalanceArgs {
+  address?: string
+  tokens?: string[]
+}
 
 const balanceMap: Transform = {
   0: ["balances", { type: "map" }],
@@ -13,9 +21,9 @@ const balanceArgsMap = {
 
 export async function balance(
   server: Server,
-  balanceArgs: BalanceArgs,
-): Promise<Balance> {
+  balanceArgs: LedgerBalanceArgs,
+): Promise<LedgerBalance> {
   const args = objToMap(balanceArgs, balanceArgsMap)
   const payload = await server.call("ledger.balance", args)
-  return mapToObj<Balance>(payload, balanceMap)
+  return mapToObj<LedgerBalance>(payload, balanceMap)
 }

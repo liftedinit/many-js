@@ -1,6 +1,9 @@
 import { Server } from "../server"
 import { mapToObj, Transform } from "../../shared/transform"
-import { KeyValueInfo } from "./types"
+
+export interface KeyValueInfo {
+  hash: string
+}
 
 const infoMap: Transform = {
   0: ["hash", { type: "bytes" }],

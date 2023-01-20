@@ -1,6 +1,10 @@
 import { Server } from "../server"
 import { objToMap } from "../../shared/transform"
-import { KeyValueDisableArgs } from "./types"
+
+export interface KeyValueDisableArgs {
+  key: string
+  owner?: string
+}
 
 const disableArgsMap = {
   0: "key",

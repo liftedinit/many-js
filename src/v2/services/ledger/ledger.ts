@@ -1,12 +1,11 @@
 import { BaseService } from "../base"
 
-import { balance } from "./balance"
+import { balance, LedgerBalanceArgs } from "./balance"
 import { info } from "./info"
-import { send } from "./send"
-import { BalanceArgs, SendArgs } from "./types"
+import { send, LedgerSendArgs } from "./send"
 
 export class LedgerService extends BaseService {
   info = () => info(this)
-  balance = (args?: BalanceArgs) => balance(this, args!)
-  sendTxn = (args: SendArgs) => send(this, args)
+  balance = (args?: LedgerBalanceArgs) => balance(this, args!)
+  sendTxn = (args: LedgerSendArgs) => send(this, args)
 }

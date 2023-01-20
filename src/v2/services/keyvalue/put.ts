@@ -1,6 +1,11 @@
 import { Server } from "../server"
 import { objToMap, Transform } from "../../shared/transform"
-import { KeyValuePutArgs } from "./types"
+
+export interface KeyValuePutArgs {
+  key: string
+  value: any
+  owner?: string
+}
 
 const putArgsMap: Transform = {
   0: ["key", { type: "bytes" }],

@@ -1,6 +1,15 @@
 import { mapToObj } from "../../shared/transform"
 import { Server } from "../server"
-import { BaseStatus } from "./types"
+
+export interface BaseStatus {
+  protocolVersion: number
+  serverName: string
+  publicKey: unknown
+  address: string
+  attributes: string[]
+  serverVersion: string
+  timeDeltaInSecs: number
+}
 
 const statusMap = {
   0: "protocolVersion",
