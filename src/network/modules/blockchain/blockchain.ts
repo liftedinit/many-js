@@ -45,6 +45,13 @@ export enum RangeBlockQueryType {
 
 export type SingleBlockQueryValueType = ArrayBuffer | Number
 
+export type ListOpt = {
+  queryType: RangeBlockQueryType
+  count?: number
+  order?: ListOrderType
+  range?: RangeBounds<number> | RangeBounds<Date>
+}
+
 export type Block = {
   id: BlockIdentifier
   parent?: BlockIdentifier
@@ -77,12 +84,7 @@ interface Blockchain extends NetworkModule {
     queryType: SingleBlockQueryType,
     value: SingleBlockQueryValueType,
   ) => Promise<BlockReturns>
-  list(opts: {
-    queryType: RangeBlockQueryType
-    count?: number
-    order?: ListOrderType
-    range?: RangeBounds<number> | RangeBounds<Date>
-  }): Promise<BlockListReturns>
+  list(opts: ListOpt): Promise<BlockListReturns>
   transaction: (txnHash: ArrayBuffer) => Promise<TransactionReturns>
   request: (txnHash: ArrayBuffer) => Promise<unknown>
   response: (txnHash: ArrayBuffer) => Promise<unknown>
@@ -93,7 +95,7 @@ export const Blockchain: Blockchain = {
 
   async info(): Promise<InfoReturns> {
     const msg = await this.call("blockchain.info")
-    return await getBlockainInfo(msg)
+    return await getBlockchainInfo(msg)
   },
 
   async block(
@@ -120,12 +122,7 @@ export const Blockchain: Blockchain = {
     count = 10,
     order = ListOrderType.descending,
     range = [],
-  }: {
-    queryType: RangeBlockQueryType
-    count?: number
-    order?: ListOrderType
-    range?: RangeBounds<number> | RangeBounds<Date>
-  }): Promise<BlockListReturns> {
+  }: ListOpt): Promise<BlockListReturns> {
     const m = new Map().set(0, count).set(1, order)
     if (
       queryType === RangeBlockQueryType.height ||
@@ -186,7 +183,7 @@ export const Blockchain: Blockchain = {
   },
 }
 
-async function getBlockainInfo(msg: Message): Promise<InfoReturns> {
+async function getBlockchainInfo(msg: Message): Promise<InfoReturns> {
   const data = msg.getPayload()
   const result: InfoReturns = {
     info: undefined,
