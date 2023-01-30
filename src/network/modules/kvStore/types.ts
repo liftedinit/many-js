@@ -21,12 +21,12 @@ export interface KVStoreGetParam {
 export interface KVStorePutParam {
   key: string
   value: any
-  owner?: Address
+  owner?: string
 }
 
 export interface KVStoreDisableParam {
   key: string
-  owner?: Address
+  owner?: string
 }
 
 export interface KVStoreModule extends NetworkModule {
