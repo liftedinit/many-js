@@ -115,13 +115,12 @@ function makeMultisigSubmitTxnResponse({
   m.set(0, txnTypeIndices)
     .set(1, tag(10000, Address.fromString(submitter).toBuffer()))
     .set(2, tag(10000, Address.fromString(accountSource).toBuffer()))
-    .set(3, memo)
     .set(4, submittedTxn)
     .set(5, token)
     .set(6, threshold)
     .set(7, tag(1, expireDate))
     .set(8, executeAutomatically)
-    .set(9, cborData)
+    .set(10, memo)
 
   return makeTxn({ id, time, txnData: m })
 }
