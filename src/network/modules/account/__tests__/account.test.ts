@@ -104,7 +104,6 @@ describe("Account", () => {
 
     const expectedCallArgs = new Map()
       .set(0, txnData.from)
-      .set(1, txnData.memo)
       .set(
         2,
         new Map()
@@ -114,6 +113,7 @@ describe("Account", () => {
       .set(3, 3)
       .set(4, 3600)
       .set(5, false)
+      .set(7, txnData.memo)
     expect(mockCall).toHaveBeenCalledWith(
       "account.multisigSubmitTransaction",
       expectedCallArgs,
@@ -154,7 +154,6 @@ describe("Account", () => {
         threshold: 2,
         executeAutomatically: false,
         expireDate,
-        cborData: null,
         state: MultisigTransactionState[MultisigTransactionState.pending],
       },
     })
@@ -352,15 +351,14 @@ function makeMultisigInfoResponse({
   const threshold = 2
   const executeAutomatically = false
   return new Map()
-    .set(0, "this is a memo")
     .set(1, accountMultisigTxn)
     .set(2, submitter)
     .set(3, approvers)
     .set(4, threshold)
     .set(5, executeAutomatically)
     .set(6, tag(1, expireDate))
-    .set(7, null)
     .set(8, txnState)
+    .set(9, "this is a memo")
 }
 
 function makeAccountFeatures(): AccountFeature[] {
