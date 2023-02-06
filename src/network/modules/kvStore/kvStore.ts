@@ -8,6 +8,7 @@ import {
   KVStoreModule,
   KVStorePutParam,
   KVStoreQuery,
+  KVStoreTransferParam,
   KVStoreValue,
 } from "./types"
 
@@ -45,6 +46,14 @@ export const KvStore: KVStoreModule = {
     const data = makeKVStoreDisable(param)
     await this.call("kvstore.disable", data, { nonce })
   },
+
+  async transfer(
+    param: KVStoreTransferParam,
+    { nonce } = { nonce: makeRandomBytes(16) },
+  ) {
+    const data = makeKVStoreTransfer(param)
+    await this.call("kvstore.transfer", data, { nonce })
+  },
 }
 
 // Make maps from objects
@@ -66,6 +75,14 @@ function makeKVStorePut(param: KVStorePutParam): Map<number, any> {
 function makeKVStoreDisable(param: KVStoreDisableParam): Map<number, any> {
   const data = new Map()
   data.set(0, Buffer.from(param.key))
+  param.owner && data.set(1, tag(10000, param.owner))
+  return data
+}
+
+function makeKVStoreTransfer(param: KVStoreTransferParam): Map<number, any> {
+  const data = new Map()
+  data.set(0, Buffer.from(param.key))
+  data.set(2, tag(10000, param.newOwner))
   param.owner && data.set(1, tag(10000, param.owner))
   return data
 }
