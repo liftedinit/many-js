@@ -141,7 +141,7 @@ describe("Account", () => {
     )
     expect(res).toEqual({
       info: {
-        memo: "this is a memo",
+        memo: ["this is a memo"],
         transaction: {
           type: EventType.send,
           from: accountSource,
@@ -358,7 +358,7 @@ function makeMultisigInfoResponse({
     .set(5, executeAutomatically)
     .set(6, tag(1, expireDate))
     .set(8, txnState)
-    .set(9, "this is a memo")
+    .set(9, ["this is a memo"])
 }
 
 function makeAccountFeatures(): AccountFeature[] {

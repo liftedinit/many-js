@@ -11,6 +11,7 @@ import {
   EventType,
   EventTypeIndices,
   ListOrderType,
+  Memo,
   NetworkModule,
   RangeBounds,
 } from "../types"
@@ -92,13 +93,12 @@ export interface MultisigSetDefaultsEvent extends MultisigEvent {
 export interface MultisigSubmitEvent extends MultisigEvent {
   account: string
   executeAutomatically: boolean
-  memo: string
+  memo: Memo
   submitter: string
   threshold: number
   expireDate: number
   token: ArrayBuffer
   transaction: Omit<Event, "id" | "time"> | undefined
-  data?: CborMap
 }
 
 export type Event =
