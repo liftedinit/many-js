@@ -8,6 +8,7 @@ import {
   AccountRole,
   EventType,
   EventTypeIndices,
+  Memo,
 } from "../../types"
 import {
   accountSource,
@@ -89,12 +90,11 @@ function makeMultisigSubmitTxnResponse({
   txnTypeIndices = eventTypeNameToIndices.accountMultisigSubmit,
   submitter,
   accountSource,
-  memo = "",
+  memo = [""],
   submittedTxn,
   token = new Uint8Array(),
   threshold,
   executeAutomatically = false,
-  cborData,
   expireDate = new Date(new Date().getTime() + ONE_MINUTE).getTime(),
   time,
 }: {
@@ -102,12 +102,11 @@ function makeMultisigSubmitTxnResponse({
   txnTypeIndices?: EventTypeIndices
   submitter: string
   accountSource: string
-  memo?: string
+  memo?: Memo
   submittedTxn: Map<number, unknown>
   token?: ArrayBuffer
   threshold: number
   executeAutomatically: boolean
-  cborData?: Map<number, unknown>
   expireDate?: number
   time: number
 }) {
@@ -205,7 +204,7 @@ export const mockEventsListMultisigSubmitEventResponse =
       submitter: identityStr2,
       accountSource,
       threshold: 2,
-      memo: "this is a memo",
+      memo: ["this is a memo"],
       executeAutomatically: false,
       expireDate,
       submittedTxn: new Map().set(0, eventTypeNameToIndices.send).set(
@@ -228,7 +227,7 @@ export const expectedMockEventsListMultisigSubmitEventResponse = {
       type: EventType.accountMultisigSubmit,
       submitter: identityStr2,
       account: accountSource,
-      memo: "this is a memo",
+      memo: ["this is a memo"],
       token: new Uint8Array(),
       expireDate,
       threshold: 2,
