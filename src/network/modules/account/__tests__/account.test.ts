@@ -94,7 +94,7 @@ describe("Account", () => {
       to: "m123",
       from: "m321",
       symbol: "m456",
-      memo: "this is a memo",
+      memo: ["this is a memo"],
       executeAutomatically: false,
       threshold: 3,
       expireInSecs: 3600,
