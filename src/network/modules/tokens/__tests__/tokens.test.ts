@@ -48,7 +48,7 @@ describe("Tokens", () => {
         name: "OurToken",
         symbol: "OTK",
         precision: 9,
-        memo: "Now decentralized!",
+        memo: ["Now decentralized!"],
       })
 
       expect(mockCall).toHaveBeenCalled()
