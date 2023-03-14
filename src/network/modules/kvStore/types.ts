@@ -21,12 +21,18 @@ export interface KVStoreGetParam {
 export interface KVStorePutParam {
   key: string
   value: any
-  owner?: Address
+  owner?: string | Address
 }
 
 export interface KVStoreDisableParam {
   key: string
-  owner?: Address
+  owner?: string | Address
+}
+
+export interface KVStoreTransferParam {
+  key: string
+  owner?: string | Address
+  newOwner: string | Address
 }
 
 export interface KVStoreModule extends NetworkModule {
@@ -35,4 +41,5 @@ export interface KVStoreModule extends NetworkModule {
   put: (data: KVStorePutParam, opts?: { nonce?: ArrayBuffer }) => void
   query: (data: KVStoreGetParam) => Promise<KVStoreQuery>
   disable: (data: KVStoreDisableParam, opts?: { nonce?: ArrayBuffer }) => void
+  transfer: (data: KVStoreTransferParam, opts?: { nonce?: ArrayBuffer }) => void
 }

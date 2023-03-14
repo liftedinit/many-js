@@ -110,12 +110,12 @@ export const Account: Account = {
   ): Promise<GetMultisigTokenReturnType> {
     const m = new Map()
     m.set(0, txnData.from)
-    txnData?.memo && m.set(1, txnData.memo)
+    m.set(2, makeSubmittedTxnData(txnType, txnData))
     txnData?.threshold && m.set(3, txnData.threshold)
     txnData?.expireInSecs && m.set(4, txnData.expireInSecs)
     typeof txnData?.executeAutomatically === "boolean" &&
       m.set(5, txnData.executeAutomatically)
-    m.set(2, makeSubmittedTxnData(txnType, txnData))
+    txnData?.memo && m.set(7, txnData.memo)
     const msg = await this.call("account.multisigSubmitTransaction", m, {
       nonce,
     })
@@ -215,7 +215,6 @@ async function getMultisigInfo(msg: Message): Promise<MultisigInfoResponse> {
   if (content) {
     try {
       result.info = {
-        memo: content.get(0),
         transaction: await makeTxnData(content.get(1) as Map<number, unknown>, {
           isTxnParamData: true,
         }),
@@ -234,8 +233,8 @@ async function getMultisigInfo(msg: Message): Promise<MultisigInfoResponse> {
         threshold: content.get(4),
         executeAutomatically: content.get(5),
         expireDate: content.get(6)?.value,
-        cborData: content.get(7),
         state: MultisigTransactionState[content.get(8)],
+        memo: content.get(9),
       }
     } catch (e) {
       console.error("error in multisig txn data:", e)

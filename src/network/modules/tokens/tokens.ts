@@ -32,7 +32,7 @@ export const Tokens: TokensModule = {
     const data = makeTokensCreateData(param)
     const res = await this.call("tokens.create", data, { nonce })
     const payload = res.getPayload()
-    return getTokenBasicInfo(payload)
+    return getTokenBasicInfo(payload.get(0))
   },
   async update(
     param: TokensUpdateParam,

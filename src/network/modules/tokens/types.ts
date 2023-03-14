@@ -1,5 +1,5 @@
 import { Address } from "../../../identity"
-import { NetworkModule } from "../types"
+import { Memo, NetworkModule } from "../types"
 
 type LedgerAmount = BigInt
 type AttrIndex = number | [number, AttrIndex]
@@ -48,7 +48,7 @@ export interface TokensUpdateParam {
   symbol?: string
   precision?: number
   owner?: string | null
-  memo?: string
+  memo?: Memo
 }
 
 export interface TokensAddExtendedParam {

@@ -23,7 +23,7 @@ describe("Tokens", () => {
   })
   describe("create", () => {
     it("should return information for the created token", async () => {
-      const mockCall = jest.fn(async () => mockTokenBasicInfoMsg)
+      const mockCall = jest.fn(async () => mockTokenInfoMsg)
       const tokens = setupModule(Tokens, mockCall)
 
       const actual = await tokens.create({
@@ -48,7 +48,7 @@ describe("Tokens", () => {
         name: "OurToken",
         symbol: "OTK",
         precision: 9,
-        memo: "Now decentralized!",
+        memo: ["Now decentralized!"],
       })
 
       expect(mockCall).toHaveBeenCalled()
