@@ -15,6 +15,7 @@ import {
   AccountMultisigArgument,
   MultisigSetDefaultsEvent,
   AddFeaturesEvent,
+  Memo,
 } from "../../network"
 
 export function makeLedgerSendParam({
@@ -293,6 +294,6 @@ async function makeMultisigSubmitEventData(
     threshold: eventData.get(6) as number,
     expireDate: eventData.get(7)?.value,
     executeAutomatically: eventData.get(8) as boolean,
-    memo: eventData.get(10) as string,
+    memo: eventData.get(10) as Memo,
   }
 }

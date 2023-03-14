@@ -86,7 +86,7 @@ export enum MultisigTransactionState {
   expired,
 }
 
-export type Memo = string
+export type Memo = (string | ArrayBuffer)[]
 
 export enum BoundType {
   unbounded = "unbounded",
