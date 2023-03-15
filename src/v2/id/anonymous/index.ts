@@ -1,1 +1,0 @@
-export { Anonymous } from "./anonymous"
