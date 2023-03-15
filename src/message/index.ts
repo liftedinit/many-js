@@ -1,4 +1,4 @@
-export { Request } from "./request"
-export { Response } from "./response"
+export { Request } from "./request";
+export { Response } from "./response";
 
-export { CoseSign1, CoseKey } from "./encoding"
+export { CoseSign1, CoseKey } from "./encoding";

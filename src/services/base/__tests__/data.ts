@@ -6,7 +6,7 @@ export const mockStatusObj = {
   attributes: [],
   serverVersion: "RC0",
   timeDeltaInSecs: 0,
-}
+};
 
 export const mockStatusMap = new Map<number, any>([
   [0, 1],
@@ -16,10 +16,10 @@ export const mockStatusMap = new Map<number, any>([
   [4, []],
   [5, "RC0"],
   [6, 0],
-])
+]);
 
 export const mockEndpointsObj = {
   endpoints: ["endpoints", "heartbeat", "status"],
-}
+};
 
-export const mockEndpointsMap = ["endpoints", "heartbeat", "status"]
+export const mockEndpointsMap = ["endpoints", "heartbeat", "status"];

@@ -1,15 +1,15 @@
-import { Server } from "../server"
-import { mapToObj, Transform } from "../../shared/transform"
+import { Server } from "../server";
+import { mapToObj, Transform } from "../../shared/transform";
 
 export interface TokenInfo {
-  name: string
-  symbol: string
-  precision: number
+  name: string;
+  symbol: string;
+  precision: number;
 }
 
 export interface Info {
-  hash: string
-  tokens: Map<string, TokenInfo>
+  hash: string;
+  tokens: Map<string, TokenInfo>;
 }
 
 const infoMap: Transform = {
@@ -18,9 +18,9 @@ const infoMap: Transform = {
     "tokens",
     { type: "map", transform: { 0: "name", 1: "symbol", 2: "precision" } },
   ],
-}
+};
 
 export async function info(server: Server): Promise<Info> {
-  const payload = await server.call("ledger.info")
-  return mapToObj<Info>(payload, infoMap)
+  const payload = await server.call("ledger.info");
+  return mapToObj<Info>(payload, infoMap);
 }

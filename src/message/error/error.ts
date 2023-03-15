@@ -14,8 +14,8 @@ export class ManyError extends Error {
     if (message === undefined) {
       super(
         `ManyError(${code || 0}) message=${JSON.stringify(
-          message
-        )} fields=${JSON.stringify(fields)}`
+          message,
+        )} fields=${JSON.stringify(fields)}`,
       );
     } else {
       const re = /\{\{|\}\}|\{[^\}\s]*\}/g;
@@ -29,7 +29,7 @@ export class ManyError extends Error {
             default:
               return (fields && fields[fieldName.slice(1, -1)]) || "";
           }
-        })
+        }),
       );
     }
 

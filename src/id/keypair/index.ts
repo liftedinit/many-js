@@ -1,1 +1,1 @@
-export { KeyPair } from "./keypair"
+export { KeyPair } from "./keypair";

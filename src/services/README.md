@@ -10,10 +10,10 @@ specialized methods (like `ledger.info` in the case of a Ledger service).
 ## Usage
 
 ```js
-import { KeyValue } from "@liftedinit/many-js"
+import { KeyValue } from "@liftedinit/many-js";
 
-const kv = new KeyValue(url)
-await kv.put("name", "Joe")
+const kv = new KeyValue(url);
+await kv.put("name", "Joe");
 
-const value = await kv.get("name") // => Joe
+const value = await kv.get("name"); // => Joe
 ```

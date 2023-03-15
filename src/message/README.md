@@ -16,17 +16,17 @@ asynchronously and will require polling to retrive the requested data.
 ## Usage
 
 ```js
-import { Request, Response } from "@liftedinit/many-js"
+import { Request, Response } from "@liftedinit/many-js";
 
-const req = Request.fromObject({ method: "status" })
-const buffer = req.toBuffer() // Anonymous CBOR buffer, ready to send
+const req = Request.fromObject({ method: "status" });
+const buffer = req.toBuffer(); // Anonymous CBOR buffer, ready to send
 
-const res = Response.fromBuffer(someBytes)
-const { result } = res.toObject()
+const res = Response.fromBuffer(someBytes);
+const { result } = res.toObject();
 
 if (result.ok) {
-  doSomethingWith(result.value) // Response data is present
+  doSomethingWith(result.value); // Response data is present
 } else {
-  throw result.err // An error was returned
+  throw result.err; // An error was returned
 }
 ```

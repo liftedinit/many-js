@@ -1,1 +1,1 @@
-export { WebAuthn } from "./webauthn"
+export { WebAuthn } from "./webauthn";

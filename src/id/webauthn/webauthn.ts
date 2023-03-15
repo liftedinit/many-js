@@ -1,14 +1,14 @@
-import cbor from "cbor"
-import { CoseKey } from "../../message/encoding"
-import { makeRandomBytes } from "../../shared/utils"
-import { Identifier } from "../identifier"
+import cbor from "cbor";
+import { CoseKey } from "../../message/encoding";
+import { makeRandomBytes } from "../../shared/utils";
+import { Identifier } from "../identifier";
 
 export class WebAuthn extends Identifier {
-  readonly publicKey: Uint8Array
+  readonly publicKey: Uint8Array;
 
   constructor(readonly credential: PublicKeyCredential) {
-    super()
-    this.publicKey = this.toCoseKey().publicKey
+    super();
+    this.publicKey = this.toCoseKey().publicKey;
   }
 
   async sign(data: ArrayBuffer): Promise<ArrayBuffer> {
@@ -25,28 +25,30 @@ export class WebAuthn extends Identifier {
           },
         ],
       },
-    })
+    });
     if (credential) {
-      const { response } = credential as PublicKeyCredential
-      const { signature } = response as AuthenticatorAssertionResponse
-      return signature
+      const { response } = credential as PublicKeyCredential;
+      const { signature } = response as AuthenticatorAssertionResponse;
+      return signature;
     }
-    throw new Error(`Could not sign data: ${Buffer.from(data).toString("hex")}`)
+    throw new Error(
+      `Could not sign data: ${Buffer.from(data).toString("hex")}`,
+    );
   }
 
   toCoseKey(): CoseKey {
     const { attestationObject } = this.credential
-      .response as AuthenticatorAttestationResponse
-    const { authData } = cbor.decodeFirstSync(attestationObject)
+      .response as AuthenticatorAttestationResponse;
+    const { authData } = cbor.decodeFirstSync(attestationObject);
 
-    const dataView = new DataView(new ArrayBuffer(2))
-    const idLenBytes = authData.slice(53, 55)
+    const dataView = new DataView(new ArrayBuffer(2));
+    const idLenBytes = authData.slice(53, 55);
     // @ts-ignore
-    idLenBytes.forEach((value, index) => dataView.setUint8(index, value))
-    const credentialIdLength = dataView.getUint16(0)
-    const publicKeyBytes = authData.slice(55 + credentialIdLength)
+    idLenBytes.forEach((value, index) => dataView.setUint8(index, value));
+    const credentialIdLength = dataView.getUint16(0);
+    const publicKeyBytes = authData.slice(55 + credentialIdLength);
 
-    return new CoseKey(cbor.decodeFirstSync(publicKeyBytes))
+    return new CoseKey(cbor.decodeFirstSync(publicKeyBytes));
   }
 
   static async create(): Promise<WebAuthn> {
@@ -68,11 +70,11 @@ export class WebAuthn extends Identifier {
           },
         ],
       },
-    })
+    });
     if (credential) {
-      return new WebAuthn(credential as PublicKeyCredential)
+      return new WebAuthn(credential as PublicKeyCredential);
     }
-    throw new Error("Could not create WebAuthn identifier")
+    throw new Error("Could not create WebAuthn identifier");
   }
 
   static async get(id: ArrayBuffer): Promise<WebAuthn> {
@@ -89,14 +91,14 @@ export class WebAuthn extends Identifier {
           },
         ],
       },
-    })
+    });
     if (credential) {
-      return new WebAuthn(credential as PublicKeyCredential)
+      return new WebAuthn(credential as PublicKeyCredential);
     }
-    throw new Error("Could not get WebAuthn identifier")
+    throw new Error("Could not get WebAuthn identifier");
   }
 
   static fromString(_: string): WebAuthn {
-    throw new Error("Cannot create a WebAuthn identifer from a string")
+    throw new Error("Cannot create a WebAuthn identifer from a string");
   }
 }

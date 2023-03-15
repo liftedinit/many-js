@@ -3,7 +3,7 @@ export const mockInfoObj = {
   tokens: {
     mxyz789: { name: "Test Token", symbol: "TTT", precision: 9 },
   },
-}
+};
 
 export const mockInfoMap = new Map<number, any>([
   [1, "abc123"],
@@ -20,12 +20,12 @@ export const mockInfoMap = new Map<number, any>([
       ],
     ]),
   ],
-])
+]);
 
 export const mockBalanceObj = {
   balances: {
     mxyz789: 100000000,
   },
-}
+};
 
-export const mockBalanceMap = new Map([[0, new Map([["mxyz789", 100000000]])]])
+export const mockBalanceMap = new Map([[0, new Map([["mxyz789", 100000000]])]]);

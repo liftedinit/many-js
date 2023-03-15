@@ -1,4 +1,4 @@
-import { CoseSign1 } from "../cose-sign-1"
+import { CoseSign1 } from "../cose-sign-1";
 
 describe("CoseSign1", () => {
   describe("constructor", () => {
@@ -8,9 +8,9 @@ describe("CoseSign1", () => {
         new Map(),
         new Map(),
         new ArrayBuffer(0),
-      )
+      );
 
-      expect(cosesign1 instanceof CoseSign1).toBe(true)
-    })
-  })
-})
+      expect(cosesign1 instanceof CoseSign1).toBe(true);
+    });
+  });
+});

@@ -1,10 +1,10 @@
-import { Server } from "../server"
+import { Server } from "../server";
 
 export interface BaseEndpoints {
-  endpoints: string[]
+  endpoints: string[];
 }
 
 export async function endpoints(server: Server): Promise<BaseEndpoints> {
-  const payload = await server.call("endpoints")
-  return { endpoints: Array.isArray(payload) ? payload : [] }
+  const payload = await server.call("endpoints");
+  return { endpoints: Array.isArray(payload) ? payload : [] };
 }

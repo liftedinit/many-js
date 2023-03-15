@@ -1,4 +1,4 @@
-import * as error from "../error"
+import * as error from "../error";
 
 describe("ManyError", function () {
   it("replaces fields", () => {
@@ -10,11 +10,11 @@ describe("ManyError", function () {
         "1": "ONE",
         "2": "TWO",
       },
-    }
-    const err = new error.ManyError(manyError)
+    };
+    const err = new error.ManyError(manyError);
 
-    expect(err.toString()).toBe("Error: Hello ZERO and TWO.")
-  })
+    expect(err.toString()).toBe("Error: Hello ZERO and TWO.");
+  });
 
   it("works with double brackets", () => {
     const manyError = {
@@ -25,9 +25,9 @@ describe("ManyError", function () {
         "1": "ONE",
         "2": "TWO",
       },
-    }
-    const err = new error.ManyError(manyError)
+    };
+    const err = new error.ManyError(manyError);
 
-    expect(err.toString()).toBe("Error: /{}{ZERO}{}}{TWO.")
-  })
-})
+    expect(err.toString()).toBe("Error: /{}{ZERO}{}}{TWO.");
+  });
+});

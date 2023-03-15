@@ -1,1 +1,1 @@
-export { Anonymous } from "./anonymous"
+export { Anonymous } from "./anonymous";

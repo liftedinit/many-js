@@ -1,22 +1,22 @@
-import cbor from "cbor"
-import { mapToObj, Transform } from "../../shared/transform"
-import { Result, Ok, Err } from "../../shared/result"
-import { CborMap, CoseSign1 } from "../encoding"
-import { ManyError } from "../error"
-import { Message } from "../message"
-import Tagged from "cbor/types/lib/tagged"
+import cbor from "cbor";
+import { mapToObj, Transform } from "../../shared/transform";
+import { Result, Ok, Err } from "../../shared/result";
+import { CborMap, CoseSign1 } from "../encoding";
+import { ManyError } from "../error";
+import { Message } from "../message";
+import Tagged from "cbor/types/lib/tagged";
 
-type AsyncAttr = [1, Buffer]
+type AsyncAttr = [1, Buffer];
 
 interface ResponseObj {
-  version?: number
-  from: string
-  to?: string
-  result: Result<any, ManyError>
-  timestamp?: number
-  id?: number
-  nonce?: string
-  attrs?: unknown[]
+  version?: number;
+  from: string;
+  to?: string;
+  result: Result<any, ManyError>;
+  timestamp?: number;
+  id?: number;
+  nonce?: string;
+  attrs?: unknown[];
 }
 
 const responseMap: Transform = {
@@ -36,44 +36,44 @@ const responseMap: Transform = {
   6: "id",
   7: ["nonce", { fn: (value: Buffer) => value.toString("hex") }],
   8: "attrs",
-}
+};
 
 const decoders = {
   tags: {
     10000: (value: Uint8Array) => Buffer.from(value),
     1: (value: number) => new cbor.Tagged(1, value),
   },
-}
+};
 
 export class Response extends Message {
   constructor(public content: CborMap) {
-    super(content)
+    super(content);
   }
 
   get token(): Buffer | undefined {
-    const { attrs } = this.toJSON()
+    const { attrs } = this.toJSON();
     if (!attrs) {
-      return
+      return;
     }
     return (
-      attrs?.find(attr => Array.isArray(attr) && attr[0] === 1) as AsyncAttr
-    )[1]
+      attrs?.find((attr) => Array.isArray(attr) && attr[0] === 1) as AsyncAttr
+    )[1];
   }
 
   get result(): Result<any, ManyError> {
-    const { result } = this.toJSON()
-    return result
+    const { result } = this.toJSON();
+    return result;
   }
 
   toJSON(): ResponseObj {
-    return mapToObj(this.content, responseMap)
+    return mapToObj(this.content, responseMap);
   }
 
   static fromCoseSign1(cose: CoseSign1): Response {
-    return new Response(cose.payload)
+    return new Response(cose.payload);
   }
 
   static fromBuffer(data: Buffer): Response {
-    return Response.fromCoseSign1(CoseSign1.fromBuffer(data))
+    return Response.fromCoseSign1(CoseSign1.fromBuffer(data));
   }
 }

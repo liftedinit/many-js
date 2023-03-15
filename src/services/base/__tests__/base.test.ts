@@ -1,37 +1,37 @@
-import { BaseService } from "../base"
+import { BaseService } from "../base";
 import {
   mockEndpointsMap,
   mockEndpointsObj,
   mockStatusMap,
   mockStatusObj,
-} from "./data"
+} from "./data";
 
-const mockCall = jest.spyOn(BaseService.prototype, "call")
-const server = new BaseService("localhost")
+const mockCall = jest.spyOn(BaseService.prototype, "call");
+const server = new BaseService("localhost");
 
 describe("base", () => {
   describe("endpoints", () => {
     it("should return an array of endpoints", async () => {
       // @ts-ignore
-      mockCall.mockResolvedValue(mockEndpointsMap)
-      const endpoints = await server.endpoints()
+      mockCall.mockResolvedValue(mockEndpointsMap);
+      const endpoints = await server.endpoints();
 
-      expect(endpoints).toStrictEqual(mockEndpointsObj)
-    })
-  })
+      expect(endpoints).toStrictEqual(mockEndpointsObj);
+    });
+  });
   describe("heartbeat", () => {
     it("should be called", async () => {
-      await server.heartbeat()
+      await server.heartbeat();
 
-      expect(mockCall).toHaveBeenCalledWith("heartbeat")
-    })
-  })
+      expect(mockCall).toHaveBeenCalledWith("heartbeat");
+    });
+  });
   describe("status", () => {
     it("should return the server status", async () => {
-      mockCall.mockResolvedValue(mockStatusMap)
-      const status = await server.status()
+      mockCall.mockResolvedValue(mockStatusMap);
+      const status = await server.status();
 
-      expect(status).toStrictEqual(mockStatusObj)
-    })
-  })
-})
+      expect(status).toStrictEqual(mockStatusObj);
+    });
+  });
+});

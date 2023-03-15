@@ -17,14 +17,14 @@ example might be a drivers license number.
 ## Usage
 
 ```js
-import { Anonymous, KeyPair, WebAuthn } from "@liftedinit/many-js"
+import { Anonymous, KeyPair, WebAuthn } from "@liftedinit/many-js";
 
-const anonymous = new Anonymous()
-const anonAddress = anonymous.toString() // "maa"
+const anonymous = new Anonymous();
+const anonAddress = anonymous.toString(); // "maa"
 
-const keypair = KeyPair.fromMnemonic("genuine leopard motion")
-const keypairAddress = keypair.toString() // "mabc...789z" or similar
+const keypair = KeyPair.fromMnemonic("genuine leopard motion");
+const keypairAddress = keypair.toString(); // "mabc...789z" or similar
 
-const webauthn = await WebAuthn.create() // Prompts browser
-const webauthnAddress = webauthn.toString() // "mxyz...123a" or similar
+const webauthn = await WebAuthn.create(); // Prompts browser
+const webauthnAddress = webauthn.toString(); // "mxyz...123a" or similar
 ```
