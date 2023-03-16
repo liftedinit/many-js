@@ -8,7 +8,7 @@ import {
 } from "./data";
 
 const mockCall = jest.spyOn(KeyValueService.prototype, "call");
-const server = new KeyValueService("http://localhost");
+const server = new KeyValueService("localhost");
 
 describe("keyvalue", () => {
   describe("info", () => {
