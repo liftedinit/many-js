@@ -1,6 +1,6 @@
 import cbor from "cbor";
 import { CoseKey } from "../../message/encoding";
-import { makeRandomBytes } from "../../shared/utils";
+import { makeRandomBytes, toString } from "../../shared/utils";
 import { Identifier } from "../identifier";
 
 export class WebAuthn extends Identifier {
@@ -32,7 +32,7 @@ export class WebAuthn extends Identifier {
       return signature;
     }
     throw new Error(
-      `Could not sign data: ${Buffer.from(data).toString("hex")}`,
+      `Could not sign data: ${toString(new Uint8Array(data), "hex")}`,
     );
   }
 

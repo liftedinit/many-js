@@ -1,4 +1,5 @@
 import { mapToObj, objToMap, Transform } from "../transform";
+import { fromString, toString } from "../utils";
 
 type Simple = { name: string };
 type List = { names: Simple[] };
@@ -16,7 +17,7 @@ const decode: Transform = {
   0: ["number", { fn: (value: string) => parseInt(value) }],
 };
 const encode: Transform = {
-  0: ["number", { fn: (value: string) => Buffer.from(value) }],
+  0: ["number", { fn: (value: string) => fromString(value, "hex") }],
 };
 
 describe("Transform", () => {
@@ -87,11 +88,11 @@ describe("Transform", () => {
       expect(map.get(0).get("foo").get(0)).toBe(42);
     });
     it("should apply a transform function", () => {
-      const obj = { number: "0x2a" };
+      const obj = { number: "ba5eba11" };
       const map = objToMap(obj, encode);
 
-      expect(Buffer.isBuffer(map.get(0))).toBe(true);
-      expect(map.get(0).toString()).toBe("0x2a");
+      expect(map.get(0) instanceof Uint8Array).toBe(true);
+      expect(toString(map.get(0), "hex")).toBe("ba5eba11");
     });
   });
 });

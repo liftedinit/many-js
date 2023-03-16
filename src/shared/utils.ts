@@ -30,3 +30,15 @@ export function fromString(string: string, encoding: string = "utf8") {
       return new TextEncoder().encode(string);
   }
 }
+
+export function compare(a: Uint8Array, b: Uint8Array) {
+  if (a.length !== b.length) {
+    return false;
+  }
+  for (let i = a.length; i >= 0; i--) {
+    if (a[i] !== b[i]) {
+      return false;
+    }
+  }
+  return true;
+}

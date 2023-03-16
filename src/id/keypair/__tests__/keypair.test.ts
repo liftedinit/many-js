@@ -1,6 +1,7 @@
 import { CoseKey } from "../../../message/encoding";
 import { Identifier } from "../../identifier";
 import { KeyPair } from "../keypair";
+import { fromString } from "../../../shared/utils";
 
 describe("KeyPair", () => {
   describe("constructor", () => {
@@ -31,8 +32,8 @@ describe("KeyPair", () => {
         new Uint8Array(new Array(32).fill(2)),
       );
 
-      const sig1 = await keypair.sign(Buffer.from("foo"));
-      const sig2 = await keypair.sign(Buffer.from("bar"));
+      const sig1 = await keypair.sign(fromString("foo"));
+      const sig2 = await keypair.sign(fromString("bar"));
 
       expect(sig1).not.toStrictEqual(sig2);
     });
