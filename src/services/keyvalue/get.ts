@@ -1,5 +1,6 @@
 import { Server } from "../server";
 import { mapToObj, objToMap, Transform } from "../../shared/transform";
+import { fromString, toString } from "../../shared/utils";
 
 export interface KeyValueGet {
   value?: string;
@@ -10,11 +11,11 @@ export interface KeyValueGetArgs {
 }
 
 const getMap: Transform = {
-  0: ["value", { fn: (value: Buffer) => value.toString() }],
+  0: ["value", { fn: (value: Uint8Array) => toString(value) }],
 };
 
 const getArgsMap: Transform = {
-  0: ["key", { fn: (key: string) => Buffer.from(key) }],
+  0: ["key", { fn: (key: string) => fromString(key) }],
 };
 
 export async function get(
