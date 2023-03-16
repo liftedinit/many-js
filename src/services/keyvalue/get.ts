@@ -13,7 +13,9 @@ const getMap: Transform = {
   0: ["value", { fn: (value: Buffer) => value.toString() }],
 };
 
-const getArgsMap: Transform = { 0: ["key", { type: "bytes" }] };
+const getArgsMap: Transform = {
+  0: ["key", { fn: (key: string) => Buffer.from(key) }],
+};
 
 export async function get(
   server: Server,

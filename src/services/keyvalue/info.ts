@@ -6,7 +6,7 @@ export interface KeyValueInfo {
 }
 
 const infoMap: Transform = {
-  0: ["hash", { type: "bytes" }],
+  0: ["hash", { fn: (hash: Buffer) => hash.toString("hex") }],
 };
 
 export async function info(server: Server): Promise<KeyValueInfo> {
