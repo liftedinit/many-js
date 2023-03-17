@@ -19,9 +19,9 @@ asynchronously and will require polling to retrive the requested data.
 import { Request, Response } from "@liftedinit/many-js";
 
 const req = Request.fromObject({ method: "status" });
-const buffer = req.toBuffer(); // Anonymous CBOR buffer, ready to send
+const buffer = req.toCborData(); // Anonymous CBOR data, ready to send
 
-const res = Response.fromBuffer(someBytes);
+const res = Response.fromCborData(someBytes);
 const { result } = res.toObject();
 
 if (result.ok) {

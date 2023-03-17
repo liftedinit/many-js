@@ -1,8 +1,9 @@
 import cbor from "cbor";
 import { mapToObj, objToMap, Transform } from "../../shared/transform";
 import { Message } from "../message";
-import { CoseSign1 } from "../encoding";
+import { CborData, CoseSign1 } from "../encoding";
 import Tagged from "cbor/types/lib/tagged";
+import { toString } from "../../shared/utils";
 
 export interface RequestArgs {
   version?: number;
@@ -24,13 +25,13 @@ const requestArgMap: Transform = {
   4: [
     "data",
     {
-      fn: (value?: Buffer) =>
+      fn: (value?: Uint8Array) =>
         value ? cbor.decode(value, decoders) : undefined,
     },
   ],
   5: ["timestamp", { fn: (value: Tagged) => value.value }],
   6: "id",
-  7: ["nonce", { fn: (value: Buffer) => value.toString("hex") }],
+  7: ["nonce", { fn: (value: Uint8Array) => toString(value, "hex") }],
   8: "attrs",
 };
 
@@ -51,7 +52,7 @@ const requestMap: Transform = {
 
 const decoders = {
   tags: {
-    10000: (value: Uint8Array) => Buffer.from(value),
+    10000: (value: Uint8Array) => value,
     1: (value: number) => new cbor.Tagged(1, value),
   },
 };
@@ -76,7 +77,7 @@ export class Request extends Message {
     return new Request(cose.payload);
   }
 
-  static fromBuffer(data: Buffer): Request {
-    return Request.fromCoseSign1(CoseSign1.fromBuffer(data));
+  static fromCborData(data: CborData): Request {
+    return Request.fromCoseSign1(CoseSign1.fromCborData(data));
   }
 }

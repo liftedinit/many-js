@@ -1,9 +1,8 @@
 import cbor from "cbor";
 import { Anonymous, Identifier, KeyPair, WebAuthn } from "../id";
-import { CoseSign1 } from "./encoding";
+import { CborData, CborMap, CoseSign1 } from "./encoding";
 const sha512 = require("js-sha512");
-
-type CborMap = Map<number | string, any>;
+import { toString } from "../shared/utils";
 
 export abstract class Message {
   constructor(public content: CborMap) {}
@@ -18,7 +17,7 @@ export abstract class Message {
     const toBeSigned = cbor.encodeCanonical([
       "Signature1",
       cborProtectedHeader,
-      Buffer.alloc(0),
+      new Uint8Array(),
       cborPayload,
     ]);
 
@@ -46,7 +45,7 @@ export abstract class Message {
       const coseKey = id.toCoseKey();
       protectedHeader.set(1, coseKey.key.get(3)); // alg
       protectedHeader.set(4, coseKey.keyId); // kid: kid
-      protectedHeader.set("keyset", coseKey.toBuffer());
+      protectedHeader.set("keyset", coseKey.toCborData());
     }
 
     // Note if we're using WebAuthn
@@ -58,8 +57,8 @@ export abstract class Message {
 
   private async getUnprotectedHeader(
     id: Identifier,
-    cborProtectedHeader: Buffer,
-    toBeSigned: Buffer,
+    cborProtectedHeader: CborData,
+    toBeSigned: CborData,
   ): Promise<CborMap> {
     const unprotectedHeader = new Map();
 
@@ -67,7 +66,14 @@ export abstract class Message {
     if (id instanceof WebAuthn) {
       const data = new Map<number, any>([
         [0, cborProtectedHeader],
-        [1, Buffer.from(sha512.arrayBuffer(toBeSigned)).toString("base64")],
+        [
+          1,
+          btoa(
+            String.fromCharCode(
+              ...new Uint8Array(sha512.arrayBuffer(toBeSigned)),
+            ),
+          ),
+        ],
       ]);
       const sig = await id.sign(cbor.encodeCanonical(data));
       const res = id.credential.response as AuthenticatorAssertionResponse;
@@ -75,7 +81,7 @@ export abstract class Message {
       unprotectedHeader.set("authData", res.authenticatorData);
       unprotectedHeader.set(
         "clientData",
-        Buffer.from(res.clientDataJSON).toString(),
+        toString(new Uint8Array(res.clientDataJSON)),
       );
       unprotectedHeader.set("signature", sig);
     }
@@ -84,17 +90,17 @@ export abstract class Message {
 
   private async getSignature(
     id: Identifier,
-    toBeSigned: Buffer,
+    toBeSigned: CborData,
   ): Promise<ArrayBuffer> {
     // Signature is the standard Cose structure, but only for KeyPair identifiers
     if (id instanceof KeyPair) {
       return await id.sign(toBeSigned);
     }
-    return Buffer.alloc(0);
+    return new Uint8Array();
   }
 
-  async toBuffer(id: Identifier = new Anonymous()) {
-    return (await this.toCoseSign1(id)).toBuffer();
+  async toCborData(id: Identifier = new Anonymous()) {
+    return (await this.toCoseSign1(id)).toCborData();
   }
 
   abstract toJSON(): {};

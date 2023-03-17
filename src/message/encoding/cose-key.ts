@@ -1,12 +1,13 @@
 import cbor from "cbor";
 import { sha3_224 } from "js-sha3";
-import { CborMap } from "./cbor";
+import { compare, fromString } from "../../shared/utils";
+import { CborData, CborMap } from "./cbor";
 
-export const ANONYMOUS = Buffer.from([0x00]);
+export const ANONYMOUS = new Uint8Array([0x00]);
 
 export class CoseKey {
   key: CborMap;
-  keyId: Buffer;
+  keyId: CborData;
   private common: CborMap;
 
   // @TODO: Enumerate required parameters
@@ -20,13 +21,13 @@ export class CoseKey {
     return this.key.get(-2);
   }
 
-  private getKeyId(): Buffer {
-    if (Buffer.compare(this.common.get(-2), ANONYMOUS) === 0) {
+  private getKeyId(): CborData {
+    if (compare(this.common.get(-2), ANONYMOUS)) {
       return ANONYMOUS;
     }
     const keyId = new Map(this.common);
     const pk = "01" + sha3_224(cbor.encodeCanonical(keyId));
-    return Buffer.from(pk, "hex");
+    return fromString(pk, "hex");
   }
 
   private getKey(): CborMap {
@@ -35,7 +36,7 @@ export class CoseKey {
     return key;
   }
 
-  toBuffer(): Buffer {
+  toCborData(): CborData {
     return cbor.encodeCanonical([this.key]);
   }
 }

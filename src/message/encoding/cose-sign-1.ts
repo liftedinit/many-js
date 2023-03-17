@@ -1,6 +1,6 @@
 import cbor from "cbor";
 import { Identifier } from "../../id";
-import { tag, CborMap } from "./cbor";
+import { tag, CborMap, CborData } from "./cbor";
 
 export const decoders = {
   tags: {
@@ -17,7 +17,7 @@ export class CoseSign1 {
     private signature: ArrayBuffer,
   ) {}
 
-  toBuffer(): Buffer {
+  toCborData(): CborData {
     const p = cbor.encodeCanonical(this.protectedHeader);
     const u = this.unprotectedHeader;
     const payload = cbor.encode(new cbor.Tagged(10001, this.payload));
@@ -25,7 +25,7 @@ export class CoseSign1 {
     return cbor.encodeCanonical(new cbor.Tagged(18, [p, u, payload, sig]));
   }
 
-  static fromBuffer(data: Buffer): CoseSign1 {
+  static fromCborData(data: CborData): CoseSign1 {
     const cose = cbor.decodeFirstSync(data, decoders).value;
     const protectedHeader = cbor.decodeFirstSync(cose[0]);
     const unprotectedHeader = cose[1];
