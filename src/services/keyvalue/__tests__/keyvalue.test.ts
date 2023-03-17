@@ -29,7 +29,6 @@ describe("keyvalue", () => {
   });
   describe("put", () => {
     it("should be called with the correct arguments", async () => {
-      mockCall.mockReset();
       await server.put({ key: "foo", value: "bar" });
 
       expect(mockCall).toHaveBeenCalledWith("kvstore.put", mockPutMap);
