@@ -1,5 +1,5 @@
-import cbor from "cbor";
-import { sha3_224 } from "js-sha3";
+import cbor from "cbor"
+import { sha3_224 } from "js-sha3"
 import {
   Address,
   AnonymousIdentity,
@@ -39,7 +39,9 @@ export class CoseMessage {
 
   static fromCborData(data: CborData): CoseMessage {
     const cose = cbor.decodeFirstSync(data, decoders).value
-    const protectedHeader = cbor.decodeFirstSync(cose[0])
+    const protectedHeader = cose[0]?.length
+      ? cbor.decodeFirstSync(cose[0])
+      : cose[0]
     const unprotectedHeader = cose[1]
     const content = cbor.decodeFirstSync(cose[2], decoders).value
     const signature = cose[3]
