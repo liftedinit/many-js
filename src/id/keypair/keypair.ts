@@ -1,6 +1,6 @@
 import { asn1 as ASN1, pem as PEM, pki } from "node-forge";
 import * as bip39 from "bip39";
-import { CoseKey } from "../../message/encoding";
+import { CborData, CoseKey } from "../../message/encoding";
 import { Identifier } from "../identifier";
 
 const Ed25519 = pki.ed25519;
@@ -13,11 +13,8 @@ export class KeyPair extends Identifier {
     }
   }
 
-  async sign(data: ArrayBuffer): Promise<ArrayBuffer> {
-    return Ed25519.sign({
-      message: data as Uint8Array,
-      privateKey: this.privateKey,
-    });
+  async sign(data: CborData): Promise<ArrayBuffer> {
+    return Ed25519.sign({ message: data, privateKey: this.privateKey });
   }
 
   toString(): string {

@@ -1,9 +1,8 @@
 import cbor from "cbor";
 import { sha3_224 } from "js-sha3";
-import { compare, fromString } from "../../shared/utils";
 import { CborData, CborMap } from "./cbor";
 
-export const ANONYMOUS = new Uint8Array([0x00]);
+export const ANONYMOUS = Buffer.from([0x00]);
 
 export class CoseKey {
   key: CborMap;
@@ -22,7 +21,7 @@ export class CoseKey {
   }
 
   private getKeyId(): CborData {
-    if (compare(this.common.get(-2), ANONYMOUS)) {
+    if (Buffer.compare(this.common.get(-2), ANONYMOUS) === 0) {
       return ANONYMOUS;
     }
     const keyId = new Map(this.common);

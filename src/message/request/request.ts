@@ -3,7 +3,7 @@ import { mapToObj, objToMap, Transform } from "../../shared/transform";
 import { Message } from "../message";
 import { CborData, CoseSign1, tag } from "../encoding";
 import Tagged from "cbor/types/lib/tagged";
-import { makeRandomBytes, toString } from "../../shared/utils";
+import { makeRandomBytes } from "../../shared/utils";
 import { Identifier } from "../../id";
 
 export interface RequestArgs {
@@ -32,7 +32,7 @@ const requestArgMap: Transform = {
   ],
   5: ["timestamp", { fn: (value: Tagged) => value.value }],
   6: "id",
-  7: ["nonce", { fn: (value: Uint8Array) => toString(value, "hex") }],
+  7: ["nonce", { fn: (value: CborData) => value.toString("hex") }],
   8: "attrs",
 };
 

@@ -5,10 +5,9 @@ import { CborData, CborMap, CoseSign1 } from "../encoding";
 import { ManyError } from "../error";
 import { Message } from "../message";
 import Tagged from "cbor/types/lib/tagged";
-import { toString } from "../../shared/utils";
 import { Identifier } from "../../id";
 
-type AsyncAttr = [1, Uint8Array];
+type AsyncAttr = [1, CborData];
 
 interface ResponseObj {
   version?: number;
@@ -23,34 +22,29 @@ interface ResponseObj {
 
 const responseMap: Transform = {
   0: "version",
-  1: [
-    "from",
-    {
-      fn: (value: Identifier) => value.toString(),
-    },
-  ],
+  1: ["from", { fn: (value: Identifier) => value.toString() }],
   2: [
     "to",
-    { fn: (value?: Uint8Array) => (value ? toString(value) : undefined) },
+    { fn: (value?: CborData) => (value ? value.toString() : undefined) },
   ],
   4: [
     "result",
     {
       fn: (value: any) =>
-        typeof value === "object" && !(value instanceof Uint8Array)
+        typeof value === "object" && !(value instanceof Buffer)
           ? Err(new ManyError(Object.fromEntries(value)))
-          : Ok(cbor.decode(value as Uint8Array, decoders)),
+          : Ok(cbor.decode(value, decoders)),
     },
   ],
   5: ["timestamp", { fn: (value: Tagged) => value.value }],
   6: "id",
-  7: ["nonce", { fn: (value: Uint8Array) => toString(value, "hex") }],
+  7: ["nonce", { fn: (value: CborData) => value.toString("hex") }],
   8: "attrs",
 };
 
 const decoders = {
   tags: {
-    10000: (value: Uint8Array) => value,
+    10000: (value: CborData) => value,
     1: (value: number) => new cbor.Tagged(1, value),
   },
 };
@@ -60,7 +54,7 @@ export class Response extends Message {
     super(content);
   }
 
-  get token(): Uint8Array | undefined {
+  get token(): CborData | undefined {
     const { attrs } = this.toJSON();
     if (!attrs) {
       return;

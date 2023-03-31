@@ -2,7 +2,6 @@ import cbor from "cbor";
 import { CoseKey } from "../../../message/encoding";
 import { Identifier } from "../../identifier";
 import { KeyPair } from "../keypair";
-import { fromString } from "../../../shared/utils";
 import { IDS } from "./data";
 
 describe("KeyPair", () => {
@@ -34,8 +33,8 @@ describe("KeyPair", () => {
         new Uint8Array(new Array(32).fill(2)),
       );
 
-      const sig1 = await keypair.sign(fromString("foo"));
-      const sig2 = await keypair.sign(fromString("bar"));
+      const sig1 = await keypair.sign(Buffer.from("foo"));
+      const sig2 = await keypair.sign(Buffer.from("bar"));
 
       expect(sig1).not.toStrictEqual(sig2);
     });
@@ -47,7 +46,7 @@ describe("KeyPair", () => {
           "A3012704581D0158DFA1E41AA0547281EDFCAFDF0405075A9174D4EA491666D9FE0D8F666B6579736574584E81A6010102581D0158DFA1E41AA0547281EDFCAFDF0405075A9174D4EA491666D9FE0D8F032704810220062158208245075673CEAADBEE59214EA777E604A507B4A9D5704D0DE3DF602E1C0452D9",
           "hex",
         ),
-        new Uint8Array(),
+        Buffer.alloc(0),
         Buffer.from(
           "D92711A301D92710581D0158DFA1E41AA0547281EDFCAFDF0405075A9174D4EA491666D9FE0D8F036673746174757305C11A6425D329",
           "hex",
