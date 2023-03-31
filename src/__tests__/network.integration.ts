@@ -1,16 +1,19 @@
+import { execSync } from "child_process"
 import { Message } from "../message"
+import { CborData } from "../message/cbor"
 import { Base, Network } from "../network"
 import { ID1, ID_RND, SERVERS } from "./data"
 
-declare global {
-  var MANY_HEX: string
-}
-
 describe("Network", () => {
-  const HEX = globalThis.MANY_HEX
-  const CBOR_DATA = Buffer.from(HEX, "hex")
-
   let network: Network
+  let HEX: string
+  let CBOR_DATA: CborData
+
+  beforeAll(() => {
+    const hex = execSync("../many-rs/target/debug/many message status --hex")
+    HEX = `d2${hex.toString()}`
+    CBOR_DATA = Buffer.from(HEX, "hex")
+  })
 
   it("should send encoded bytes", async () => {
     network = new Network(SERVERS.LEDGER)
