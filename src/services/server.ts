@@ -9,10 +9,14 @@ const sleep = async (t: number) => new Promise((r) => setTimeout(r, t));
 export abstract class Server {
   constructor(public url: string, public id: Identifier = new Anonymous()) {}
 
-  async send(req: Request): Promise<Response> {
+  async send(req: Request): Promise<Response | undefined> {
     const encoded = await req.toCborData(this.id);
+    console.log(toString(encoded, "hex"));
     const cborData = await this.sendEncoded(encoded);
     // @TODO: Verify response
+    if (!cborData.length) {
+      return;
+    }
     return Response.fromCborData(cborData);
   }
 
@@ -31,6 +35,10 @@ export abstract class Server {
     const from = this.id.toString();
     const req = Request.fromObject({ method, from, data, ...options });
     const res = await this.send(req);
+    if (!res) {
+      console.log(method, "EMPTY");
+      return;
+    }
     const result = res.result;
     if (result.ok) {
       if (res.token) {

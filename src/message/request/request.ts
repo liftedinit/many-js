@@ -1,9 +1,10 @@
 import cbor from "cbor";
 import { mapToObj, objToMap, Transform } from "../../shared/transform";
 import { Message } from "../message";
-import { CborData, CoseSign1 } from "../encoding";
+import { CborData, CoseSign1, tag } from "../encoding";
 import Tagged from "cbor/types/lib/tagged";
-import { toString } from "../../shared/utils";
+import { makeRandomBytes, toString } from "../../shared/utils";
+import { Identifier } from "../../id";
 
 export interface RequestArgs {
   version?: number;
@@ -46,7 +47,7 @@ const requestMap: Transform = {
   ],
   5: ["timestamp", { fn: (value: number) => new cbor.Tagged(1, value) }],
   6: "id",
-  7: ["nonce", { fn: (value: string) => cbor.encode(value) }],
+  // 7: ["nonce", { fn: (value: string) => cbor.encode(value) }],
   8: "attrs",
 };
 
@@ -67,8 +68,9 @@ export class Request extends Message {
       throw new Error("Property 'method' is required.");
     }
     const defaults = {
-      version: 1,
+      // version: 1,
       timestamp: Math.floor(Date.now() / 1000),
+      // nonce: makeRandomBytes(16),
     };
     return new Request(objToMap({ ...defaults, ...obj }, requestMap));
   }
@@ -78,6 +80,7 @@ export class Request extends Message {
   }
 
   static fromCborData(data: CborData): Request {
-    return Request.fromCoseSign1(CoseSign1.fromCborData(data));
+    const cose = CoseSign1.fromCborData(data);
+    return Request.fromCoseSign1(cose);
   }
 }

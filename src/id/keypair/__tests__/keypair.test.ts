@@ -1,7 +1,9 @@
+import cbor from "cbor";
 import { CoseKey } from "../../../message/encoding";
 import { Identifier } from "../../identifier";
 import { KeyPair } from "../keypair";
 import { fromString } from "../../../shared/utils";
+import { IDS } from "./data";
 
 describe("KeyPair", () => {
   describe("constructor", () => {
@@ -37,6 +39,27 @@ describe("KeyPair", () => {
 
       expect(sig1).not.toStrictEqual(sig2);
     });
+    it("should return the correct signature", async () => {
+      const keypair = KeyPair.fromPem(IDS.ALICE.PEM);
+      const toBeSigned = cbor.encodeCanonical([
+        "Signature1",
+        Buffer.from(
+          "A3012704581D0158DFA1E41AA0547281EDFCAFDF0405075A9174D4EA491666D9FE0D8F666B6579736574584E81A6010102581D0158DFA1E41AA0547281EDFCAFDF0405075A9174D4EA491666D9FE0D8F032704810220062158208245075673CEAADBEE59214EA777E604A507B4A9D5704D0DE3DF602E1C0452D9",
+          "hex",
+        ),
+        new Uint8Array(),
+        Buffer.from(
+          "D92711A301D92710581D0158DFA1E41AA0547281EDFCAFDF0405075A9174D4EA491666D9FE0D8F036673746174757305C11A6425D329",
+          "hex",
+        ),
+      ]);
+      const expectedSig =
+        "5867D485C8996EF3DBC3C28F967DA0265A1444735054D1F6E17ACB86F656552FB5AFE09DAD2083398D06F5373A569B875F688B0FBD896FE1FA16B6D4EB7D360B";
+
+      const sig = await keypair.sign(toBeSigned);
+
+      expect(sig).toStrictEqual(Buffer.from(expectedSig, "hex"));
+    });
   });
   describe("toString", () => {
     it("should return a Many address", () => {
@@ -48,11 +71,14 @@ describe("KeyPair", () => {
       expect(keypair.toString()).toMatch(/^m\w+$/);
     });
     it("should return the expected Many address", () => {
-      const keypair = KeyPair.fromMnemonic(
-        "solid review dwarf scare armor slide spoil hawk tonight brown cable hip",
-      );
-      const address = "mafiktgsq4ch6xfmvu66o44vydn27hsv22o4g5nqkdwgqucy7c";
-      expect(keypair.toString()).toBe(address);
+      const keypair = KeyPair.fromPem(IDS.ALICE.PEM);
+
+      expect(keypair.toString()).toBe(IDS.ALICE.ADDRESS);
+    });
+    it("should return the expected Many address", () => {
+      const keypair = KeyPair.fromMnemonic(IDS.CHARLIE.MNEMONIC);
+
+      expect(keypair.toString()).toBe(IDS.CHARLIE.ADDRESS);
     });
   });
   describe("toCoseKey", () => {
@@ -77,9 +103,7 @@ describe("KeyPair", () => {
   });
   describe("fromString", () => {
     it("should throw", () => {
-      const address = "maeo2ob5e6mgaxr2lqg6muoqwuqz6j3t6wv3eig4wgymkouafh";
-
-      expect(() => KeyPair.fromString(address)).toThrow();
+      expect(() => KeyPair.fromString(IDS.ALICE.ADDRESS)).toThrow();
     });
   });
   describe("getSeedWords", () => {
@@ -114,11 +138,7 @@ describe("KeyPair", () => {
   });
   describe("fromPem", () => {
     it("should return a keypair identifier", () => {
-      const pem = `
-      -----BEGIN PRIVATE KEY-----
-      MC4CAQAwBQYDK2VwBCIEICT3i6WfLx4t3UF6R8aEfczyATc/jvqvOrNga2MJfA2R
-      -----END PRIVATE KEY-----`;
-      const keypair = KeyPair.fromPem(pem);
+      const keypair = KeyPair.fromPem(IDS.ALICE.PEM);
 
       expect(keypair instanceof KeyPair).toBe(true);
       expect(keypair instanceof Identifier).toBe(true);

@@ -27,7 +27,7 @@ export class CoseKey {
     }
     const keyId = new Map(this.common);
     const pk = "01" + sha3_224(cbor.encodeCanonical(keyId));
-    return fromString(pk, "hex");
+    return Buffer.from(pk, "hex");
   }
 
   private getKey(): CborMap {

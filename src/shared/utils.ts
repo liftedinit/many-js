@@ -14,7 +14,7 @@ export function toString(array: Uint8Array, encoding: string = "utf8") {
     case "utf8":
     case "utf-8":
     default:
-      return new TextDecoder().decode(array);
+      return new TextDecoder(encoding).decode(array);
   }
 }
 

@@ -29,7 +29,8 @@
   "scripts": {
     "build": "tsc",
     "prepare": "npm run build",
-    "test": "jest"
+    "test": "jest",
+    "test:integration": "jest --testMatch '**/?(*.)+(integration).[jt]s?(x)'"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser"

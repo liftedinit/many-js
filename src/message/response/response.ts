@@ -6,6 +6,7 @@ import { ManyError } from "../error";
 import { Message } from "../message";
 import Tagged from "cbor/types/lib/tagged";
 import { toString } from "../../shared/utils";
+import { Identifier } from "../../id";
 
 type AsyncAttr = [1, Uint8Array];
 
@@ -22,7 +23,12 @@ interface ResponseObj {
 
 const responseMap: Transform = {
   0: "version",
-  1: ["from", { fn: (value: Uint8Array) => toString(value) }],
+  1: [
+    "from",
+    {
+      fn: (value: Identifier) => value.toString(),
+    },
+  ],
   2: [
     "to",
     { fn: (value?: Uint8Array) => (value ? toString(value) : undefined) },
@@ -78,6 +84,7 @@ export class Response extends Message {
   }
 
   static fromCborData(data: CborData): Response {
-    return Response.fromCoseSign1(CoseSign1.fromCborData(data));
+    const cose = CoseSign1.fromCborData(data);
+    return Response.fromCoseSign1(cose);
   }
 }

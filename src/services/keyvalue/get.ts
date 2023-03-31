@@ -11,11 +11,11 @@ export interface KeyValueGetArgs {
 }
 
 const getMap: Transform = {
-  0: ["value", { fn: (value: Uint8Array) => toString(value) }],
+  0: ["value", { fn: (value: Buffer) => value.toString() }],
 };
 
 const getArgsMap: Transform = {
-  0: ["key", { fn: (key: string) => fromString(key) }],
+  0: ["key", { fn: (key: string) => Buffer.from(key) }],
 };
 
 export async function get(

@@ -52,6 +52,7 @@ export abstract class Message {
     if (id instanceof WebAuthn) {
       protectedHeader.set("webauthn", true);
     }
+
     return protectedHeader;
   }
 
@@ -96,11 +97,13 @@ export abstract class Message {
     if (id instanceof KeyPair) {
       return await id.sign(toBeSigned);
     }
-    return new Uint8Array();
+    return new ArrayBuffer(0);
   }
 
   async toCborData(id: Identifier = new Anonymous()) {
-    return (await this.toCoseSign1(id)).toCborData();
+    const cose = await this.toCoseSign1(id);
+    // console.log(cose);
+    return cose.toCborData();
   }
 
   abstract toJSON(): {};
