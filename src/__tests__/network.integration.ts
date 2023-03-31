@@ -1,9 +1,13 @@
 import { Message } from "../message"
 import { Base, Network } from "../network"
-import { ID1, SERVERS } from "./data"
+import { ID1, ID_RND, SERVERS } from "./data"
+
+declare global {
+  var MANY_HEX: string
+}
 
 describe("Network", () => {
-  const HEX = "d28440a053d92711a2036673746174757305c11a64234ee740"
+  const HEX = globalThis.MANY_HEX
   const CBOR_DATA = Buffer.from(HEX, "hex")
 
   let network: Network
@@ -43,8 +47,16 @@ describe("Network", () => {
 
     expect(status).toBeDefined()
   })
-  it("should call a method non-anonymously", async () => {
+  it("should call a method with a known identity", async () => {
     network = new Network(SERVERS.LEDGER, ID1)
+    network.apply([Base])
+
+    const status = await network.base.status()
+
+    expect(status).toBeDefined()
+  })
+  it("should call a method with a random identity", async () => {
+    network = new Network(SERVERS.LEDGER, ID_RND())
     network.apply([Base])
 
     const status = await network.base.status()
