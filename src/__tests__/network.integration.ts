@@ -1,4 +1,3 @@
-import { execSync } from "child_process"
 import { Message } from "../message"
 import { CborData } from "../message/cbor"
 import { Base, Network } from "../network"
@@ -10,8 +9,8 @@ describe("Network", () => {
   let CBOR_DATA: CborData
 
   beforeAll(() => {
-    const hex = execSync("../many-rs/target/debug/many message status --hex")
-    HEX = `d2${hex.toString()}`
+    const timestamp = Math.floor(Date.now() / 1000).toString(16)
+    HEX = `d28440a053d92711a2036673746174757305c11a${timestamp}40`
     CBOR_DATA = Buffer.from(HEX, "hex")
   })
 
