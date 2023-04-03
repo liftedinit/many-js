@@ -1,7 +1,7 @@
 import { KeyPair } from "../id";
 
 export const SERVERS = {
-  LEDGER: "http://127.0.0.1:8001",
+  LEDGER: "http://127.0.0.1:8000",
   KEYVALUE: "http://127.0.0.1:8010",
 };
 
