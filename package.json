@@ -29,6 +29,7 @@
   },
   "scripts": {
     "test": "jest",
+    "test:integration": "jest --testMatch '**/?(*.)+(integration).[jt]s?(x)'",
     "build": "tsc",
     "watch": "npm run clean && npm run build -- -w",
     "clean": "rm -rf ./dist",
@@ -50,6 +51,10 @@
     ]
   },
   "jest": {
+    "collectCoverageFrom": [
+      "./src/**",
+      "!./src/**/__tests__/**"
+    ],
     "preset": "ts-jest",
     "testEnvironment": "node",
     "maxWorkers": 1,
