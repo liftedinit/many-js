@@ -2,7 +2,6 @@ import base32Decode from "base32-decode";
 import base32Encode from "base32-encode";
 import crc from "crc";
 import { CoseKey } from "../message/encoding";
-import { compare } from "../shared/utils";
 
 export class Identifier {
   constructor(public publicKey: Uint8Array = new Uint8Array([0x00])) {}
@@ -51,7 +50,7 @@ export class Identifier {
     const check16 = new Uint16Array([crc.crc16(address)]);
     const check = new Uint8Array(check16.buffer).reverse();
 
-    if (!compare(check, new Uint8Array(checksum))) {
+    if (Buffer.compare(check, Buffer.from(checksum)) !== 0) {
       throw new Error(`Invalid checksum: ${checksum}`);
     }
 

@@ -1,6 +1,5 @@
 import { Anonymous } from "../anonymous";
 import { Identifier } from "../../identifier";
-import { fromString } from "../../../shared/utils";
 
 describe("Anonymous", () => {
   describe("constructor", () => {
@@ -20,7 +19,7 @@ describe("Anonymous", () => {
     it("should return an empty buffer", async () => {
       const anon = new Anonymous();
 
-      const sig = await anon.sign(fromString("foo"));
+      const sig = await anon.sign(Buffer.from("foo"));
 
       expect(sig).toStrictEqual(new Uint8Array());
     });

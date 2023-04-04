@@ -2,7 +2,6 @@ import cbor from "cbor";
 import { Anonymous, Identifier, KeyPair, WebAuthn } from "../id";
 import { CborData, CborMap, CoseSign1 } from "./encoding";
 const sha512 = require("js-sha512");
-import { toString } from "../shared/utils";
 
 export abstract class Message {
   constructor(public content: CborMap) {}
@@ -17,7 +16,7 @@ export abstract class Message {
     const toBeSigned = cbor.encodeCanonical([
       "Signature1",
       cborProtectedHeader,
-      new Uint8Array(),
+      Buffer.alloc(0),
       cborPayload,
     ]);
 
@@ -52,6 +51,7 @@ export abstract class Message {
     if (id instanceof WebAuthn) {
       protectedHeader.set("webauthn", true);
     }
+
     return protectedHeader;
   }
 
@@ -66,23 +66,13 @@ export abstract class Message {
     if (id instanceof WebAuthn) {
       const data = new Map<number, any>([
         [0, cborProtectedHeader],
-        [
-          1,
-          btoa(
-            String.fromCharCode(
-              ...new Uint8Array(sha512.arrayBuffer(toBeSigned)),
-            ),
-          ),
-        ],
+        [1, Buffer.from(sha512.arrayBuffer(toBeSigned)).toString("base64")],
       ]);
       const sig = await id.sign(cbor.encodeCanonical(data));
       const res = id.credential.response as AuthenticatorAssertionResponse;
 
       unprotectedHeader.set("authData", res.authenticatorData);
-      unprotectedHeader.set(
-        "clientData",
-        toString(new Uint8Array(res.clientDataJSON)),
-      );
+      unprotectedHeader.set("clientData", res.clientDataJSON.toString());
       unprotectedHeader.set("signature", sig);
     }
     return unprotectedHeader;
@@ -96,11 +86,12 @@ export abstract class Message {
     if (id instanceof KeyPair) {
       return await id.sign(toBeSigned);
     }
-    return new Uint8Array();
+    return new ArrayBuffer(0);
   }
 
   async toCborData(id: Identifier = new Anonymous()) {
-    return (await this.toCoseSign1(id)).toCborData();
+    const cose = await this.toCoseSign1(id);
+    return cose.toCborData();
   }
 
   abstract toJSON(): {};

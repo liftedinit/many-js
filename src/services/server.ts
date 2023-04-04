@@ -1,7 +1,6 @@
 import { Anonymous, Identifier } from "../id";
 import { Request, Response } from "../message";
 import { CborData, CborMap } from "../message/encoding";
-import { toString } from "../shared/utils";
 
 const INITIAL_SLEEP = 500;
 const sleep = async (t: number) => new Promise((r) => setTimeout(r, t));
@@ -24,7 +23,7 @@ export abstract class Server {
       body: encoded,
     });
     const arrayBuffer = await httpRes.arrayBuffer();
-    return new Uint8Array(arrayBuffer);
+    return Buffer.from(arrayBuffer);
   }
 
   async call(method: string, data?: any, options = {}) {
@@ -41,14 +40,16 @@ export abstract class Server {
     throw result.error;
   }
 
-  async poll(token: Uint8Array, ms: number = INITIAL_SLEEP): Promise<any> {
+  async poll(token: CborData, ms: number = INITIAL_SLEEP): Promise<any> {
     const poll = await this.call("async.status", new Map([[0, token]]));
     const { result } = poll.toObject();
     if (result.ok) {
       const [status, value] = (result.value as CborMap).values();
       switch (status) {
         case 0: // Unknown
-          throw new Error(`Unknown request token: ${toString(token, "hex")}`);
+          throw new Error(
+            `Unknown request token: ${Buffer.from(token).toString("hex")}`,
+          );
         case 1: // Queued
         case 2: // Processing
           await sleep(ms);

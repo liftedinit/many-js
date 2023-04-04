@@ -18,7 +18,9 @@ export class CoseSign1 {
   ) {}
 
   toCborData(): CborData {
-    const p = cbor.encodeCanonical(this.protectedHeader);
+    const p = this.protectedHeader.size
+      ? cbor.encodeCanonical(this.protectedHeader)
+      : Buffer.alloc(0);
     const u = this.unprotectedHeader;
     const payload = cbor.encode(new cbor.Tagged(10001, this.payload));
     let sig = this.signature;
@@ -27,7 +29,10 @@ export class CoseSign1 {
 
   static fromCborData(data: CborData): CoseSign1 {
     const cose = cbor.decodeFirstSync(data, decoders).value;
-    const protectedHeader = cbor.decodeFirstSync(cose[0]);
+
+    const protectedHeader = cose[0].size
+      ? cbor.decodeFirstSync(cose[0])
+      : new Map();
     const unprotectedHeader = cose[1];
     const payload = cbor.decodeFirstSync(cose[2], decoders).value;
     const signature = cose[3];
