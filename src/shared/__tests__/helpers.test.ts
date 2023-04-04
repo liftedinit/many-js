@@ -16,7 +16,7 @@ const decode: Transform = {
   0: ["number", { fn: (value: string) => parseInt(value) }],
 };
 const encode: Transform = {
-  0: ["number", { fn: (value: string) => Buffer.from(value) }],
+  0: ["number", { fn: (value: string) => Buffer.from(value, "hex") }],
 };
 
 describe("Transform", () => {
@@ -90,8 +90,8 @@ describe("Transform", () => {
       const obj = { number: "0x2a" };
       const map = objToMap(obj, encode);
 
-      expect(Buffer.isBuffer(map.get(0))).toBe(true);
-      expect(map.get(0).toString()).toBe("0x2a");
+      expect(map.get(0) instanceof Buffer).toBe(true);
+      expect(map.get(0).toString("hex")).toBe("ba5eba11");
     });
   });
 });

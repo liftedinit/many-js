@@ -6,7 +6,7 @@ const sha512 = require("js-sha512");
 type CborMap = Map<number | string, any>;
 
 export abstract class Message {
-  constructor(public content: CborMap) {}
+  constructor(public content: CborMap) { }
 
   async toCoseSign1(id: Identifier): Promise<CoseSign1> {
     const protectedHeader = this.getProtectedHeader(id);
@@ -53,6 +53,7 @@ export abstract class Message {
     if (id instanceof WebAuthn) {
       protectedHeader.set("webauthn", true);
     }
+
     return protectedHeader;
   }
 
@@ -73,10 +74,14 @@ export abstract class Message {
       const res = id.credential.response as AuthenticatorAssertionResponse;
 
       unprotectedHeader.set("authData", res.authenticatorData);
+<<<<<<< HEAD
       unprotectedHeader.set(
         "clientData",
         Buffer.from(res.clientDataJSON).toString(),
       );
+=======
+      unprotectedHeader.set("clientData", res.clientDataJSON.toString());
+>>>>>>> b3b8b82 (test: Integration tests for v2 (#104))
       unprotectedHeader.set("signature", sig);
     }
     return unprotectedHeader;
@@ -90,11 +95,20 @@ export abstract class Message {
     if (id instanceof KeyPair) {
       return await id.sign(toBeSigned);
     }
+<<<<<<< HEAD
     return Buffer.alloc(0);
   }
 
   async toBuffer(id: Identifier = new Anonymous()) {
     return (await this.toCoseSign1(id)).toBuffer();
+=======
+    return new ArrayBuffer(0);
+  }
+
+  async toCborData(id: Identifier = new Anonymous()) {
+    const cose = await this.toCoseSign1(id);
+    return cose.toCborData();
+>>>>>>> b3b8b82 (test: Integration tests for v2 (#104))
   }
 
   abstract toJSON(): {};

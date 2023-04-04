@@ -1,23 +1,20 @@
-import forge, { pki } from "node-forge";
+import { asn1 as ASN1, pem as PEM, pki } from "node-forge";
 import * as bip39 from "bip39";
-import { CoseKey } from "../../message/encoding";
+import { CborData, CoseKey } from "../../message/encoding";
 import { Identifier } from "../identifier";
 
-const ed25519 = pki.ed25519;
+const Ed25519 = pki.ed25519;
 
 export class KeyPair extends Identifier {
   constructor(public publicKey: Uint8Array, private privateKey: Uint8Array) {
     super();
-    if (new Uint8Array(privateKey).length !== 32) {
+    if (privateKey.length !== 32) {
       throw new Error("Private key must have 32 bytes");
     }
   }
 
-  async sign(data: ArrayBuffer): Promise<ArrayBuffer> {
-    return ed25519.sign({
-      message: data as Uint8Array,
-      privateKey: this.privateKey as Uint8Array,
-    });
+  async sign(data: CborData): Promise<ArrayBuffer> {
+    return Ed25519.sign({ message: data, privateKey: this.privateKey });
   }
 
   toString(): string {
@@ -50,17 +47,17 @@ export class KeyPair extends Identifier {
       throw new Error(`Invalid mnemonic: ${mnemonic}`);
     }
     const seed = bip39.mnemonicToSeedSync(sanitized).slice(0, 32);
-    const keys = ed25519.generateKeyPair({ seed });
+    const keys = Ed25519.generateKeyPair({ seed });
     return new KeyPair(keys.publicKey, keys.privateKey.slice(0, 32));
   }
 
   static fromPem(pem: string): KeyPair {
     try {
-      const der = forge.pem.decode(pem)[0].body;
-      const asn1 = forge.asn1.fromDer(der.toString());
-      const { privateKeyBytes } = ed25519.privateKeyFromAsn1(asn1);
+      const der = PEM.decode(pem)[0].body;
+      const asn1 = ASN1.fromDer(der.toString());
+      const { privateKeyBytes } = Ed25519.privateKeyFromAsn1(asn1);
 
-      const keys = ed25519.generateKeyPair({ seed: privateKeyBytes });
+      const keys = Ed25519.generateKeyPair({ seed: privateKeyBytes });
       return new KeyPair(keys.publicKey, keys.privateKey.slice(0, 32));
     } catch (e) {
       throw new Error(`Invalid PEM: ${pem}`);

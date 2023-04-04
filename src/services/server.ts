@@ -1,18 +1,18 @@
 import { Anonymous, Identifier } from "../id";
 import { Request, Response } from "../message";
-import { CborMap } from "../message/encoding";
+import { CborData, CborMap } from "../message/encoding";
 
 const INITIAL_SLEEP = 500;
 const sleep = async (t: number) => new Promise((r) => setTimeout(r, t));
 
 export abstract class Server {
-  constructor(public url: string, public id: Identifier = new Anonymous()) {}
+  constructor(public url: string, public id: Identifier = new Anonymous()) { }
 
   async send(message: Request): Promise<Response> {
     const encoded = await message.toBuffer(this.id);
     const cborData = await this.sendEncoded(encoded);
     // @TODO: Verify response
-    return Response.fromBuffer(cborData);
+    return Response.fromCborData(cborData);
   }
 
   async sendEncoded(encoded: Buffer) {
@@ -40,14 +40,16 @@ export abstract class Server {
     throw result.error;
   }
 
-  async poll(token: Buffer, ms: number = INITIAL_SLEEP): Promise<any> {
+  async poll(token: CborData, ms: number = INITIAL_SLEEP): Promise<any> {
     const poll = await this.call("async.status", new Map([[0, token]]));
     const { result } = poll.toObject();
     if (result.ok) {
       const [status, value] = (result.value as CborMap).values();
       switch (status) {
         case 0: // Unknown
-          throw new Error(`Unknown request token: ${token.toString("hex")}`);
+          throw new Error(
+            `Unknown request token: ${Buffer.from(token).toString("hex")}`,
+          );
         case 1: // Queued
         case 2: // Processing
           await sleep(ms);

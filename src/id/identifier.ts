@@ -4,7 +4,7 @@ import crc from "crc";
 import { CoseKey } from "../message/encoding";
 
 export class Identifier {
-  constructor(public publicKey: Uint8Array = new Uint8Array([0x00])) {}
+  constructor(public publicKey: Uint8Array = new Uint8Array([0x00])) { }
 
   async sign(_: ArrayBuffer): Promise<ArrayBuffer> {
     throw new Error("Generic identifier cannot sign");
@@ -47,9 +47,10 @@ export class Identifier {
     const address = base32Decode(base32Address, "RFC4648");
     const checksum = base32Decode(base32Checksum, "RFC4648");
 
-    const check = Buffer.allocUnsafe(3);
-    check.writeUInt16BE(crc.crc16(Buffer.from(address)), 0);
-    if (Buffer.compare(Buffer.from(checksum), check.slice(0, 1)) !== 0) {
+    const check16 = new Uint16Array([crc.crc16(address)]);
+    const check = new Uint8Array(check16.buffer).reverse();
+
+    if (Buffer.compare(check, Buffer.from(checksum)) !== 0) {
       throw new Error(`Invalid checksum: ${checksum}`);
     }
 

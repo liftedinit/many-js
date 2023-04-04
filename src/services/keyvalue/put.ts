@@ -8,8 +8,8 @@ export interface KeyValuePutArgs {
 }
 
 const putArgsMap: Transform = {
-  0: ["key", { type: "bytes" }],
-  1: ["value", { type: "bytes" }],
+  0: ["key", { fn: (key: string) => Buffer.from(key) }],
+  1: ["value", { fn: (value: string) => Buffer.from(value) }],
   2: "owner",
 };
 

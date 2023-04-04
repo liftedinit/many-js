@@ -1,12 +1,13 @@
 import cbor from "cbor";
 import { mapToObj, Transform } from "../../shared/transform";
 import { Result, Ok, Err } from "../../shared/result";
-import { CborMap, CoseSign1 } from "../encoding";
+import { CborData, CborMap, CoseSign1 } from "../encoding";
 import { ManyError } from "../error";
 import { Message } from "../message";
 import Tagged from "cbor/types/lib/tagged";
+import { Identifier } from "../../id";
 
-type AsyncAttr = [1, Buffer];
+type AsyncAttr = [1, CborData];
 
 interface ResponseObj {
   version?: number;
@@ -21,26 +22,29 @@ interface ResponseObj {
 
 const responseMap: Transform = {
   0: "version",
-  1: ["from", { fn: (value: Buffer) => value.toString() }],
-  2: ["to", { fn: (value?: Buffer) => value?.toString() }],
+  1: ["from", { fn: (value: Identifier) => value.toString() }],
+  2: [
+    "to",
+    { fn: (value?: CborData) => (value ? value.toString() : undefined) },
+  ],
   4: [
     "result",
     {
       fn: (value: any) =>
-        typeof value === "object" && !Buffer.isBuffer(value)
+        typeof value === "object" && !(value instanceof Buffer)
           ? Err(new ManyError(Object.fromEntries(value)))
-          : Ok(cbor.decode(value as Buffer, decoders)),
+          : Ok(cbor.decode(value, decoders)),
     },
   ],
   5: ["timestamp", { fn: (value: Tagged) => value.value }],
   6: "id",
-  7: ["nonce", { fn: (value: Buffer) => value.toString("hex") }],
+  7: ["nonce", { fn: (value: CborData) => value.toString("hex") }],
   8: "attrs",
 };
 
 const decoders = {
   tags: {
-    10000: (value: Uint8Array) => Buffer.from(value),
+    10000: (value: CborData) => value,
     1: (value: number) => new cbor.Tagged(1, value),
   },
 };
@@ -50,7 +54,7 @@ export class Response extends Message {
     super(content);
   }
 
-  get token(): Buffer | undefined {
+  get token(): CborData | undefined {
     const { attrs } = this.toJSON();
     if (!attrs) {
       return;
@@ -73,7 +77,8 @@ export class Response extends Message {
     return new Response(cose.payload);
   }
 
-  static fromBuffer(data: Buffer): Response {
-    return Response.fromCoseSign1(CoseSign1.fromBuffer(data));
+  static fromCborData(data: CborData): Response {
+    const cose = CoseSign1.fromCborData(data);
+    return Response.fromCoseSign1(cose);
   }
 }
