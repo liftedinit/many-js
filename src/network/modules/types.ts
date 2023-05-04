@@ -27,6 +27,8 @@ export enum EventType {
   accountMultisigWithdraw = "accountMultisigWithdraw",
   accountMultisigSetDefaults = "accountMultisigSetDefaults",
   accountMultisigExpired = "accountMultisigExpired",
+  mint = "mint",
+  burn = "burn",
 }
 
 export enum AccountFeatureTypes {
