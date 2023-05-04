@@ -393,7 +393,7 @@ export const expectedMockEventsListMultisigTxnsResponse = {
             )
             .set(
               AccountMultisigArgument[
-                AccountMultisigArgument.executeAutomatically
+              AccountMultisigArgument.executeAutomatically
               ],
               false,
             ),
@@ -519,7 +519,7 @@ export const expectedMockEventsListCreateAccountResponse = {
             )
             .set(
               AccountMultisigArgument[
-                AccountMultisigArgument.executeAutomatically
+              AccountMultisigArgument.executeAutomatically
               ],
               false,
             ),
@@ -528,6 +528,46 @@ export const expectedMockEventsListCreateAccountResponse = {
     },
   ],
 }
+
+export const mockEventsListMintBurnResponse = makeEventsListResponseMessage(2, [
+  makeTxn({
+    id: 1,
+    time: eventTime1,
+    txnData: new Map()
+      .set(0, eventTypeNameToIndices.mint)
+      .set(1, txnSymbolAddress1)
+      .set(2, new Map([[taggedIdentity2, 100000]])),
+  }),
+  makeTxn({
+    id: 2,
+    time: eventTime1,
+    txnData: new Map()
+      .set(0, eventTypeNameToIndices.burn)
+      .set(1, txnSymbolAddress1)
+      .set(2, new Map([[taggedIdentity2, 10000]])),
+  }),
+])
+
+export const expectedMockEventsListMintBurnResponse = {
+  count: 2,
+  events: [
+    {
+      id: 1,
+      time: eventTime1,
+      type: EventType.mint,
+      symbolAddress: txnSymbolAddress1,
+      amounts: { [identityStr2]: BigInt(100000) },
+    },
+    {
+      id: 2,
+      time: eventTime1,
+      type: EventType.burn,
+      symbolAddress: txnSymbolAddress1,
+      amounts: { [identityStr2]: BigInt(10000) },
+    },
+  ],
+}
+
 function makeAccountTxnResponse({
   txnTypeIndices,
   accountSource,

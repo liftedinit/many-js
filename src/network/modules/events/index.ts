@@ -16,4 +16,6 @@ export type {
   MultisigRevokeEvent,
   MultisigWithdrawEvent,
   MultisigSetDefaultsEvent,
+  MintEvent,
+  BurnEvent,
 } from "./events"

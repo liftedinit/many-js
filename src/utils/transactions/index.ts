@@ -16,6 +16,8 @@ import {
   MultisigSetDefaultsEvent,
   AddFeaturesEvent,
   Memo,
+  MintEvent,
+  BurnEvent,
 } from "../../network"
 
 export function makeLedgerSendParam({
@@ -88,9 +90,10 @@ export async function makeTxnData(
       "withdrawer",
       txn,
     )
-  else if (eventTypeName === EventType.accountMultisigSetDefaults) {
+  else if (eventTypeName === EventType.accountMultisigSetDefaults)
     return await makeMultisigSetDefaultEventData(txn)
-  }
+  else if (eventTypeName === EventType.mint) return await makeMintEventData(txn)
+  else if (eventTypeName === EventType.burn) return await makeBurnEventData(txn)
 
   console.error("event type not implemented", indices, txn)
 }
@@ -295,5 +298,33 @@ async function makeMultisigSubmitEventData(
     expireDate: eventData.get(7)?.value,
     executeAutomatically: eventData.get(8) as boolean,
     memo: eventData.get(10) as Memo,
+  }
+}
+
+async function makeMintEventData(
+  eventData: CborMap,
+): Promise<Omit<MintEvent, "id" | "time">> {
+  const amounts = eventData.get(2) as Map<Address, number>
+  return {
+    type: EventType.mint,
+    symbolAddress: (eventData.get(1) as Address)?.toString(),
+    amounts: Array.from(amounts.entries()).reduce(
+      (amts, [to, amt]) => ({ ...amts, [to.toString()]: BigInt(amt) }),
+      {},
+    ),
+  }
+}
+
+async function makeBurnEventData(
+  eventData: CborMap,
+): Promise<Omit<BurnEvent, "id" | "time">> {
+  const amounts = eventData.get(2) as Map<Address, number>
+  return {
+    type: EventType.burn,
+    symbolAddress: (eventData.get(1) as Address)?.toString(),
+    amounts: Array.from(amounts.entries()).reduce(
+      (amts, [from, amt]) => ({ ...amts, [from.toString()]: BigInt(amt) }),
+      {},
+    ),
   }
 }

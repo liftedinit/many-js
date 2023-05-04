@@ -20,4 +20,6 @@ export const eventTypeNameToIndices: {
   [EventType.accountMultisigWithdraw]: [9, [1, 4]],
   [EventType.accountMultisigSetDefaults]: [9, [1, 5]],
   [EventType.accountMultisigExpired]: [9, [1, 6]],
+  [EventType.mint]: [12, 0],
+  [EventType.burn]: [12, 1],
 }
