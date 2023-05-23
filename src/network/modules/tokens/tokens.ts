@@ -59,7 +59,7 @@ export const Tokens: TokensModule = {
     param: TokensMintBurnParam,
     { nonce } = { nonce: makeRandomBytes(16) },
   ) {
-    return await this.call("tokens.mint", makeTokensMintBurnParam(param), {
+    return await this.call("tokens.mint", makeTokensMintParam(param), {
       nonce,
     })
   },
@@ -67,7 +67,7 @@ export const Tokens: TokensModule = {
     param: TokensMintBurnParam,
     { nonce } = { nonce: makeRandomBytes(16) },
   ) {
-    return await this.call("tokens.burn", makeTokensMintBurnParam(param), {
+    return await this.call("tokens.burn", makeTokensBurnParam(param), {
       nonce,
     })
   },
@@ -133,10 +133,17 @@ function makeTokensRemoveExtendedData(
   return data
 }
 
-function makeTokensMintBurnParam(param: TokensMintBurnParam) {
+function makeTokensMintParam(param: TokensMintBurnParam) {
   const data = new Map()
   data.set(0, param.symbol)
   data.set(1, new Map(Object.entries(param.addresses)))
+  return data
+}
+function makeTokensBurnParam(param: TokensMintBurnParam) {
+  const data = new Map()
+  data.set(0, param.symbol)
+  data.set(1, new Map(Object.entries(param.addresses)))
+  data.set(3, true)
   return data
 }
 
