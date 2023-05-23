@@ -1,5 +1,4 @@
 import { Address } from "../../../identity"
-import { Message } from "../../../message"
 import { tag } from "../../../message/cbor"
 import { makeRandomBytes } from "../../../utils"
 import {
@@ -10,6 +9,7 @@ import {
   TokensAddExtendedParam,
   TokensCreateParam,
   TokensInfoParam,
+  TokensMintBurnParam,
   TokensModule,
   TokensRemoveExtendedParam,
   TokensUpdateParam,
@@ -54,6 +54,22 @@ export const Tokens: TokensModule = {
   ) {
     const data = makeTokensRemoveExtendedData(param)
     await this.call("tokens.removeExtendedInfo", data, { nonce })
+  },
+  async mint(
+    param: TokensMintBurnParam,
+    { nonce } = { nonce: makeRandomBytes(16) },
+  ) {
+    return await this.call("tokens.mint", makeTokensMintBurnParam(param), {
+      nonce,
+    })
+  },
+  async burn(
+    param: TokensMintBurnParam,
+    { nonce } = { nonce: makeRandomBytes(16) },
+  ) {
+    return await this.call("tokens.burn", makeTokensMintBurnParam(param), {
+      nonce,
+    })
   },
 }
 
@@ -114,6 +130,13 @@ function makeTokensRemoveExtendedData(
   const data = new Map()
   data.set(0, param.address)
   data.set(1, param.indices)
+  return data
+}
+
+function makeTokensMintBurnParam(param: TokensMintBurnParam) {
+  const data = new Map()
+  data.set(0, param.symbol)
+  data.set(1, new Map(Object.entries(param.addresses)))
   return data
 }
 

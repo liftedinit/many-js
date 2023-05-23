@@ -10,8 +10,6 @@ interface Ledger extends NetworkModule {
   _namespace_: string
   info: () => Promise<LedgerInfo>
   balance: (address?: string, symbols?: string[]) => Promise<Balances>
-  mint: () => Promise<unknown>
-  burn: () => Promise<unknown>
   send: (
     data: LedgerSendParam,
     opts: { nonce?: ArrayBuffer },
@@ -30,15 +28,6 @@ export const Ledger: Ledger = {
     const res = await this.call("ledger.balance", m)
     return getBalance(res)
   },
-
-  mint() {
-    throw new Error("Not implemented")
-  },
-
-  async burn() {
-    throw new Error("Not implemented")
-  },
-
   async send(
     param: LedgerSendParam,
     { nonce } = { nonce: makeRandomBytes(16) },
