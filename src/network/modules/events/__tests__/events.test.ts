@@ -12,6 +12,8 @@ import {
   mockEventsListCreateAccountResponse,
   mockEventInfoResponseMessage,
   expectedMockEventInfoResponse,
+  mockEventsListMintBurnResponse,
+  expectedMockEventsListMintBurnResponse,
 } from "./data"
 
 describe("Events", () => {
@@ -45,7 +47,7 @@ describe("Events", () => {
       const res = await events.list()
       expect(res).toEqual(expectedMockEventsListMultisigSubmitEventResponse)
     })
-    it("should return multisig approve, revoke, execute, withdraw, set defaults, setDescription, addRoles, removeRoles, and addFeatures events", async function () {
+    it("should return multisig approve, revoke, execute, withdraw, set defaults, setDescription, addRoles, removeRoles, and addFeatures events", async function() {
       const mockCall = jest.fn(async () => {
         return mockEventsListMultisigTxnsResponse
       })
@@ -53,13 +55,21 @@ describe("Events", () => {
       const res = await events.list()
       expect(res).toEqual(expectedMockEventsListMultisigTxnsResponse)
     })
-    it("should return create account transaction", async function () {
+    it("should return create account transaction", async function() {
       const mockCall = jest.fn(async () => {
         return mockEventsListCreateAccountResponse
       })
       const events = setupEvents(mockCall)
       const res = await events.list()
       expect(res).toEqual(expectedMockEventsListCreateAccountResponse)
+    })
+    it("should return mint and burn events", async function() {
+      const mockCall = jest.fn(async () => {
+        return mockEventsListMintBurnResponse
+      })
+      const events = setupEvents(mockCall)
+      const res = await events.list()
+      expect(res).toEqual(expectedMockEventsListMintBurnResponse)
     })
     it("should be called with correct args", async () => {
       const mockCall = jest.fn(async () => {

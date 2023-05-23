@@ -101,6 +101,16 @@ export interface MultisigSubmitEvent extends MultisigEvent {
   transaction: Omit<Event, "id" | "time"> | undefined
 }
 
+export interface MintEvent extends BaseEvent {
+  symbolAddress: string
+  amounts: { [to: string]: number }
+}
+
+export interface BurnEvent extends BaseEvent {
+  symbolAddress: string
+  amounts: { [from: string]: number }
+}
+
 export type Event =
   | SendEvent
   | CreateAccountEvent
@@ -114,6 +124,8 @@ export type Event =
   | SetDescriptionEvent
   | AddRolesEvent
   | RemoveRolesEvent
+  | MintEvent
+  | BurnEvent
 
 export interface EventsListResponse {
   count: number
