@@ -61,6 +61,15 @@ export interface TokensRemoveExtendedParam {
   indices: AttrIndex[]
 }
 
+export interface TokensAddressMap {
+  [address: string]: bigint
+}
+
+export interface TokensMintBurnParam {
+  symbol: string
+  addresses: TokensAddressMap
+}
+
 export interface TokensModule extends NetworkModule {
   info: (data: TokensInfoParam) => Promise<TokenInfo>
   create: (
@@ -76,4 +85,12 @@ export interface TokensModule extends NetworkModule {
     data: TokensRemoveExtendedParam,
     opts?: { nonce?: ArrayBuffer },
   ) => void
+  mint: (
+    data: TokensMintBurnParam,
+    opts?: { nonce?: ArrayBuffer },
+  ) => Promise<void>
+  burn: (
+    data: TokensMintBurnParam,
+    opts?: { nonce?: ArrayBuffer },
+  ) => Promise<TokensAddressMap>
 }
