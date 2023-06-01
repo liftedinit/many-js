@@ -1,5 +1,5 @@
 export const Blockchain = {
-  name: "blockChain",
+  _namespace_: "blockchain",
   async info(): Promise<unknown> {
     // @ts-ignore
     return await this.call("blockchain.info")
