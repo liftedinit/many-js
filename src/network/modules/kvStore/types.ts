@@ -15,6 +15,7 @@ export interface KVStoreValue {
 }
 
 export interface KVStoreQuery {
+  key: string
   owner: Address
   enabled: boolean | string
 }

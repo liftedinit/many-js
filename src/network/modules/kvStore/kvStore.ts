@@ -42,7 +42,7 @@ export const KvStore: KVStoreModule = {
   async query(param: KVStoreGetParam): Promise<KVStoreQuery> {
     const data = makeKVStoreGet(param)
     const res = await this.call("kvstore.query", data)
-    return getKVStoreQuery(res)
+    return getKVStoreQuery(res, param.key)
   },
 
   async disable(
@@ -120,9 +120,10 @@ function getKVStoreValue(message: Message, key: string): KVStoreValue {
   return result
 }
 
-function getKVStoreQuery(message: Message): KVStoreQuery {
+function getKVStoreQuery(message: Message, key: string): KVStoreQuery {
   const data = message.getPayload()
   const result: KVStoreQuery = {
+    key,
     owner: data.get(0),
     enabled: data.get(1),
   }
