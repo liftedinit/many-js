@@ -5,6 +5,7 @@ import {
   KVStoreDisableParam,
   KVStoreGetParam,
   KVStoreInfo,
+  KVStoreList,
   KVStoreModule,
   KVStorePutParam,
   KVStoreQuery,
@@ -19,10 +20,15 @@ export const KvStore: KVStoreModule = {
     return getKVStoreInfo(res)
   },
 
+  async list(): Promise<KVStoreList> {
+    const res = await this.call("kvstore.list")
+    return getKVStoreList(res)
+  },
+
   async get(param: KVStoreGetParam): Promise<KVStoreValue> {
     const data = makeKVStoreGet(param)
     const res = await this.call("kvstore.get", data)
-    return getKVStoreValue(res)
+    return getKVStoreValue(res, param.key)
   },
 
   async put(
@@ -97,9 +103,18 @@ function getKVStoreInfo(message: Message): KVStoreInfo {
   return result
 }
 
-function getKVStoreValue(message: Message): KVStoreValue {
+function getKVStoreList(message: Message): KVStoreList {
+  const data = message.getPayload()
+  const result: KVStoreList = {
+    keys: (data.get(0) as Buffer[]).map(bytes => bytes.toString()),
+  }
+  return result
+}
+
+function getKVStoreValue(message: Message, key: string): KVStoreValue {
   const data = message.getPayload()
   const result: KVStoreValue = {
+    key,
     value: data.get(0),
   }
   return result
