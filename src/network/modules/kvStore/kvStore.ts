@@ -113,10 +113,9 @@ function getKVStoreList(message: Message): KVStoreList {
 
 function getKVStoreValue(message: Message, key: string): KVStoreValue {
   const data = message.getPayload()
-  const result: KVStoreValue = {
-    key,
-    value: data.get(0),
-  }
+  // Many can sometimes return an empty object instead of a map
+  const value = data instanceof Map ? data.get(0) : undefined
+  const result: KVStoreValue = { key, value }
   return result
 }
 
