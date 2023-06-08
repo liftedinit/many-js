@@ -21,7 +21,7 @@ export const KvStore: KVStoreModule = {
   },
 
   async list(): Promise<KVStoreList> {
-    const res = await this.call("kvstore.list")
+    const res = await this.call("kvstore.list", {})
     return getKVStoreList(res)
   },
 
