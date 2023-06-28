@@ -149,3 +149,4 @@ commands:
           command: node -v && npm -v
       - node/install-packages:
           pkg-manager: npm
+          cache-version: v2
