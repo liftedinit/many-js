@@ -1,6 +1,7 @@
 export * from "./ledger"
 export * from "./kvStore"
 export * from "./blockchain"
+export * from "./compute"
 export * from "./types"
 export * from "./id-store"
 export * from "./account"
