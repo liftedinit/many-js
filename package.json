@@ -33,7 +33,7 @@
     "build": "tsc",
     "watch": "npm run clean && npm run build -- -w",
     "clean": "rm -rf ./dist",
-    "prepare": "npm run build"
+    "prepare": "npm run build && sleep 5"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser"
