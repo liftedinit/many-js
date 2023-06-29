@@ -149,4 +149,5 @@ commands:
           command: node -v && npm -v
       - node/install-packages:
           pkg-manager: npm
+          override-ci-command: npm install
           cache-version: v2
