@@ -14,6 +14,12 @@ jobs:
       name: node/default
       tag: << parameters.node_version >>
     steps:
+      # only pre-install typescript for current node version to avoid "tsc file busy" error
+      - when:
+          condition:
+            equal: ["current", << parameters.node_version >> ]
+          steps:
+            - run: sudo npm install -g typescript
       - setup
       - run:
           name: Run tests
@@ -147,7 +153,6 @@ commands:
       - run:
           name: Versions
           command: node -v && npm -v
-      - run: sudo npm install -g typescript
       - node/install-packages:
           pkg-manager: npm
           cache-version: v2
