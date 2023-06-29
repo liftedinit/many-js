@@ -147,6 +147,7 @@ commands:
       - run:
           name: Versions
           command: node -v && npm -v
+      - run: npm install -g typescript
       - node/install-packages:
           pkg-manager: npm
           cache-version: v2
