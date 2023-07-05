@@ -89,6 +89,5 @@ export function getDeploymentList(message: Message): DeploymentList {
             }
           }})
   }))}
-  console.log(result)
   return result
 }
