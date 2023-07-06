@@ -3,7 +3,7 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@5.0.2
+  node: circleci/node@5.1.0
 
 jobs:
   test-build:
@@ -14,6 +14,12 @@ jobs:
       name: node/default
       tag: << parameters.node_version >>
     steps:
+      # only pre-install typescript for current node version to avoid "tsc file busy" error
+      - when:
+          condition:
+            equal: ["current", << parameters.node_version >> ]
+          steps:
+            - run: sudo npm install -g typescript
       - setup
       - run:
           name: Run tests
@@ -60,6 +66,10 @@ jobs:
             npm publish --access public
 
   create:
+    parameters:
+      release_id:
+        type: string
+        default: "RELEASE"
     executor: node/default
     steps:
       - setup
@@ -72,12 +82,14 @@ jobs:
           command: tar -cvzf artifacts/dist.tar.gz ./dist
       - run:
           name: create release shasum
-          command: shasum artifacts/dist.tar.gz > artifacts/shasum_${CIRCLE_TAG}_${CIRCLE_SHA1}_${OSD_ID}_${OSD_VERSION}.txt
+          command: shasum artifacts/dist.tar.gz > artifacts/shasum_<< parameters.release_id >>_${CIRCLE_SHA1}_${OSD_ID}_${OSD_VERSION}.txt
       - persist_to_workspace:
           root: artifacts
           paths:
             - "*.tar.gz"
             - "*.txt"
+      - store_artifacts:
+          path: artifacts
 
 workflows:
   ci:
@@ -89,6 +101,8 @@ workflows:
                 - 'lts'
                 - 'current'
                 - '16.16.0'
+      - create:
+          release_id: "${CIRCLE_PR_NUMBER}"
 
   release:
     when:
@@ -96,6 +110,7 @@ workflows:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
       - create:
+          release_id: "${CIRCLE_TAG}"
           filters:
             branches:
               ignore: /.*/
@@ -149,3 +164,4 @@ commands:
           command: node -v && npm -v
       - node/install-packages:
           pkg-manager: npm
+          cache-version: v2
