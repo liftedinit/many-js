@@ -73,10 +73,15 @@ export enum NetworkAttributes {
   ledger = 2,
   kvstore = 3,
   events = 4,
+  data = 5,
   ledgerCommands = 6,
   kvstoreCommands = 7,
   async = 8,
   account = 9,
+  ledgerTokens = 11,
+  ledgerMintBurn = 12,
+  kvstoreTransfer = 13,
+  compute = 15,
   idstore = 1002,
 }
 
