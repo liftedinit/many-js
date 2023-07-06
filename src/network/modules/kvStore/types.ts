@@ -1,6 +1,18 @@
 import { Address } from "../../../identity"
 import { NetworkModule } from "../types"
 
+type KeyFilterType =
+  | { kind: "Owner"; address: Address }
+  | { kind: "PreviousOwner"; address: Address }
+  | { kind: "Disabled"; value: boolean };
+
+
+export enum SortOrder {
+    Indeterminate = 0,
+    Ascending = 1,
+    Descending = 2,
+}
+
 export interface KVStoreInfo {
   hash: string
 }
@@ -24,6 +36,12 @@ export interface KVStoreGetParam {
   key: string
 }
 
+export interface KVStoreListParam {
+  count?: number,
+  order?: SortOrder,
+  filter?: KeyFilterType[],
+}
+
 export interface KVStorePutParam {
   key: string
   value: any
@@ -43,7 +61,7 @@ export interface KVStoreTransferParam {
 
 export interface KVStoreModule extends NetworkModule {
   info: () => Promise<KVStoreInfo>
-  list: () => Promise<KVStoreList>
+  list: (data: KVStoreListParam) => Promise<KVStoreList>
   get: (data: KVStoreGetParam) => Promise<KVStoreValue>
   put: (data: KVStorePutParam, opts?: { nonce?: ArrayBuffer }) => void
   query: (data: KVStoreGetParam) => Promise<KVStoreQuery>
