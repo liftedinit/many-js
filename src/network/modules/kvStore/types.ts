@@ -2,10 +2,9 @@ import { Address } from "../../../identity"
 import { NetworkModule } from "../types"
 
 type KeyFilterType =
-  | { kind: "Owner"; address: Address }
-  | { kind: "PreviousOwner"; address: Address }
-  | { kind: "Disabled"; value: boolean };
-
+  | [0, Address]
+  | [1, Address]
+  | [2, boolean]
 
 export enum SortOrder {
     Indeterminate = 0,
