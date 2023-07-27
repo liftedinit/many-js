@@ -6,6 +6,7 @@ import {
   KVStoreGetParam,
   KVStoreInfo,
   KVStoreList,
+  KVStoreListParam,
   KVStoreModule,
   KVStorePutParam,
   KVStoreQuery,
@@ -20,8 +21,9 @@ export const KvStore: KVStoreModule = {
     return getKVStoreInfo(res)
   },
 
-  async list(): Promise<KVStoreList> {
-    const res = await this.call("kvstore.list", {})
+  async list(param: KVStoreListParam): Promise<KVStoreList> {
+    const data = makeKVStoreList(param)
+    const res = await this.call("kvstore.list", data)
     return getKVStoreList(res)
   },
 
@@ -67,6 +69,14 @@ export const KvStore: KVStoreModule = {
 function makeKVStoreGet(param: KVStoreGetParam): Map<number, any> {
   const data = new Map()
   data.set(0, Buffer.from(param.key))
+  return data
+}
+
+function makeKVStoreList(param: KVStoreListParam): Map<number, any> {
+  const data = new Map()
+  param.count && data.set(0, param.count)
+  param.order && data.set(1, param.order)
+  param.filter && data.set(2, param.filter)
   return data
 }
 
