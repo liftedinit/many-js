@@ -11,9 +11,9 @@ describe("Request", () => {
   test("can be serialized/deserialized", async () => {
     const msg = { method: "info" };
     const req = Request.fromObject(msg);
-    const cbor = await req.toBuffer();
+    const cbor = await req.toCborData();
 
-    expect(Request.fromBuffer(cbor)).toStrictEqual(req);
+    expect(Request.fromCborData(cbor)).toStrictEqual(req);
   });
   test("can be stringified", () => {
     const msg = { method: "status" };

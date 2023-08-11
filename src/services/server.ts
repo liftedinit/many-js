@@ -9,7 +9,7 @@ export abstract class Server {
   constructor(public url: string, public id: Identifier = new Anonymous()) { }
 
   async send(message: Request): Promise<Response> {
-    const encoded = await message.toBuffer(this.id);
+    const encoded = await message.toCborData(this.id);
     const cborData = await this.sendEncoded(encoded);
     // @TODO: Verify response
     return Response.fromCborData(cborData);

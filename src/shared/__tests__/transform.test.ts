@@ -87,7 +87,7 @@ describe("Transform", () => {
       expect(map.get(0).get("foo").get(0)).toBe(42);
     });
     it("should apply a transform function", () => {
-      const obj = { number: "0x2a" };
+      const obj = { number: "ba5eba11" };
       const map = objToMap(obj, encode);
 
       expect(map.get(0) instanceof Buffer).toBe(true);
