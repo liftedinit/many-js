@@ -14,6 +14,8 @@ export type EventTypeIndices = [number, number | EventTypeIndices]
 
 export enum EventType {
   send = "send",
+  kvstorePut = "kvstorePut",
+  kvstoreDisable = "kvstoreDisable",
   accountCreate = "accountCreate",
   accountSetDescription = "accountSetDescription",
   accountDisable = "accountDisable",
@@ -29,6 +31,9 @@ export enum EventType {
   accountMultisigExpired = "accountMultisigExpired",
   mint = "mint",
   burn = "burn",
+  kvstoreTransfer = "kvstoreTransfer",
+  webDeploy = "webDeploy",
+  webRemove = "webRemove",
 }
 
 export enum AccountFeatureTypes {
@@ -82,6 +87,8 @@ export enum NetworkAttributes {
   ledgerMintBurn = 12,
   kvstoreTransfer = 13,
   compute = 15,
+  web = 16,
+  webCommands = 17,
   idstore = 1002,
 }
 
