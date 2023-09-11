@@ -27,6 +27,9 @@ export class Address {
     if (string === ANON_IDENTITY) {
       return new Address()
     }
+    if (string === ILLEGAL_IDENTITY) {
+      return new Address(Buffer.from([0x02]))
+    }
     const base32Address = string.slice(1, -2).toUpperCase()
     const base32Checksum = string.slice(-2).toUpperCase()
     const identity = base32Decode(base32Address, "RFC4648")
