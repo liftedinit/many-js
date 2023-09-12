@@ -21,6 +21,14 @@ describe("identity", () => {
     expect(anon).toStrictEqual(Address.fromString(anonStr))
   })
 
+  test("can read illegal", () => {
+    const illegal = new Address(Buffer.from([0x02]))
+    const illegalStr = illegal.toString()
+
+    expect(illegal.isIllegal()).toBe(true)
+    expect(illegal).toStrictEqual(Address.fromString(illegalStr))
+  })
+
   test("byte array conversion", () => {
     const anon = new Address()
     const alice = id(1)
@@ -73,4 +81,13 @@ describe("identity", () => {
     expect(alice).toStrictEqual(bob)
     expect(bob.withSubresource(2)).toStrictEqual(charlie)
   })
+
+  test("illegal text format", () => {   
+    const illegal = Address.fromString("maiyg")
+    const illegalHex = new Address(Buffer.from([0x02])).toString()
+
+    expect(illegal.isIllegal()).toBe(true)
+    expect(illegal.toString()).toStrictEqual(illegalHex)
+  })
+
 })
