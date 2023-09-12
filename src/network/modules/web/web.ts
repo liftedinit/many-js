@@ -1,11 +1,7 @@
 import { Message } from "../../../message"
 import { tag } from "../../../message/cbor"
 import { makeRandomBytes } from "../../../utils"
-import {
-  WebDeployInfo,
-  WebDeployParams, WebInfo, WebListParam,
-  WebModule, WebRemoveParam, WebDeployInfoList,
-} from "./types"
+import { WebDeployInfo, WebDeployParams, WebInfo, WebListParam, WebModule, WebRemoveParam } from "./types"
 
 export const Web: WebModule = {
   _namespace_: "web",
@@ -14,7 +10,7 @@ export const Web: WebModule = {
     return getWebInfo(res)
   },
 
-  async list(params: WebListParam): Promise<WebDeployInfoList> {
+  async list(params: WebListParam): Promise<WebDeployInfo[]> {
     const res = await this.call("web.list", makeWebListData(params))
     return getWebList(res)
   },
@@ -39,15 +35,16 @@ function makeWebDeployData(params: WebDeployParams) {
   params.owner && data.set(0, tag(10000, params.owner))
   data.set(1, params.siteName)
   params.siteDescription && data.set(2, params.siteDescription)
-  data.set(3, params.deploymentSource)
+  data.set(3, params.deploymentSource.payload)
   params.memo && data.set(4, params.memo)
   return data
 }
 
 function makeWebListData(params: WebListParam) {
   const data = new Map()
-  params.order && data.set(0, params.order)
-  params.filter && data.set(1, params.filter)
+  params.count && data.set(0, params.count)
+  params.order && data.set(1, params.order)
+  params.filters && data.set(2, params.filters.map(filter => filter.payload))
   return data
 }
 
@@ -61,27 +58,30 @@ function makeWebRemoveData(params: WebRemoveParam) {
 
 function getWebDeploy(message: Message): WebDeployInfo {
   const data = message.getPayload()
-  const result: WebDeployInfo = {
-    owner: data.get(0),
-    siteName: data.get(1),
-    siteDescription: data.get(2),
-    deploymentUrl: data.get(3),
+  return {
+    owner: data.get(0).get(0),
+    siteName: data.get(0).get(1),
+    siteDescription: data.get(0).get(2) ?? undefined,
+    deploymentUrl: data.get(0).get(3),
   }
-  return result
 }
 
 function getWebInfo(message: Message): WebInfo {
   const data = message.getPayload()
-  const result: WebInfo = {
-    hash: Buffer.from(data.get(0)).toString("hex")
+  return {
+    hash: Buffer.from(data.get(0)).toString("hex"),
   }
-  return result
 }
 
-function getWebList(message: Message): WebDeployInfoList {
-  const data = message.getPayload()
-  const result: WebDeployInfoList = {
-    list: data.get(0),
+function getWebList(message: Message): WebDeployInfo[] {
+  const convertMapToWebDeployInfo = (map: Map<number, any>): WebDeployInfo => {
+    return {
+      owner: map.get(0),
+      siteName: map.get(1),
+      siteDescription: map.get(2),
+      deploymentUrl: map.get(3),
+    }
   }
-  return result
+  const data = message.getPayload()
+  return data.get(0).map(convertMapToWebDeployInfo)
 }
