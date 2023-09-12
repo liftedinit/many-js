@@ -84,10 +84,18 @@ describe("identity", () => {
 
   test("illegal text format", () => {   
     const illegal = Address.fromString("maiyg")
-    const illegalHex = new Address(Buffer.from([0x02])).toString()
+    const illegalStr = Address.illegal().toString()
 
     expect(illegal.isIllegal()).toBe(true)
-    expect(illegal.toString()).toStrictEqual(illegalHex)
+    expect(illegal.toString()).toStrictEqual(illegalStr)
+  })
+
+  test("illegal hex format", () => {
+    const illegal = Address.fromHex("02")
+    const illegalHex = new Address(Buffer.from([0x02])).toHex()
+
+    expect(illegal.isIllegal()).toBe(true)
+    expect(illegal.toHex()).toStrictEqual(illegalHex)
   })
 
 })
