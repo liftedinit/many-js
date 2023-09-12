@@ -3,6 +3,7 @@ import base32Encode from "base32-encode"
 import crc from "crc"
 
 export const ANON_IDENTITY = "maa"
+export const ILLEGAL_IDENTITY = "maiyg"
 export class Address {
   bytes: Uint8Array
 
@@ -14,6 +15,10 @@ export class Address {
     return new Address()
   }
 
+  static illegal(): Address { 
+    return new Address(Buffer.from([0x02]))
+  }
+
   static fromHex(hex: string): Address {
     return new Address(Buffer.from(hex, "hex"))
   }
@@ -21,6 +26,9 @@ export class Address {
   static fromString(string: string): Address {
     if (string === ANON_IDENTITY) {
       return new Address()
+    }
+    if (string === ILLEGAL_IDENTITY) {
+      return new Address(Buffer.from([0x02]))
     }
     const base32Address = string.slice(1, -2).toUpperCase()
     const base32Checksum = string.slice(-2).toUpperCase()
@@ -41,6 +49,10 @@ export class Address {
     return Buffer.compare(this.toBuffer(), Buffer.from([0x00])) === 0
   }
 
+  isIllegal(): boolean {
+    return Buffer.compare(this.toBuffer(), Buffer.from([0x02])) === 0
+  }
+
   toBuffer(): Buffer {
     return Buffer.from(this.bytes)
   }
@@ -48,6 +60,9 @@ export class Address {
   toString(): string {
     if (this.isAnonymous()) {
       return ANON_IDENTITY
+    }
+    if (this.isIllegal()) { 
+      return ILLEGAL_IDENTITY
     }
     const identity = this.toBuffer()
     const checksum = Buffer.allocUnsafe(3)
@@ -64,6 +79,9 @@ export class Address {
   toHex(): string {
     if (this.isAnonymous()) {
       return "00"
+    }
+    if (this.isIllegal()) {
+      return "02"
     }
     return Buffer.from(this.bytes).toString("hex")
   }
