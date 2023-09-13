@@ -3,6 +3,12 @@ export type NetworkModule = {
   [k: string]: any
 }
 
+export enum SortOrder {
+  Indeterminate = 0,
+  Ascending = 1,
+  Descending = 2,
+}
+
 export type LedgerSendParam = {
   from?: string
   to: string

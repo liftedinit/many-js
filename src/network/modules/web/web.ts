@@ -30,58 +30,90 @@ export const Web: WebModule = {
   },
 }
 
+function setIfDefined(data: Map<number, any>, key: number, value: any) {
+  if (value) data.set(key, value);
+}
+
 function makeWebDeployData(params: WebDeployParams) {
+  const OWNER_KEY = 0;
+  const SITE_NAME_KEY = 1;
+  const SITE_DESCRIPTION_KEY = 2;
+  const DEPLOYMENT_SOURCE_KEY = 3;
+  const MEMO_KEY = 4;
+
   const data = new Map()
-  params.owner && data.set(0, tag(10000, params.owner))
-  data.set(1, params.siteName)
-  params.siteDescription && data.set(2, params.siteDescription)
-  data.set(3, params.deploymentSource.payload)
-  params.memo && data.set(4, params.memo)
+  setIfDefined(data, OWNER_KEY, tag(10000, params.owner))
+  setIfDefined(data, SITE_NAME_KEY, params.siteName)
+  setIfDefined(data, SITE_DESCRIPTION_KEY, params.siteDescription)
+  setIfDefined(data, DEPLOYMENT_SOURCE_KEY, params.deploymentSource.payload)
+  setIfDefined(data, MEMO_KEY, params.memo)
   return data
 }
 
 function makeWebListData(params: WebListParam) {
+  const COUNT_KEY = 0;
+  const ORDER_KEY = 1;
+  const FILTERS_KEY = 2;
+
   const data = new Map()
-  params.count && data.set(0, params.count)
-  params.order && data.set(1, params.order)
-  params.filters && data.set(2, params.filters.map(filter => filter.payload))
+  setIfDefined(data, COUNT_KEY, params.count)
+  setIfDefined(data, ORDER_KEY, params.order)
+  setIfDefined(data, FILTERS_KEY, params.filters?.map(filter => filter.payload))
   return data
 }
 
 function makeWebRemoveData(params: WebRemoveParam) {
+  const OWNER_KEY = 0;
+  const SITE_NAME_KEY = 1;
+  const MEMO_KEY = 2;
+
   const data = new Map()
-  params.owner && data.set(0, tag(10000, params.owner))
-  data.set(1, params.siteName)
-  params.memo && data.set(2, params.memo)
+  setIfDefined(data, OWNER_KEY, tag(10000, params.owner))
+  setIfDefined(data, SITE_NAME_KEY, params.siteName)
+  setIfDefined(data, MEMO_KEY, params.memo)
   return data
 }
 
 function getWebDeploy(message: Message): WebDeployInfo {
+  const WEB_DEPLOY_INFO_KEY = 0;
+  const OWNER_KEY = 0;
+  const SITE_NAME_KEY = 1;
+  const SITE_DESCRIPTION_KEY = 2;
+  const DEPLOYMENT_URL_KEY = 3;
+
   const data = message.getPayload()
   return {
-    owner: data.get(0).get(0),
-    siteName: data.get(0).get(1),
-    siteDescription: data.get(0).get(2) ?? undefined,
-    deploymentUrl: data.get(0).get(3),
+    owner: data.get(WEB_DEPLOY_INFO_KEY).get(OWNER_KEY),
+    siteName: data.get(WEB_DEPLOY_INFO_KEY).get(SITE_NAME_KEY),
+    siteDescription: data.get(WEB_DEPLOY_INFO_KEY).get(SITE_DESCRIPTION_KEY) ?? undefined,
+    deploymentUrl: data.get(WEB_DEPLOY_INFO_KEY).get(DEPLOYMENT_URL_KEY),
   }
 }
 
 function getWebInfo(message: Message): WebInfo {
+  const WEB_INFO_KEY = 0;
+
   const data = message.getPayload()
   return {
-    hash: Buffer.from(data.get(0)).toString("hex"),
+    hash: Buffer.from(data.get(WEB_INFO_KEY)).toString("hex"),
   }
 }
 
 function getWebList(message: Message): WebDeployInfo[] {
+  const WEB_DEPLOY_LIST_KEY = 0;
+  const OWNER_KEY = 0;
+  const SITE_NAME_KEY = 1;
+  const SITE_DESCRIPTION_KEY = 2;
+  const DEPLOYMENT_URL_KEY = 3;
+
   const convertMapToWebDeployInfo = (map: Map<number, any>): WebDeployInfo => {
     return {
-      owner: map.get(0),
-      siteName: map.get(1),
-      siteDescription: map.get(2),
-      deploymentUrl: map.get(3),
+      owner: map.get(OWNER_KEY),
+      siteName: map.get(SITE_NAME_KEY),
+      siteDescription: map.get(SITE_DESCRIPTION_KEY),
+      deploymentUrl: map.get(DEPLOYMENT_URL_KEY),
     }
   }
   const data = message.getPayload()
-  return data.get(0).map(convertMapToWebDeployInfo)
+  return data.get(WEB_DEPLOY_LIST_KEY).map(convertMapToWebDeployInfo)
 }

@@ -1,6 +1,5 @@
-import { Memo, NetworkModule } from "../types"
+import { Memo, NetworkModule, SortOrder } from "../types"
 import { Address } from "../../../identity"
-import { SortOrder } from "../kvStore/types"
 
 export interface WebInfo {
   hash: string
