@@ -1,7 +1,15 @@
 import { Message } from "../../../message"
 import { tag } from "../../../message/cbor"
 import { makeRandomBytes } from "../../../utils"
-import { WebDeployInfo, WebDeployParams, WebInfo, WebListParam, WebModule, WebRemoveParam } from "./types"
+import {
+  WebDeployInfo,
+  WebDeployParams,
+  WebInfo,
+  WebListParams,
+  WebModule,
+  WebRemoveParams,
+  WebUpdateParams,
+} from "./types"
 
 export const Web: WebModule = {
   _namespace_: "web",
@@ -10,7 +18,7 @@ export const Web: WebModule = {
     return getWebInfo(res)
   },
 
-  async list(params: WebListParam): Promise<WebDeployInfo[]> {
+  async list(params: WebListParams): Promise<WebDeployInfo[]> {
     const res = await this.call("web.list", makeWebListData(params))
     return getWebList(res)
   },
@@ -23,10 +31,17 @@ export const Web: WebModule = {
     return getWebDeploy(res)
   },
 
-  async remove(params: WebRemoveParam,
+  async remove(params: WebRemoveParams,
                { nonce } = { nonce: makeRandomBytes(16) },
   ) {
     await this.call("web.remove", makeWebRemoveData(params), { nonce })
+  },
+
+  async update(params: WebUpdateParams,
+               { nonce } = { nonce: makeRandomBytes(16) },
+  ): Promise<WebDeployInfo> {
+    const res = await this.call("web.update", makeWebUpdateData(params), { nonce })
+    return getWebUpdate(res)
   },
 }
 
@@ -50,7 +65,11 @@ function makeWebDeployData(params: WebDeployParams) {
   return data
 }
 
-function makeWebListData(params: WebListParam) {
+function makeWebUpdateData(params: WebUpdateParams) {
+  return makeWebDeployData(params)
+}
+
+function makeWebListData(params: WebListParams) {
   const COUNT_KEY = 0;
   const ORDER_KEY = 1;
   const FILTERS_KEY = 2;
@@ -62,7 +81,7 @@ function makeWebListData(params: WebListParam) {
   return data
 }
 
-function makeWebRemoveData(params: WebRemoveParam) {
+function makeWebRemoveData(params: WebRemoveParams) {
   const OWNER_KEY = 0;
   const SITE_NAME_KEY = 1;
   const MEMO_KEY = 2;
@@ -88,6 +107,10 @@ function getWebDeploy(message: Message): WebDeployInfo {
     siteDescription: data.get(WEB_DEPLOY_INFO_KEY).get(SITE_DESCRIPTION_KEY) ?? undefined,
     deploymentUrl: data.get(WEB_DEPLOY_INFO_KEY).get(DEPLOYMENT_URL_KEY),
   }
+}
+
+function getWebUpdate(message: Message): WebDeployInfo {
+  return getWebDeploy(message)
 }
 
 function getWebInfo(message: Message): WebInfo {

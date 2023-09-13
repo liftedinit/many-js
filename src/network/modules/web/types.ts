@@ -31,6 +31,8 @@ export interface WebDeployParams {
   memo?: Memo
 }
 
+export type WebUpdateParams = WebDeployParams
+
 export interface WebDeployInfo {
   owner: Address,
   siteName: string,
@@ -38,13 +40,13 @@ export interface WebDeployInfo {
   deploymentUrl: string,
 }
 
-export interface WebRemoveParam {
+export interface WebRemoveParams {
   owner?: Address,
   siteName: string,
   memo?: Memo,
 }
 
-export interface WebListParam {
+export interface WebListParams {
   count?: number,
   order?: SortOrder,
   filters?: WebDeploymentFilter[],
@@ -52,7 +54,8 @@ export interface WebListParam {
 
 export interface WebModule extends NetworkModule {
   info: () => Promise<WebInfo>
-  list: (data: WebListParam) => Promise<WebDeployInfo[]>
+  list: (data: WebListParams) => Promise<WebDeployInfo[]>
   deploy: (data: WebDeployParams, opts?: { nonce?: ArrayBuffer }) => Promise<WebDeployInfo>
-  remove: (data: WebRemoveParam, opts?: { nonce?: ArrayBuffer }) => void
+  remove: (data: WebRemoveParams, opts?: { nonce?: ArrayBuffer }) => void
+  update: (data: WebUpdateParams, opts?: { nonce?: ArrayBuffer }) => Promise<WebDeployInfo>
 }
