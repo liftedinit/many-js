@@ -1,4 +1,3 @@
-import { tag } from "../../../../message/cbor"
 import {
   Address1,
   Address2,
@@ -7,9 +6,9 @@ import {
   makeMockResponseMessage,
 } from "../../test/test-utils"
 
-export const mockSymbolAddress = [tag(10000, Address1), "abc"]
+export const mockSymbolAddress = [Address1, "abc"]
 
-export const mockSymbolAddress2 = [tag(10000, Address2), "cba"]
+export const mockSymbolAddress2 = [Address2, "cba"]
 
 export const expectedSymbolsMap = {
   symbols: new Map([
@@ -28,8 +27,8 @@ export const mockLedgerInfoResponseMessage = makeMockResponseMessage(
   ]),
 )
 
-export const mockSymbolBalance = [tag(10000, Address1), 1000000]
-export const mockSymbolBalance2 = [tag(10000, Address2), 5000000]
+export const mockSymbolBalance = [Address1, 1000000]
+export const mockSymbolBalance2 = [Address2, 5000000]
 
 export const mockLedgerBalanceResponseMessage = makeMockResponseMessage(
   new Map([

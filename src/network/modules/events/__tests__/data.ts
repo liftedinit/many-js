@@ -112,8 +112,8 @@ function makeMultisigSubmitTxnResponse({
 }) {
   const m = new Map()
   m.set(0, txnTypeIndices)
-    .set(1, tag(10000, Address.fromString(submitter).toBuffer()))
-    .set(2, tag(10000, Address.fromString(accountSource).toBuffer()))
+    .set(1, Address.fromString(submitter))
+    .set(2, Address.fromString(accountSource))
     .set(4, submittedTxn)
     .set(5, token)
     .set(6, threshold)
@@ -141,7 +141,7 @@ function makeMultisigTxnResponse({
 }) {
   const m = new Map()
     .set(2, token)
-    .set(3, tag(10000, Address.fromString(actor).toBuffer()))
+    .set(3, Address.fromString(actor))
 
   return makeTxn({
     id,
@@ -183,9 +183,9 @@ function makeSendTxn({
 }) {
   const m = new Map()
   m.set(0, eventTypeNameToIndices.send)
-    .set(1, tag(10000, Address.fromString(source).toBuffer()))
-    .set(2, tag(10000, Address.fromString(destination).toBuffer()))
-    .set(3, tag(10000, Address.fromString(symbol).toBuffer()))
+    .set(1, Address.fromString(source))
+    .set(2, Address.fromString(destination))
+    .set(3, Address.fromString(symbol))
     .set(4, amount)
 
   return makeTxn({ id, time, txnData: m })
@@ -451,7 +451,7 @@ roles.set(identityStr3, [AccountRole.canMultisigApprove])
 
 const _roles = Array.from(roles).reduce((acc, rolesForAddress) => {
   const [address, roleList] = rolesForAddress
-  const bytes = tag(10000, Address.fromString(address).toBuffer())
+  const bytes = Address.fromString(address)
   acc.set(bytes, roleList)
   return acc
 }, new Map())
@@ -579,7 +579,7 @@ function makeAccountTxnResponse({
 }) {
   let m = new Map()
     .set(0, txnTypeIndices)
-    .set(1, tag(10000, Address.fromString(accountSource).toBuffer()))
+    .set(1, Address.fromString(accountSource))
   m = new Map([...m, ...txnData])
   return m
 }

@@ -57,7 +57,7 @@ function makeWebDeployData(params: WebDeployParams) {
   const MEMO_KEY = 4;
 
   const data = new Map()
-  setIfDefined(data, OWNER_KEY, tag(10000, params.owner))
+  setIfDefined(data, OWNER_KEY,params.owner)
   setIfDefined(data, SITE_NAME_KEY, params.siteName)
   setIfDefined(data, SITE_DESCRIPTION_KEY, params.siteDescription)
   setIfDefined(data, DEPLOYMENT_SOURCE_KEY, params.deploymentSource.payload)
@@ -87,7 +87,7 @@ function makeWebRemoveData(params: WebRemoveParams) {
   const MEMO_KEY = 2;
 
   const data = new Map()
-  setIfDefined(data, OWNER_KEY, tag(10000, params.owner))
+  setIfDefined(data, OWNER_KEY, params.owner)
   setIfDefined(data, SITE_NAME_KEY, params.siteName)
   setIfDefined(data, MEMO_KEY, params.memo)
   return data

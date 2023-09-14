@@ -19,7 +19,7 @@ export const Tokens: TokensModule = {
   _namespace_: "tokens",
   async info(param: TokensInfoParam): Promise<TokenInfo> {
     const data = new Map([
-      [0, tag(10000, Address.fromString(param.address).toBuffer())],
+      [0,Address.fromString(param.address).toBuffer()],
     ])
     const res = await this.call("tokens.info", data)
     const payload = res.getPayload()
@@ -81,14 +81,14 @@ function makeTokensCreateData(param: TokensCreateParam): Map<number, any> {
   if (param.distribution) {
     Object.entries(param.distribution).forEach(([address, amount]) => {
       distribution.set(
-        tag(10000, Address.fromString(address).toBuffer()),
+        Address.fromString(address).toBuffer(),
         amount,
       )
     })
   }
   data.set(0, makeTokenInfoSummary(param.summary))
   param.owner &&
-    data.set(1, tag(10000, Address.fromString(param.owner).toBuffer()))
+    data.set(1, Address.fromString(param.owner).toBuffer())
   param.distribution && data.set(2, param.distribution)
   param.maximumSupply && data.set(3, param.maximumSupply)
   param.extended && data.set(4, param.extended)
@@ -102,7 +102,7 @@ function makeTokensUpdateData(param: TokensUpdateParam): Map<number, any> {
   param.symbol && data.set(2, param.symbol)
   param.precision && data.set(3, param.precision)
   param.owner &&
-    data.set(4, tag(10000, Address.fromString(param.owner).toBuffer()))
+    data.set(4, Address.fromString(param.owner).toBuffer())
   param.memo && data.set(5, param.memo)
   return data
 }

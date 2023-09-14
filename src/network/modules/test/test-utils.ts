@@ -7,19 +7,16 @@ export const accountSource =
   "mqdiclsquy3nnoioxg3zhsci2vltdhmlsmdlbhbaglf5rjtqaaabajj"
 export const identityStr1 =
   "mqbfbahksdwaqeenayy2gxke32hgb7aq4ao4wt745lsfs6wiaaaaqnz"
-export const Address1 = Address.fromString(identityStr1).toBuffer()
+export const Address1 = Address.fromString(identityStr1)
 export const identityStr2 = "maffbahksdwaqeenayy2gxke32hgb7aq4ao4wt745lsfs6wijp"
-export const Address2 = Address.fromString(identityStr2).toBuffer()
+export const Address2 = Address.fromString(identityStr2)
 export const identityStr3 = "mahiclsquy3nnoioxg3zhsci2vltdhmlsmdlbhbaglf5rjtq6c"
-export const Address3 = Address.fromString(identityStr3).toBuffer()
+export const Address3 = Address.fromString(identityStr3)
 
-export const taggedIdentity1 = tag(10000, Address1)
-export const taggedIdentity2 = tag(10000, Address2)
-export const taggedIdentity3 = tag(10000, Address2)
-export const taggedAccountSource = tag(
-  10000,
-  Address.fromString(accountSource).toBuffer(),
-)
+export const taggedIdentity1 = Address1
+export const taggedIdentity2 = Address2
+export const taggedIdentity3 = Address2
+export const taggedAccountSource = Address.fromString(accountSource)
 
 export const txnSymbolAddress1 =
   "mafw3bxrqe2jdcidvjlonloqcczvytrxr3fl4naybmign3uy6e"
@@ -52,8 +49,8 @@ export function makeLedgerSendParamResponse({
   symbol: string
 }) {
   return new Map()
-    .set(0, tag(10000, Address.fromString(source).toBuffer()))
-    .set(1, tag(10000, Address.fromString(destination).toBuffer()))
+    .set(0, Address.fromString(source))
+    .set(1, Address.fromString(destination))
     .set(2, amount)
-    .set(3, tag(10000, Address.fromString(symbol).toBuffer()))
+    .set(3, Address.fromString(symbol))
 }
