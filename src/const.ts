@@ -1,5 +1,7 @@
 import { EventType, EventTypeIndices } from "./network/modules/types"
 
+export const HIGH_WATER_MARK = 5242880 // 5MB
+
 export const ONE_SECOND = 1000
 export const ONE_MINUTE = 60 * ONE_SECOND
 

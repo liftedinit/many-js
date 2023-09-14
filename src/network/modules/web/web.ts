@@ -27,37 +27,43 @@ export const Web: WebModule = {
     params: WebDeployParams,
     { nonce } = { nonce: makeRandomBytes(16) },
   ): Promise<WebDeployInfo> {
-    const res = await this.call("web.deploy", makeWebDeployData(params), { nonce })
+    const res = await this.call("web.deploy", makeWebDeployData(params), {
+      nonce,
+    })
     return getWebDeploy(res)
   },
 
-  async remove(params: WebRemoveParams,
-               { nonce } = { nonce: makeRandomBytes(16) },
+  async remove(
+    params: WebRemoveParams,
+    { nonce } = { nonce: makeRandomBytes(16) },
   ) {
     await this.call("web.remove", makeWebRemoveData(params), { nonce })
   },
 
-  async update(params: WebUpdateParams,
-               { nonce } = { nonce: makeRandomBytes(16) },
+  async update(
+    params: WebUpdateParams,
+    { nonce } = { nonce: makeRandomBytes(16) },
   ): Promise<WebDeployInfo> {
-    const res = await this.call("web.update", makeWebUpdateData(params), { nonce })
+    const res = await this.call("web.update", makeWebUpdateData(params), {
+      nonce,
+    })
     return getWebUpdate(res)
   },
 }
 
 function setIfDefined(data: Map<number, any>, key: number, value: any) {
-  if (value) data.set(key, value);
+  if (value) data.set(key, value)
 }
 
 function makeWebDeployData(params: WebDeployParams) {
-  const OWNER_KEY = 0;
-  const SITE_NAME_KEY = 1;
-  const SITE_DESCRIPTION_KEY = 2;
-  const DEPLOYMENT_SOURCE_KEY = 3;
-  const MEMO_KEY = 4;
+  const OWNER_KEY = 0
+  const SITE_NAME_KEY = 1
+  const SITE_DESCRIPTION_KEY = 2
+  const DEPLOYMENT_SOURCE_KEY = 3
+  const MEMO_KEY = 4
 
   const data = new Map()
-  setIfDefined(data, OWNER_KEY,params.owner)
+  setIfDefined(data, OWNER_KEY, params.owner)
   setIfDefined(data, SITE_NAME_KEY, params.siteName)
   setIfDefined(data, SITE_DESCRIPTION_KEY, params.siteDescription)
   setIfDefined(data, DEPLOYMENT_SOURCE_KEY, params.deploymentSource.payload)
@@ -70,9 +76,9 @@ function makeWebUpdateData(params: WebUpdateParams) {
 }
 
 function makeWebListData(params: WebListParams) {
-  const COUNT_KEY = 0;
-  const ORDER_KEY = 1;
-  const FILTERS_KEY = 2;
+  const COUNT_KEY = 0
+  const ORDER_KEY = 1
+  const FILTERS_KEY = 2
 
   const data = new Map()
   setIfDefined(data, COUNT_KEY, params.count)
@@ -82,9 +88,9 @@ function makeWebListData(params: WebListParams) {
 }
 
 function makeWebRemoveData(params: WebRemoveParams) {
-  const OWNER_KEY = 0;
-  const SITE_NAME_KEY = 1;
-  const MEMO_KEY = 2;
+  const OWNER_KEY = 0
+  const SITE_NAME_KEY = 1
+  const MEMO_KEY = 2
 
   const data = new Map()
   setIfDefined(data, OWNER_KEY, params.owner)
@@ -94,17 +100,18 @@ function makeWebRemoveData(params: WebRemoveParams) {
 }
 
 function getWebDeploy(message: Message): WebDeployInfo {
-  const WEB_DEPLOY_INFO_KEY = 0;
-  const OWNER_KEY = 0;
-  const SITE_NAME_KEY = 1;
-  const SITE_DESCRIPTION_KEY = 2;
-  const DEPLOYMENT_URL_KEY = 3;
+  const WEB_DEPLOY_INFO_KEY = 0
+  const OWNER_KEY = 0
+  const SITE_NAME_KEY = 1
+  const SITE_DESCRIPTION_KEY = 2
+  const DEPLOYMENT_URL_KEY = 3
 
   const data = message.getPayload()
   return {
     owner: data.get(WEB_DEPLOY_INFO_KEY).get(OWNER_KEY),
     siteName: data.get(WEB_DEPLOY_INFO_KEY).get(SITE_NAME_KEY),
-    siteDescription: data.get(WEB_DEPLOY_INFO_KEY).get(SITE_DESCRIPTION_KEY) ?? undefined,
+    siteDescription:
+      data.get(WEB_DEPLOY_INFO_KEY).get(SITE_DESCRIPTION_KEY) ?? undefined,
     deploymentUrl: data.get(WEB_DEPLOY_INFO_KEY).get(DEPLOYMENT_URL_KEY),
   }
 }
@@ -114,7 +121,7 @@ function getWebUpdate(message: Message): WebDeployInfo {
 }
 
 function getWebInfo(message: Message): WebInfo {
-  const WEB_INFO_KEY = 0;
+  const WEB_INFO_KEY = 0
 
   const data = message.getPayload()
   return {
@@ -123,11 +130,11 @@ function getWebInfo(message: Message): WebInfo {
 }
 
 function getWebList(message: Message): WebDeployInfo[] {
-  const WEB_DEPLOY_LIST_KEY = 0;
-  const OWNER_KEY = 0;
-  const SITE_NAME_KEY = 1;
-  const SITE_DESCRIPTION_KEY = 2;
-  const DEPLOYMENT_URL_KEY = 3;
+  const WEB_DEPLOY_LIST_KEY = 0
+  const OWNER_KEY = 0
+  const SITE_NAME_KEY = 1
+  const SITE_DESCRIPTION_KEY = 2
+  const DEPLOYMENT_URL_KEY = 3
 
   const convertMapToWebDeployInfo = (map: Map<number, any>): WebDeployInfo => {
     return {

@@ -1,20 +1,21 @@
-import cbor from "cbor";
+import cbor from "cbor"
 import { Address, Identity } from "../identity"
-import { CborData, CborMap, tag } from "./cbor";
-import { CoseMessage, decoders } from "./cose";
-import { ManyError, SerializedManyError } from "./error";
+import { CborData, CborMap, tag } from "./cbor"
+import { CoseMessage, decoders } from "./cose"
+import { ManyError, SerializedManyError } from "./error"
 import { Attributes, AsyncAttribute } from "./attributes"
+import { HIGH_WATER_MARK } from "../const"
 
 interface MessageContent {
-  version?: number;
+  version?: number
   from?: Address
   to?: Address
-  method: string;
-  data?: any;
-  timestamp?: number;
-  id?: number;
-  nonce?: string;
-  attrs?: string[];
+  method: string
+  data?: any
+  timestamp?: number
+  id?: number
+  nonce?: string
+  attrs?: string[]
 }
 
 export class Message {
@@ -40,65 +41,69 @@ export class Message {
 
   static fromObject(obj: MessageContent): Message {
     if (!obj.method) {
-      throw new Error("Property 'method' is required.");
+      throw new Error("Property 'method' is required.")
     }
-    const content = new Map();
-    content.set(0, obj.version ? obj.version : 1);
+    const content = new Map()
     if (obj.from) {
-      content.set(1, obj.from.toString());
+      content.set(1, obj.from)
     }
     if (obj.to) {
-      content.set(2, obj.to.toString());
+      content.set(2, obj.to)
     }
-    content.set(3, obj.method);
+    content.set(3, obj.method)
     if (obj.data) {
-      content.set(4, cbor.encode(obj.data));
+      content.set(
+        4,
+        cbor.encodeOne(obj.data, {
+          highWaterMark: HIGH_WATER_MARK,
+        } as Object),
+      )
     }
     content.set(
       5,
-      tag(1, obj.timestamp ? obj.timestamp : Math.floor(Date.now() / 1000))
-    );
+      tag(1, obj.timestamp ? obj.timestamp : Math.floor(Date.now() / 1000)),
+    )
     if (obj.id) {
-      content.set(6, obj.id);
+      content.set(6, obj.id)
     }
     if (obj.nonce) {
       content.set(7, cbor.encode(obj.nonce))
     }
     if (obj.attrs) {
-      content.set(8, obj.attrs);
+      content.set(8, obj.attrs)
     }
-    return new Message(content);
+    return new Message(content)
   }
 
   static fromCoseMessage(message: CoseMessage): Message {
-    const content = message.content;
-    const data = content.get(4);
+    const content = message.content
+    const data = content.get(4)
     if (typeof data == "object" && !Buffer.isBuffer(data)) {
       throw new ManyError(
-        Object.fromEntries(data.entries()) as SerializedManyError
-      );
+        Object.fromEntries(data.entries()) as SerializedManyError,
+      )
     }
-    return new Message(content);
+    return new Message(content)
   }
 
   static fromCborData(data: CborData): Message {
-    const cose = CoseMessage.fromCborData(data);
-    return Message.fromCoseMessage(cose);
+    const cose = CoseMessage.fromCborData(data)
+    return Message.fromCoseMessage(cose)
   }
 
   private replacer(key: string, value: any) {
     if (value?.type === "Buffer") {
-      return Buffer.from(value.data).toString("hex");
+      return Buffer.from(value.data).toString("hex")
     } else if (value instanceof Map) {
-      return Object.fromEntries(value.entries());
+      return Object.fromEntries(value.entries())
     } else if (typeof value === "bigint") {
-      return parseInt(value.toString());
+      return parseInt(value.toString())
     } else if (key === "hash") {
-      return Buffer.from(value).toString("hex");
+      return Buffer.from(value).toString("hex")
     } else if (key === "bytes") {
-      return Buffer.from(value).toString("hex");
+      return Buffer.from(value).toString("hex")
     } else {
-      return value;
+      return value
     }
   }
 
@@ -111,6 +116,6 @@ export class Message {
   }
 
   toString() {
-    return JSON.stringify(this.content, this.replacer, 2);
+    return JSON.stringify(this.content, this.replacer, 2)
   }
 }

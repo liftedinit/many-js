@@ -27,6 +27,7 @@ export class Network {
 
   async send(req: Message) {
     const cbor = await req.toCborData(this.identity)
+
     if (this.options.DEBUG) {
       console.log(cbor.toString("hex"))
     }
