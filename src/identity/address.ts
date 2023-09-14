@@ -81,7 +81,7 @@ export class Address {
   }
 
   encodeCBOR(encoder: any) {
-    const tagged = new Tagged(10000, this.bytes)
+    const tagged = new Tagged(10000, Buffer.from(this.bytes))
     return encoder.pushAny(tagged)
   }
 }
