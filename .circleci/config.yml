@@ -100,7 +100,7 @@ workflows:
               node_version:
                 - 'lts'
                 - 'current'
-                - '16.16.0'
+                - '16.20.2'
       - create:
           release_id: "${CIRCLE_PR_NUMBER}"
 
