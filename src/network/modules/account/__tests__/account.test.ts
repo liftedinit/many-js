@@ -34,7 +34,7 @@ describe("Account", () => {
     roles.set(identityStr3, [AccountRole.canMultisigApprove])
     const _roles = Array.from(roles).reduce((acc, rolesForAddress) => {
       const [address, roleList] = rolesForAddress
-      const taggedIdentity = tag(10000, Address.fromString(address).toBuffer())
+      const taggedIdentity = Address.fromString(address)
       acc.set(taggedIdentity, roleList)
       return acc
     }, new Map())
@@ -346,7 +346,7 @@ function makeMultisigInfoResponse({
       amount: 2,
     }),
   )
-  const submitter = tag(10000, Address2)
+  const submitter = Address2
   const approvers = new Map().set(submitter, new Map().set(0, true))
   const threshold = 2
   const executeAutomatically = false

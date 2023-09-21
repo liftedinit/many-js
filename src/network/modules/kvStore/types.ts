@@ -1,16 +1,10 @@
 import { Address } from "../../../identity"
-import { NetworkModule } from "../types"
+import { NetworkModule, SortOrder } from "../types"
 
 type KeyFilterType =
   | [0, Address] // Owner
   | [1, Address] // Previous Owner
   | [2, boolean] // Disabled?
-
-export enum SortOrder {
-    Indeterminate = 0,
-    Ascending = 1,
-    Descending = 2,
-}
 
 export interface KVStoreInfo {
   hash: string

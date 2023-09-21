@@ -1,6 +1,7 @@
 import base32Decode from "base32-decode"
 import base32Encode from "base32-encode"
 import crc from "crc"
+import { Tagged } from "cbor"
 
 export const ANON_IDENTITY = "maa"
 export const ILLEGAL_IDENTITY = "maiyg"
@@ -95,5 +96,10 @@ export class Address {
       id & 0x000000ff,
     ])
     return new Address(Buffer.concat([bytes, subresourceBytes]))
+  }
+
+  encodeCBOR(encoder: any) {
+    const tagged = new Tagged(10000, Buffer.from(this.bytes))
+    return encoder.pushAny(tagged)
   }
 }

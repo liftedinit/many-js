@@ -27,6 +27,7 @@ export class Network {
 
   async send(req: Message) {
     const cbor = await req.toCborData(this.identity)
+
     if (this.options.DEBUG) {
       console.log(cbor.toString("hex"))
     }
@@ -43,13 +44,27 @@ export class Network {
   }
 
   async sendEncoded(body: CborData) {
-    const res = await fetch(this.url, {
-      method: "POST",
-      headers: { "Content-Type": "application/cbor" },
-      body,
-    })
-    const reply = await res.arrayBuffer()
-    return Buffer.from(reply)
+    try {
+      const res = await fetch(this.url, {
+        method: "POST",
+        headers: { "Content-Type": "application/cbor" },
+        body,
+      })
+      if (!res.ok) {
+        throw new Error(
+          `Server responded with status: ${res.status} ${res.statusText}`,
+        )
+      }
+      const reply = await res.arrayBuffer()
+      return Buffer.from(reply)
+    } catch (error) {
+      // Handle network errors here
+      if (error instanceof TypeError && error.message === "Failed to fetch") {
+        throw new Error("Network error occurred. Please check your connection.")
+      }
+      // Re-throw other caught errors
+      throw error
+    }
   }
 
   async call(method: string, data?: any, opts = {}) {

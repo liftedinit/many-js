@@ -8,6 +8,7 @@ import {
 } from "../identity"
 import { Message } from "../message"
 import { CborData, CborMap, tag } from "./cbor"
+import { HIGH_WATER_MARK } from "../const"
 
 export const ANONYMOUS = Buffer.from([0x00])
 export const EMPTY = Buffer.alloc(0)
@@ -61,13 +62,15 @@ export class CoseMessage {
     const protectedHeader = await this.getProtectedHeader(identity)
     const cborProtectedHeader = cbor.encodeCanonical(protectedHeader)
     const content = message.getContent()
-    const cborContent = cbor.encode(tag(10001, content))
-    const toBeSigned = cbor.encodeCanonical([
-      "Signature1",
-      cborProtectedHeader,
-      EMPTY,
-      cborContent,
-    ])
+    const cborContent = cbor.encodeOne(tag(10001, content), {
+      highWaterMark: HIGH_WATER_MARK,
+    } as Object)
+
+    const toBeSigned = cbor.encodeOne(
+      ["Signature1", cborProtectedHeader, EMPTY, cborContent],
+      { highWaterMark: HIGH_WATER_MARK } as Object,
+    )
+
     const unprotectedHeader = await identity.getUnprotectedHeader(
       cborContent,
       cborProtectedHeader,
@@ -116,11 +119,19 @@ export class CoseMessage {
   }
 
   toCborData(): CborData {
-    const p = cbor.encodeCanonical(this.protectedHeader)
-    const u = this.unprotectedHeader
-    const payload = cbor.encode(tag(10001, this.content))
-    let sig = this.signature
-    return cbor.encodeCanonical(tag(18, [p, u, payload, sig]))
+    const payload = cbor.encodeOne(tag(10001, this.content), {
+      highWaterMark: HIGH_WATER_MARK,
+    } as Object)
+    const protectedHeader = cbor.encodeOne(this.protectedHeader)
+    return cbor.encodeOne(
+      tag(18, [
+        protectedHeader,
+        this.unprotectedHeader,
+        payload,
+        this.signature,
+      ]),
+      { highWaterMark: HIGH_WATER_MARK } as Object,
+    )
   }
 
   toString(): string {
@@ -164,6 +175,7 @@ export class CoseKey {
   }
 
   toCborData(): CborData {
+    // encodeCanonical will encode the map in sorted order
     return cbor.encodeCanonical([this.key])
   }
 

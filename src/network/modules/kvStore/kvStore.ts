@@ -84,22 +84,22 @@ function makeKVStorePut(param: KVStorePutParam): Map<number, any> {
   const data = new Map()
   data.set(0, Buffer.from(param.key))
   data.set(1, Buffer.from(param.value))
-  param.owner && data.set(2, tag(10000, param.owner))
+  param.owner && data.set(2, param.owner)
   return data
 }
 
 function makeKVStoreDisable(param: KVStoreDisableParam): Map<number, any> {
   const data = new Map()
   data.set(0, Buffer.from(param.key))
-  param.owner && data.set(1, tag(10000, param.owner))
+  param.owner && data.set(1, param.owner)
   return data
 }
 
 function makeKVStoreTransfer(param: KVStoreTransferParam): Map<number, any> {
   const data = new Map()
   data.set(0, Buffer.from(param.key))
-  data.set(2, tag(10000, param.newOwner))
-  param.owner && data.set(1, tag(10000, param.owner))
+  data.set(2, param.newOwner)
+  param.owner && data.set(1, param.owner)
   return data
 }
 
