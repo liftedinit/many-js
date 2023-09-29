@@ -15,6 +15,7 @@ import {
   NetworkModule,
   RangeBounds,
 } from "../types"
+import { TokenInfoSummary } from "../tokens/types"
 
 interface ListArgs {
   count?: number
@@ -111,6 +112,23 @@ export interface BurnEvent extends BaseEvent {
   amounts: { [from: string]: number }
 }
 
+type AttributeId = number
+
+type SubAttributeRelatedIndex =
+  | [AttributeId, number]
+  | [AttributeId, AttributeRelatedIndex]
+export type AttributeRelatedIndex = AttributeId | SubAttributeRelatedIndex
+
+export interface TokenCreateEvent extends BaseEvent {
+  summary: TokenInfoSummary
+  symbolAddress: string
+  owner: string | null
+  initialDistribution?: { [address: string]: number }
+  maximumSupply?: number
+  extendedInfo?: AttributeRelatedIndex[]
+  memo?: Memo
+}
+
 export type Event =
   | SendEvent
   | CreateAccountEvent
@@ -126,6 +144,7 @@ export type Event =
   | RemoveRolesEvent
   | MintEvent
   | BurnEvent
+  | TokenCreateEvent
 
 export interface EventsListResponse {
   count: number
@@ -134,7 +153,6 @@ export interface EventsListResponse {
 
 export interface ListFilterArgs {
   accounts?: string | string[]
-  symbols?: string | string[]
   txnIdRange?: RangeBounds<Uint8Array>
 }
 
@@ -223,18 +241,12 @@ async function getEventsList(message: Message): Promise<EventsListResponse> {
 
 export function makeListFilters(filters: ListFilterArgs): Map<number, unknown> {
   const result = new Map()
-  const { accounts, symbols, txnIdRange } = filters
+  const { accounts, txnIdRange } = filters
 
   if (accounts) {
     if (typeof accounts !== "string" && !Array.isArray(accounts))
       throw "type of filter.accounts must be a string or string[]"
     result.set(0, accounts)
-  }
-
-  if (symbols) {
-    if (typeof symbols !== "string" && !Array.isArray(symbols))
-      throw "type of filter.symbols must be a string or string[]"
-    result.set(2, symbols)
   }
 
   if (txnIdRange) {

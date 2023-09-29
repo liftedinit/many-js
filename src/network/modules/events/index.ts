@@ -18,4 +18,5 @@ export type {
   MultisigSetDefaultsEvent,
   MintEvent,
   BurnEvent,
+  TokenCreateEvent,
 } from "./events"
