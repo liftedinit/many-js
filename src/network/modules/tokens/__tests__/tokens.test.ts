@@ -40,7 +40,7 @@ describe("Tokens", () => {
   })
   describe("update", () => {
     it("should return information for the updated token", async () => {
-      const mockCall = jest.fn(async () => { })
+      const mockCall = jest.fn(async () => {})
       const tokens = setupModule(Tokens, mockCall)
 
       tokens.update({
@@ -56,7 +56,7 @@ describe("Tokens", () => {
   })
   describe("addExtendedInfo", () => {
     it("should return information for the updated token", async () => {
-      const mockCall = jest.fn(async () => { })
+      const mockCall = jest.fn(async () => {})
       const tokens = setupModule(Tokens, mockCall)
 
       tokens.addExtendedInfo({
@@ -69,7 +69,7 @@ describe("Tokens", () => {
   })
   describe("removeExtendedInfo", () => {
     it("should return information for the updated token", async () => {
-      const mockCall = jest.fn(async () => { })
+      const mockCall = jest.fn(async () => {})
       const tokens = setupModule(Tokens, mockCall)
 
       tokens.removeExtendedInfo({
@@ -82,7 +82,7 @@ describe("Tokens", () => {
   })
   describe("mint", () => {
     it("should mint some tokens", async () => {
-      const mockCall = jest.fn(async () => { })
+      const mockCall = jest.fn(async () => {})
       const tokens = setupModule(Tokens, mockCall)
 
       const symbol = mockTokenString
@@ -94,7 +94,7 @@ describe("Tokens", () => {
   })
   describe("burn", () => {
     it("should burn some tokens", async () => {
-      const mockCall = jest.fn(async () => { })
+      const mockCall = jest.fn(async () => {})
       const tokens = setupModule(Tokens, mockCall)
 
       const symbol = mockTokenString

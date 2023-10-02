@@ -3,7 +3,7 @@ import { EMPTY } from "../../message/cose"
 import { Address } from "../address"
 
 export class AnonymousIdentity extends Identity {
-  static dataType = 'anonymous'
+  static dataType = "anonymous"
 
   async sign() {
     return EMPTY

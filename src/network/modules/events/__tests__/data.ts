@@ -139,9 +139,7 @@ function makeMultisigTxnResponse({
   actor: string
   time: number
 }) {
-  const m = new Map()
-    .set(2, token)
-    .set(3, Address.fromString(actor))
+  const m = new Map().set(2, token).set(3, Address.fromString(actor))
 
   return makeTxn({
     id,
@@ -393,7 +391,7 @@ export const expectedMockEventsListMultisigTxnsResponse = {
             )
             .set(
               AccountMultisigArgument[
-              AccountMultisigArgument.executeAutomatically
+                AccountMultisigArgument.executeAutomatically
               ],
               false,
             ),
@@ -519,7 +517,7 @@ export const expectedMockEventsListCreateAccountResponse = {
             )
             .set(
               AccountMultisigArgument[
-              AccountMultisigArgument.executeAutomatically
+                AccountMultisigArgument.executeAutomatically
               ],
               false,
             ),

@@ -3,7 +3,7 @@ import { ONE_MINUTE } from "../../const"
 import { CoseKey, EMPTY } from "../../message/cose"
 import { makeRandomBytes } from "../../utils"
 import { Address } from "../address"
-import {Identity, PublicKeyIdentity} from "../types"
+import { Identity, PublicKeyIdentity } from "../types"
 const sha512 = require("js-sha512")
 
 export class WebAuthnIdentity extends PublicKeyIdentity {
@@ -11,7 +11,7 @@ export class WebAuthnIdentity extends PublicKeyIdentity {
   rawId: ArrayBuffer
   cosePublicKey: ArrayBuffer
 
-  static dataType = 'webauthn'
+  static dataType = "webauthn"
 
   constructor(cosePublicKey: ArrayBuffer, rawId: ArrayBuffer) {
     super()
