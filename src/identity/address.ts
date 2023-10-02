@@ -16,7 +16,7 @@ export class Address {
     return new Address()
   }
 
-  static illegal(): Address { 
+  static illegal(): Address {
     return new Address(Buffer.from([0x02]))
   }
 
@@ -62,7 +62,7 @@ export class Address {
     if (this.isAnonymous()) {
       return ANON_IDENTITY
     }
-    if (this.isIllegal()) { 
+    if (this.isIllegal()) {
       return ILLEGAL_IDENTITY
     }
     const identity = this.toBuffer()

@@ -18,7 +18,10 @@ import {
   Memo,
   MintEvent,
   BurnEvent,
+  TokenCreateEvent,
 } from "../../network"
+import { TokenInfoSummary } from "../../network/modules/tokens/types"
+import { AttributeRelatedIndex } from "../../network/modules/events/events"
 
 export function makeLedgerSendParam({
   from,
@@ -94,6 +97,8 @@ export async function makeTxnData(
     return await makeMultisigSetDefaultEventData(txn)
   else if (eventTypeName === EventType.mint) return await makeMintEventData(txn)
   else if (eventTypeName === EventType.burn) return await makeBurnEventData(txn)
+  else if (eventTypeName === EventType.tokenCreate)
+    return await makeTokenCreateEventData(txn)
 
   console.error("event type not implemented", indices, txn)
 }
@@ -326,5 +331,31 @@ async function makeBurnEventData(
       (amts, [from, amt]) => ({ ...amts, [from.toString()]: BigInt(amt) }),
       {},
     ),
+  }
+}
+async function makeTokenCreateEventData(
+  eventData: CborMap,
+): Promise<Omit<TokenCreateEvent, "id" | "time">> {
+  const initialDistribution =
+    (eventData.get(4) as Map<Address, number>) || new Map()
+  const summaryMap = eventData.get(1)
+  const summary = {
+    name: summaryMap.get(0),
+    symbol: summaryMap.get(1),
+    precision: summaryMap.get(2),
+  } as TokenInfoSummary
+
+  return {
+    type: EventType.tokenCreate,
+    summary,
+    symbolAddress: (eventData.get(2) as Address).toString(),
+    owner: (eventData.get(3) as Address)?.toString() || null,
+    initialDistribution: Array.from(initialDistribution).reduce(
+      (amts, [from, amt]) => ({ ...amts, [from.toString()]: BigInt(amt) }),
+      {},
+    ),
+    extendedInfo: eventData.get(5) as AttributeRelatedIndex[],
+    maximumSupply: eventData.get(6) as number,
+    memo: eventData.get(7) as Memo,
   }
 }

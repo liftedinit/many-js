@@ -47,7 +47,7 @@ describe("Events", () => {
       const res = await events.list()
       expect(res).toEqual(expectedMockEventsListMultisigSubmitEventResponse)
     })
-    it("should return multisig approve, revoke, execute, withdraw, set defaults, setDescription, addRoles, removeRoles, and addFeatures events", async function() {
+    it("should return multisig approve, revoke, execute, withdraw, set defaults, setDescription, addRoles, removeRoles, and addFeatures events", async function () {
       const mockCall = jest.fn(async () => {
         return mockEventsListMultisigTxnsResponse
       })
@@ -55,7 +55,7 @@ describe("Events", () => {
       const res = await events.list()
       expect(res).toEqual(expectedMockEventsListMultisigTxnsResponse)
     })
-    it("should return create account transaction", async function() {
+    it("should return create account transaction", async function () {
       const mockCall = jest.fn(async () => {
         return mockEventsListCreateAccountResponse
       })
@@ -63,7 +63,7 @@ describe("Events", () => {
       const res = await events.list()
       expect(res).toEqual(expectedMockEventsListCreateAccountResponse)
     })
-    it("should return mint and burn events", async function() {
+    it("should return mint and burn events", async function () {
       const mockCall = jest.fn(async () => {
         return mockEventsListMintBurnResponse
       })
@@ -94,8 +94,7 @@ describe("Events", () => {
         order: ListOrderType.ascending,
         count: 20,
         filters: {
-          symbols: "symbol1",
-          accounts: "account1",
+          accounts: ["account1", "symbol1"],
           txnIdRange: [
             undefined,
             { boundType: BoundType.exclusive, value: txnId },
@@ -112,8 +111,7 @@ describe("Events", () => {
             2,
             // @ts-ignore
             new Map([
-              [0, "account1"],
-              [2, "symbol1"],
+              [0, ["account1", "symbol1"]],
               [3, new Map([[1, [1, txnId]]])],
             ]),
           ],
@@ -124,11 +122,9 @@ describe("Events", () => {
   describe("makeListFilters", () => {
     it("should construct the filters", () => {
       const txnId = new Uint8Array(Buffer.from("txnid1"))
-      const accounts = "account1"
-      const symbols = "symbol1"
+      const accounts = ["account1", "symbol1"]
       const filters = makeListFilters({
         accounts,
-        symbols,
         txnIdRange: [
           undefined,
           { boundType: BoundType.exclusive, value: txnId },
@@ -137,15 +133,13 @@ describe("Events", () => {
       expect(filters).toEqual(
         //@ts-ignore
         new Map([
-          [0, accounts],
-          [2, symbols],
+          [0, ["account1", "symbol1"]],
           [3, new Map([[1, [1, txnId]]])],
         ]),
       )
 
       const filters2 = makeListFilters({
         accounts,
-        symbols,
         txnIdRange: [
           { boundType: BoundType.inclusive, value: txnId },
           undefined,
@@ -154,8 +148,7 @@ describe("Events", () => {
       expect(filters2).toEqual(
         // @ts-ignore
         new Map([
-          [0, accounts],
-          [2, symbols],
+          [0, ["account1", "symbol1"]],
           [3, new Map([[0, [0, txnId]]])],
         ]),
       )

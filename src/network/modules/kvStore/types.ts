@@ -30,9 +30,9 @@ export interface KVStoreGetParam {
 }
 
 export interface KVStoreListParam {
-  count?: number,
-  order?: SortOrder,
-  filter?: KeyFilterType[],
+  count?: number
+  order?: SortOrder
+  filter?: KeyFilterType[]
 }
 
 export interface KVStorePutParam {

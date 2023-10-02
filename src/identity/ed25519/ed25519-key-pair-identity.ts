@@ -2,11 +2,11 @@ import forge, { pki } from "node-forge"
 import * as bip39 from "bip39"
 import { CoseKey } from "../../message/cose"
 const ed25519 = pki.ed25519
-import {Identity, PublicKeyIdentity} from "../types"
+import { Identity, PublicKeyIdentity } from "../types"
 import { Address } from "../address"
 
 export class Ed25519KeyPairIdentity extends PublicKeyIdentity {
-  static dataType = 'ed25519'
+  static dataType = "ed25519"
 
   publicKey: ArrayBuffer
   protected privateKey: ArrayBuffer

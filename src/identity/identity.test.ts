@@ -82,7 +82,7 @@ describe("identity", () => {
     expect(bob.withSubresource(2)).toStrictEqual(charlie)
   })
 
-  test("illegal text format", () => {   
+  test("illegal text format", () => {
     const illegal = Address.fromString("maiyg")
     const illegalStr = Address.illegal().toString()
 
@@ -97,5 +97,4 @@ describe("identity", () => {
     expect(illegal.isIllegal()).toBe(true)
     expect(illegal.toHex()).toStrictEqual(illegalHex)
   })
-
 })

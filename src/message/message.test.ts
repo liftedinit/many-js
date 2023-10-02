@@ -1,12 +1,12 @@
-import { Message } from "../message";
+import { Message } from "../message"
 
 describe("Message", () => {
   test("can be constructed from an object", () => {
-    const msg = { method: "info" };
-    const req = Message.fromObject(msg);
+    const msg = { method: "info" }
+    const req = Message.fromObject(msg)
 
-    expect(req).toHaveProperty("content");
-  });
+    expect(req).toHaveProperty("content")
+  })
   test("can be serialized/deserialized", async () => {
     const msg = { method: "info" }
     const req = Message.fromObject(msg)
@@ -14,4 +14,4 @@ describe("Message", () => {
 
     expect(Message.fromCborData(cbor)).toStrictEqual(req)
   })
-});
+})
