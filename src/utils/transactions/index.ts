@@ -336,7 +336,8 @@ async function makeBurnEventData(
 async function makeTokenCreateEventData(
   eventData: CborMap,
 ): Promise<Omit<TokenCreateEvent, "id" | "time">> {
-  const initialDistribution = eventData.get(4) as Map<Address, number>
+  const initialDistribution =
+    (eventData.get(4) as Map<Address, number>) || new Map()
   const summaryMap = eventData.get(1)
   const summary = {
     name: summaryMap.get(0),
@@ -349,7 +350,7 @@ async function makeTokenCreateEventData(
     summary,
     symbolAddress: (eventData.get(2) as Address).toString(),
     owner: (eventData.get(3) as Address)?.toString() || null,
-    initialDistribution: Array.from(initialDistribution.entries()).reduce(
+    initialDistribution: Array.from(initialDistribution).reduce(
       (amts, [from, amt]) => ({ ...amts, [from.toString()]: BigInt(amt) }),
       {},
     ),
