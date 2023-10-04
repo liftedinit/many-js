@@ -14,7 +14,7 @@ import {
 export const Web: WebModule = {
   _namespace_: "web",
   async info(): Promise<WebInfo> {
-    const res = this.call("web.info")
+    const res = await this.call("web.info")
     return getWebInfo(res)
   },
 
