@@ -139,6 +139,7 @@ function getWebList(message: Message): WebListReturns {
   const SITE_NAME_KEY = 1
   const SITE_DESCRIPTION_KEY = 2
   const DEPLOYMENT_URL_KEY = 3
+  const DOMAIN_KEY = 4
   const TOTAL_COUNT_KEY = 1
 
   const convertMapToWebDeployInfo = (map: Map<number, any>): WebDeployInfo => {
@@ -147,6 +148,7 @@ function getWebList(message: Message): WebListReturns {
       siteName: map.get(SITE_NAME_KEY),
       siteDescription: map.get(SITE_DESCRIPTION_KEY),
       deploymentUrl: map.get(DEPLOYMENT_URL_KEY),
+      domain: map.get(DOMAIN_KEY),
     }
   }
   const data = message.getPayload()
