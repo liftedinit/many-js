@@ -56,6 +56,7 @@ export interface WebListParams {
   count?: number
   order?: SortOrder
   filters?: WebDeploymentFilter[]
+  page?: number
 }
 
 export interface WebListReturns {

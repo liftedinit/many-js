@@ -81,11 +81,13 @@ function makeWebListData(params: WebListParams) {
   const COUNT_KEY = 0
   const ORDER_KEY = 1
   const FILTERS_KEY = 2
+  const PAGE_KEY = 3
 
   const data = new Map()
   setIfDefined(data, COUNT_KEY, params.count)
   setIfDefined(data, ORDER_KEY, params.order)
   setIfDefined(data, FILTERS_KEY, params.filters?.map(filter => filter.payload))
+  setIfDefined(data, PAGE_KEY, params.page)
   return data
 }
 
