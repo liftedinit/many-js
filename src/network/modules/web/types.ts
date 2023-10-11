@@ -16,7 +16,7 @@ export type DeploymentSource = {
   payload: Archive
 }
 
-export type OwnerFilter = [0, Map<number, Address | string>]
+export type OwnerFilter = [0, Map<number, Address>]
 
 export enum FilterTypes {
   Owner = "OwnerFilter",
