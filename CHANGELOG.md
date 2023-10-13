@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.1] - 2023-10-13
+
+### Features
+
+- Web.list pagination and custom domain support ([#119](https://github.com/liftedinit/many-js/issues/119))
+
 ## [0.1.0] - 2023-10-02
 
 ### Bug Fixes
