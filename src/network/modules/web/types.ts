@@ -16,7 +16,7 @@ export type DeploymentSource = {
   payload: Archive
 }
 
-export type OwnerFilter = [0, Map<number, Address | string>]
+export type OwnerFilter = [0, Map<number, Address>]
 
 export enum FilterTypes {
   Owner = "OwnerFilter",
@@ -33,6 +33,7 @@ export interface WebDeployParams {
   siteDescription?: string
   deploymentSource: DeploymentSource
   memo?: Memo
+  domain?: string
 }
 
 export type WebUpdateParams = WebDeployParams
@@ -42,6 +43,7 @@ export interface WebDeployInfo {
   siteName: string
   siteDescription?: string
   deploymentUrl: string
+  domain?: string
 }
 
 export interface WebRemoveParams {
@@ -54,11 +56,17 @@ export interface WebListParams {
   count?: number
   order?: SortOrder
   filters?: WebDeploymentFilter[]
+  page?: number
+}
+
+export interface WebListReturns {
+  deployments: WebDeployInfo[]
+  totalCount: number
 }
 
 export interface WebModule extends NetworkModule {
   info: () => Promise<WebInfo>
-  list: (data: WebListParams) => Promise<WebDeployInfo[]>
+  list: (data: WebListParams) => Promise<WebListReturns>
   deploy: (
     data: WebDeployParams,
     opts?: { nonce?: ArrayBuffer },
