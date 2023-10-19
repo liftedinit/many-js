@@ -1,13 +1,5 @@
-import cbor from "cbor";
-import { Identifier } from "../../id";
-import { tag, CborMap, CborData } from "./cbor";
-
-export const decoders = {
-  tags: {
-    10000: (value: Uint8Array) => new Identifier(value),
-    1: (value: number) => tag(1, value),
-  },
-};
+import { encode, Tagged, decodeFirstSync } from "cbor-web";
+import { CborMap, CborData } from "./cbor";
 
 export class CoseSign1 {
   constructor(
@@ -19,29 +11,20 @@ export class CoseSign1 {
 
   toCborData(): CborData {
     const p = this.protectedHeader.size
-      ? cbor.encodeCanonical(this.protectedHeader)
-      : Buffer.alloc(0);
+      ? encode(this.protectedHeader)
+      : new ArrayBuffer(0);
     const u = this.unprotectedHeader;
-    const payload = cbor.encode(new cbor.Tagged(10001, this.payload));
-    let sig = this.signature;
-    return cbor.encodeCanonical(new cbor.Tagged(18, [p, u, payload, sig]));
+    const payload = encode(new Tagged(10001, this.payload));
+    const sig = this.signature;
+
+    return encode(new Tagged(18, [p, u, payload, sig]));
   }
 
   static fromCborData(data: CborData): CoseSign1 {
-    const cose = cbor.decodeFirstSync(data, decoders).value;
+    let [p, u, payload, sig] = decodeFirstSync(data).value;
+    p = p.size ? decodeFirstSync(p) : new Map();
+    payload = payload ? decodeFirstSync(payload).value : new Map();
 
-    const protectedHeader = cose[0].size
-      ? cbor.decodeFirstSync(cose[0])
-      : new Map();
-    const unprotectedHeader = cose[1];
-    const payload = cbor.decodeFirstSync(cose[2], decoders).value;
-    const signature = cose[3];
-
-    return new CoseSign1(
-      protectedHeader,
-      unprotectedHeader,
-      payload,
-      signature,
-    );
+    return new CoseSign1(p, u, payload, sig);
   }
 }

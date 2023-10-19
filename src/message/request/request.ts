@@ -1,8 +1,7 @@
-import cbor from "cbor";
+import { encode, decodeAllSync, Tagged } from "cbor-web";
 import { mapToObj, objToMap, Transform } from "../../shared/transform";
 import { Message } from "../message";
-import { CborData, CoseSign1, tag } from "../encoding";
-import Tagged from "cbor/types/lib/tagged";
+import { CborData, cborDataToString, CoseSign1 } from "../encoding";
 import { makeRandomBytes } from "../../shared/utils";
 import { Identifier } from "../../id";
 
@@ -26,13 +25,18 @@ const requestArgMap: Transform = {
   4: [
     "data",
     {
-      fn: (value?: Buffer) =>
-        value ? cbor.decode(value, decoders) : undefined,
+      fn: (value?: CborData) => (value ? decodeAllSync(value) : undefined),
     },
   ],
-  5: ["timestamp", { fn: (value: Tagged) => value.value }],
+  5: [
+    "timestamp",
+    {
+      fn: (value: Date | Tagged) =>
+        value instanceof Date ? value.valueOf() : value.value,
+    },
+  ],
   6: "id",
-  7: ["nonce", { fn: (value: CborData) => value.toString("hex") }],
+  7: ["nonce", { fn: (value: CborData) => cborDataToString(value, "hex") }],
   8: "attrs",
 };
 
@@ -41,21 +45,16 @@ const requestMap: Transform = {
   1: "from",
   2: "to",
   3: "method",
-  4: [
-    "data",
-    { fn: (value?: any) => (value ? cbor.encode(value) : undefined) },
+  4: ["data", { fn: (value?: any) => (value ? encode(value) : undefined) }],
+  5: [
+    "timestamp",
+    {
+      fn: (value: number) => new Tagged(1, value),
+    },
   ],
-  5: ["timestamp", { fn: (value: number) => new cbor.Tagged(1, value) }],
   6: "id",
   // 7: ["nonce", { fn: (value: string) => cbor.encode(value) }],
   8: "attrs",
-};
-
-const decoders = {
-  tags: {
-    10000: (value: Uint8Array) => Buffer.from(value),
-    1: (value: number) => new cbor.Tagged(1, value),
-  },
 };
 
 export class Request extends Message {

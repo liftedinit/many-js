@@ -3,7 +3,7 @@ type Key = string | number;
 type Field = Key | [Key, Options?];
 type Options = {
   transform?: Transform;
-  type?: "array" | "map" | "bytes";
+  type?: "array" | "map";
   fn?: (value: any) => any;
 };
 type CborMap = Map<Key, any>;
@@ -41,9 +41,6 @@ export function mapToObj<T>(map: CborMap, xform: Transform): T {
             }),
             {},
           );
-          break;
-        case "bytes":
-          obj[objKey] = mapValue.toString("hex");
           break;
         default:
           obj[objKey] = transform
@@ -84,9 +81,6 @@ export function objToMap<T>(obj: T, xform: Transform): CborMap {
               ),
             new Map(),
           );
-          break;
-        case "bytes":
-          value = Buffer.from(objValue as string);
           break;
         default:
           value = transform ? objToMap(objValue, transform) : fn(objValue);

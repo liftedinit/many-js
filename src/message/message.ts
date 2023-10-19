@@ -1,24 +1,22 @@
-import cbor from "cbor";
+import { encode, decodeAllSync, Tagged } from "cbor-web";
 import { Anonymous, Identifier, KeyPair, WebAuthn } from "../id";
-import { CoseSign1 } from "./encoding";
+import { CborData, CborMap, CoseSign1 } from "./encoding";
 const sha512 = require("js-sha512");
-
-type CborMap = Map<number | string, any>;
 
 export abstract class Message {
   constructor(public content: CborMap) { }
 
   async toCoseSign1(id: Identifier): Promise<CoseSign1> {
     const protectedHeader = this.getProtectedHeader(id);
-    const cborProtectedHeader = cbor.encodeCanonical(protectedHeader);
+    const cborProtectedHeader = encode(protectedHeader);
 
     const payload = this.content;
-    const cborPayload = cbor.encode(new cbor.Tagged(10001, payload));
+    const cborPayload = encode(new Tagged(10001, payload));
 
-    const toBeSigned = cbor.encodeCanonical([
+    const toBeSigned = encode([
       "Signature1",
       cborProtectedHeader,
-      Buffer.alloc(0),
+      new ArrayBuffer(0),
       cborPayload,
     ]);
 
@@ -46,7 +44,7 @@ export abstract class Message {
       const coseKey = id.toCoseKey();
       protectedHeader.set(1, coseKey.key.get(3)); // alg
       protectedHeader.set(4, coseKey.keyId); // kid: kid
-      protectedHeader.set("keyset", coseKey.toBuffer());
+      protectedHeader.set("keyset", coseKey.toCborData());
     }
 
     // Note if we're using WebAuthn
@@ -59,8 +57,8 @@ export abstract class Message {
 
   private async getUnprotectedHeader(
     id: Identifier,
-    cborProtectedHeader: Buffer,
-    toBeSigned: Buffer,
+    cborProtectedHeader: CborData,
+    toBeSigned: CborData,
   ): Promise<CborMap> {
     const unprotectedHeader = new Map();
 
@@ -70,7 +68,7 @@ export abstract class Message {
         [0, cborProtectedHeader],
         [1, Buffer.from(sha512.arrayBuffer(toBeSigned)).toString("base64")],
       ]);
-      const sig = await id.sign(cbor.encodeCanonical(data));
+      const sig = await id.sign(encode(data));
       const res = id.credential.response as AuthenticatorAssertionResponse;
 
       unprotectedHeader.set("authData", res.authenticatorData);
@@ -82,7 +80,7 @@ export abstract class Message {
 
   private async getSignature(
     id: Identifier,
-    toBeSigned: Buffer,
+    toBeSigned: CborData,
   ): Promise<ArrayBuffer> {
     // Signature is the standard Cose structure, but only for KeyPair identifiers
     if (id instanceof KeyPair) {
@@ -91,7 +89,7 @@ export abstract class Message {
     return new ArrayBuffer(0);
   }
 
-  async toCborData(id: Identifier = new Anonymous()) {
+  async toCborData(id: Identifier = new Anonymous()): Promise<CborData> {
     const cose = await this.toCoseSign1(id);
     return cose.toCborData();
   }

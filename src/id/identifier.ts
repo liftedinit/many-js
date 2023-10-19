@@ -2,18 +2,19 @@ import base32Decode from "base32-decode";
 import base32Encode from "base32-encode";
 import crc from "crc";
 import { CoseKey } from "../message/encoding";
+import { compare } from "../message/encoding/cbor";
 
 export class Identifier {
-  constructor(public publicKey: Uint8Array = new Uint8Array([0x00])) { }
+  constructor(public publicKey: ArrayBuffer = new ArrayBuffer(0)) { }
 
   async sign(_: ArrayBuffer): Promise<ArrayBuffer> {
     throw new Error("Generic identifier cannot sign");
   }
 
   toString(): string {
-    const address = Buffer.from(this.publicKey);
-    const checksum = Buffer.allocUnsafe(3);
-    checksum.writeUInt16BE(crc.crc16(address), 0);
+    const address = new Uint8Array(this.publicKey);
+    const checksum16 = new Uint16Array([crc.crc16(address)]);
+    const checksum = new Uint8Array(checksum16.buffer).reverse();
 
     const leader = "m";
     const base32Address = base32Encode(address, "RFC4648", {
@@ -28,14 +29,14 @@ export class Identifier {
   }
 
   withSubresource(sub: number): Identifier {
-    let bytes = Buffer.from(this.publicKey.slice(0, 29));
+    let bytes = new Uint8Array(this.publicKey.slice(0, 29));
     bytes[0] = 0x80 + ((sub & 0x7f000000) >> 24);
-    const subresourceBytes = Buffer.from([
+    const subresourceBytes = new Uint8Array([
       (sub & 0x00ff0000) >> 16,
       (sub & 0x0000ff00) >> 8,
       sub & 0x000000ff,
     ]);
-    return new Identifier(Buffer.concat([bytes, subresourceBytes]));
+    return new Identifier(new Uint8Array([...bytes, ...subresourceBytes]));
   }
 
   static fromString(string: string): Identifier {
@@ -50,10 +51,10 @@ export class Identifier {
     const check16 = new Uint16Array([crc.crc16(address)]);
     const check = new Uint8Array(check16.buffer).reverse();
 
-    if (Buffer.compare(check, Buffer.from(checksum)) !== 0) {
+    if (!compare(check, new Uint8Array(checksum))) {
       throw new Error(`Invalid checksum: ${checksum}`);
     }
 
-    return new Identifier(Buffer.from(address));
+    return new Identifier(new Uint8Array(address));
   }
 }

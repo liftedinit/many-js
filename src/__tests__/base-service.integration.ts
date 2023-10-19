@@ -1,5 +1,5 @@
 import { BaseService, Request } from "..";
-import { CborData } from "../message/encoding";
+import { CborData, cborDataFromString } from "../message/encoding";
 import { ID1, SERVERS } from "./data";
 
 describe("BaseService", () => {
@@ -10,7 +10,7 @@ describe("BaseService", () => {
   beforeAll(() => {
     const timestamp = Math.floor(Date.now() / 1000).toString(16);
     HEX = `d28440a053d92711a2036673746174757305c11a${timestamp}40`;
-    CBOR_DATA = Buffer.from(HEX, "hex");
+    CBOR_DATA = cborDataFromString(HEX, "hex");
   });
 
   it("should send encoded bytes", async () => {

@@ -1,5 +1,6 @@
-import cbor from "cbor";
-import { CoseKey } from "../../../message/encoding";
+import { encode } from "cbor-web";
+
+import { cborDataFromString, CoseKey } from "../../../message/encoding";
 import { Identifier } from "../../identifier";
 import { KeyPair } from "../keypair";
 import { IDS } from "./data";
@@ -33,14 +34,14 @@ describe("KeyPair", () => {
         new Uint8Array(new Array(32).fill(2)),
       );
 
-      const sig1 = await keypair.sign(Buffer.from("foo"));
-      const sig2 = await keypair.sign(Buffer.from("bar"));
+      const sig1 = await keypair.sign(cborDataFromString("foo"));
+      const sig2 = await keypair.sign(cborDataFromString("bar"));
 
       expect(sig1).not.toStrictEqual(sig2);
     });
     it("should return the correct signature", async () => {
       const keypair = KeyPair.fromPem(IDS.ALICE.PEM);
-      const toBeSigned = cbor.encodeCanonical([
+      const toBeSigned = encode([
         "Signature1",
         Buffer.from(
           "A3012704581D0158DFA1E41AA0547281EDFCAFDF0405075A9174D4EA491666D9FE0D8F666B6579736574584E81A6010102581D0158DFA1E41AA0547281EDFCAFDF0405075A9174D4EA491666D9FE0D8F032704810220062158208245075673CEAADBEE59214EA777E604A507B4A9D5704D0DE3DF602E1C0452D9",
@@ -48,16 +49,18 @@ describe("KeyPair", () => {
         ),
         Buffer.alloc(0),
         Buffer.from(
-          "D92711A301D92710581D0158DFA1E41AA0547281EDFCAFDF0405075A9174D4EA491666D9FE0D8F036673746174757305C11A6425D329",
+          "D92711A301D92710581D0158DFA1E41AA0547281EDFCAFDF0405075A9174D4EA491666D9FE0D8F036968656172746265617405C11A64DE836B",
           "hex",
         ),
       ]);
-      const expectedSig =
-        "5867D485C8996EF3DBC3C28F967DA0265A1444735054D1F6E17ACB86F656552FB5AFE09DAD2083398D06F5373A569B875F688B0FBD896FE1FA16B6D4EB7D360B";
+      const expectedSig = Buffer.from(
+        "6550A9F70F97CE9560D71E9A622BEA2BCE0C920B25D63C8D5B8BBC517FD567612AF9A658AF51FD3CE474A4DA3F4FF74AB47BA1430792BFFC94DF488701B07A0F",
+        "hex",
+      );
 
       const sig = await keypair.sign(toBeSigned);
 
-      expect(sig).toStrictEqual(Buffer.from(expectedSig, "hex"));
+      expect(Buffer.from(sig)).toEqual(expectedSig);
     });
   });
   describe("toString", () => {

@@ -38,8 +38,8 @@ Encoding and decoding messages.
 msg = { to, from, method, data, timestamp, version };
 
 message = Message.fromObject(msg); // Message
-message.toCborData(); // => Anonymous CBOR Buffer
-message.toCborData(keys); // => Signed CBOR Buffer
+message.toCborData(); // => Anonymous CBOR Data
+message.toCborData(keys); // => Signed CBOR Data
 
 message.content; // => Object
 ```

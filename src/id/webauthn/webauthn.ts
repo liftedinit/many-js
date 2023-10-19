@@ -1,4 +1,4 @@
-import cbor from "cbor";
+import { decodeFirstSync } from "cbor-web";
 import { CoseKey } from "../../message/encoding";
 import { makeRandomBytes } from "../../shared/utils";
 import { Identifier } from "../identifier";
@@ -39,7 +39,7 @@ export class WebAuthn extends Identifier {
   toCoseKey(): CoseKey {
     const { attestationObject } = this.credential
       .response as AuthenticatorAttestationResponse;
-    const { authData } = cbor.decodeFirstSync(attestationObject);
+    const { authData } = decodeFirstSync(attestationObject);
 
     const dataView = new DataView(new ArrayBuffer(2));
     const idLenBytes = authData.slice(53, 55);
@@ -48,7 +48,7 @@ export class WebAuthn extends Identifier {
     const credentialIdLength = dataView.getUint16(0);
     const publicKeyBytes = authData.slice(55 + credentialIdLength);
 
-    return new CoseKey(cbor.decodeFirstSync(publicKeyBytes));
+    return new CoseKey(decodeFirstSync(publicKeyBytes));
   }
 
   static async create(): Promise<WebAuthn> {

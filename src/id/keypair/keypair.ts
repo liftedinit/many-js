@@ -1,20 +1,27 @@
 import { asn1 as ASN1, pem as PEM, pki } from "node-forge";
 import * as bip39 from "bip39";
-import { CborData, CoseKey } from "../../message/encoding";
+import { CoseKey } from "../../message/encoding";
 import { Identifier } from "../identifier";
 
 const Ed25519 = pki.ed25519;
 
 export class KeyPair extends Identifier {
-  constructor(public publicKey: Uint8Array, private privateKey: Uint8Array) {
+  constructor(
+    public publicKey: ArrayBuffer,
+    private privateKey: ArrayBuffer,
+  ) {
     super();
-    if (privateKey.length !== 32) {
+    if (new Uint8Array(privateKey).length !== 32) {
       throw new Error("Private key must have 32 bytes");
     }
   }
 
-  async sign(data: CborData): Promise<ArrayBuffer> {
-    return Ed25519.sign({ message: data, privateKey: this.privateKey });
+  async sign(data: ArrayBuffer): Promise<ArrayBuffer> {
+    const sig = Ed25519.sign({
+      message: new Uint8Array(data),
+      privateKey: new Uint8Array(this.privateKey),
+    });
+    return new Uint8Array(sig);
   }
 
   toString(): string {
@@ -27,8 +34,8 @@ export class KeyPair extends Identifier {
     const c = new Map();
     c.set(1, 1); // kty: OKP
     c.set(3, -8); // alg: EdDSA
-    c.set(-1, 6); // crv: Ed25519
     c.set(4, [2]); // key_ops: [verify]
+    c.set(-1, 6); // crv: Ed25519
     c.set(-2, this.publicKey); // x: publicKey
     return new CoseKey(c);
   }
