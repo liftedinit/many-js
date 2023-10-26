@@ -1,6 +1,6 @@
 import { Anonymous } from "../anonymous";
 import { Identifier } from "../../identifier";
-import { cborDataFromString } from "../../../message/encoding";
+import { strToBytes } from "../../../shared/utils";
 
 describe("Anonymous", () => {
   describe("constructor", () => {
@@ -20,7 +20,7 @@ describe("Anonymous", () => {
     it("should return an empty buffer", async () => {
       const anon = new Anonymous();
 
-      const sig = await anon.sign(cborDataFromString("foo"));
+      const sig = await anon.sign(strToBytes("foo"));
 
       expect(sig).toStrictEqual(new ArrayBuffer(0));
     });

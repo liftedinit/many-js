@@ -1,9 +1,10 @@
 import { decodeFirstSync, Tagged } from "cbor-web";
 import { mapToObj, Transform } from "../../shared/transform";
 import { Result, Ok, Err } from "../../shared/result";
-import { CborData, cborDataToString, CborMap, CoseSign1 } from "../encoding";
+import { CborData, CborMap, CoseSign1 } from "../encoding";
 import { ManyError } from "../error";
 import { Message } from "../message";
+import { bytesToHex, bytesToStr } from "../../shared/utils";
 
 type AsyncAttr = [1, CborData];
 
@@ -20,10 +21,10 @@ interface ResponseObj {
 
 const responseMap: Transform = {
   0: "version",
-  1: ["from", { fn: (value: CborData) => cborDataToString(value) }],
+  1: ["from", { fn: bytesToStr }],
   2: [
     "to",
-    { fn: (value?: CborData) => (value ? cborDataToString(value) : undefined) },
+    { fn: (value?: CborData) => (value ? bytesToStr(value) : undefined) },
   ],
   4: [
     "result",
@@ -36,7 +37,7 @@ const responseMap: Transform = {
   ],
   5: ["timestamp", { fn: (value: Tagged) => value.value }],
   6: "id",
-  7: ["nonce", { fn: (value: CborData) => cborDataToString(value, "hex") }],
+  7: ["nonce", { fn: bytesToHex }],
   8: "attrs",
 };
 

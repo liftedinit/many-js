@@ -1,6 +1,6 @@
 import { Server } from "../server";
 import { objToMap, Transform } from "../../shared/transform";
-import { cborDataFromString } from "../../message/encoding";
+import { strToBuffer } from "../../shared/utils";
 
 export interface KeyValuePutArgs {
   key: string;
@@ -9,8 +9,8 @@ export interface KeyValuePutArgs {
 }
 
 const putArgsMap: Transform = {
-  0: ["key", { fn: (key: string) => cborDataFromString(key) }],
-  1: ["value", { fn: (value: string) => cborDataFromString(value) }],
+  0: ["key", { fn: strToBuffer }],
+  1: ["value", { fn: strToBuffer }],
   2: "owner",
 };
 

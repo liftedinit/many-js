@@ -1,4 +1,5 @@
-import { encode, Tagged, decodeFirstSync } from "cbor-web";
+import { encodeCanonical as encode, Tagged, decodeFirstSync } from "cbor-web";
+import { bytesToBuffer } from "../../shared/utils";
 import { CborMap, CborData } from "./cbor";
 
 export class CoseSign1 {
@@ -10,12 +11,14 @@ export class CoseSign1 {
   ) { }
 
   toCborData(): CborData {
-    const p = this.protectedHeader.size
-      ? encode(this.protectedHeader)
-      : new ArrayBuffer(0);
+    const p = encode(this.protectedHeader);
     const u = this.unprotectedHeader;
     const payload = encode(new Tagged(10001, this.payload));
-    const sig = this.signature;
+    let sig = this.signature;
+    if (sig instanceof Uint8Array) {
+      // Convert to ArrayBuffer so CBOR doesn't tag as 64 (UintArray)
+      sig = bytesToBuffer(sig);
+    }
 
     return encode(new Tagged(18, [p, u, payload, sig]));
   }

@@ -1,10 +1,6 @@
 import { Server } from "../server";
 import { mapToObj, objToMap, Transform } from "../../shared/transform";
-import {
-  CborData,
-  cborDataFromString,
-  cborDataToString,
-} from "../../message/encoding";
+import { bufferToStr, strToBuffer } from "../../shared/utils";
 
 export interface KeyValueGet {
   value?: string;
@@ -15,11 +11,11 @@ export interface KeyValueGetArgs {
 }
 
 const getMap: Transform = {
-  0: ["value", { fn: (value: CborData) => cborDataToString(value) }],
+  0: ["value", { fn: bufferToStr }],
 };
 
 const getArgsMap: Transform = {
-  0: ["key", { fn: (key: string) => cborDataFromString(key) }],
+  0: ["key", { fn: strToBuffer }],
 };
 
 export async function get(

@@ -1,6 +1,7 @@
 import { Anonymous, Identifier } from "../id";
 import { Request, Response } from "../message";
-import { CborData, cborDataToString, CborMap } from "../message/encoding";
+import { CborData, CborMap } from "../message/encoding";
+import { bytesToHex } from "../shared/utils";
 
 const INITIAL_SLEEP = 500;
 const sleep = async (t: number) => new Promise((r) => setTimeout(r, t));
@@ -13,10 +14,8 @@ export abstract class Server {
 
   async send(message: Request): Promise<Response> {
     const encoded = await message.toCborData(this.id);
-    console.log(cborDataToString(encoded, "hex"));
     const cborData = await this.sendEncoded(encoded);
     // @TODO: Verify response
-    console.log(cborDataToString(cborData, "hex"));
     return Response.fromCborData(cborData);
   }
 
@@ -56,9 +55,7 @@ export abstract class Server {
       const [status, value] = (result.value as CborMap).values();
       switch (status) {
         case 0: // Unknown
-          throw new Error(
-            `Unknown request token: ${cborDataToString(token, "hex")}`,
-          );
+          throw new Error(`Unknown request token: ${bytesToHex(token)}`);
         case 1: // Queued
         case 2: // Processing
           await sleep(ms);

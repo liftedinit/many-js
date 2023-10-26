@@ -1,4 +1,4 @@
-import { encode, decodeAllSync, Tagged } from "cbor-web";
+import { encodeCanonical as encode, decodeAllSync, Tagged } from "cbor-web";
 import { Anonymous, Identifier, KeyPair, WebAuthn } from "../id";
 import { CborData, CborMap, CoseSign1 } from "./encoding";
 const sha512 = require("js-sha512");

@@ -1,6 +1,7 @@
 import { encode } from "cbor-web";
 
-import { cborDataFromString, CoseKey } from "../../../message/encoding";
+import { CoseKey } from "../../../message/encoding";
+import { strToBytes } from "../../../shared/utils";
 import { Identifier } from "../../identifier";
 import { KeyPair } from "../keypair";
 import { IDS } from "./data";
@@ -34,8 +35,8 @@ describe("KeyPair", () => {
         new Uint8Array(new Array(32).fill(2)),
       );
 
-      const sig1 = await keypair.sign(cborDataFromString("foo"));
-      const sig2 = await keypair.sign(cborDataFromString("bar"));
+      const sig1 = await keypair.sign(strToBytes("foo"));
+      const sig2 = await keypair.sign(strToBytes("bar"));
 
       expect(sig1).not.toStrictEqual(sig2);
     });

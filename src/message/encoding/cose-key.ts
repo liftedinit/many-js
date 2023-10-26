@@ -1,13 +1,7 @@
-import { encode } from "cbor-web";
+import { encodeCanonical as encode } from "cbor-web";
 import { sha3_224 } from "js-sha3";
-import {
-  CborData,
-  cborDataFromString,
-  cborDataToString,
-  CborMap,
-  compare,
-  // encode,
-} from "./cbor";
+import { compareBytes, hexToBuffer } from "../../shared/utils";
+import { CborData, CborMap } from "./cbor";
 
 export const ANONYMOUS = new Uint8Array([0x00]);
 
@@ -27,14 +21,13 @@ export class CoseKey {
   }
 
   get keyId(): CborData {
-    if (compare(this.common.get(-2), ANONYMOUS)) {
+    if (compareBytes(this.common.get(-2), ANONYMOUS)) {
       return ANONYMOUS;
     }
     const keyId = new Map(this.common);
     const pk = "01" + sha3_224(encode(keyId));
 
-    return Buffer.from(pk, "hex");
-    // return cborDataFromString(pk, "hex");
+    return hexToBuffer(pk) as CborData;
   }
 
   get key(): CborMap {
@@ -43,7 +36,6 @@ export class CoseKey {
     return key;
   }
 
-  // @TODO: Replace all instances of coseKey.toCborData() with encode(coseKey)
   toCborData(): CborData {
     return encode([this.key]);
   }

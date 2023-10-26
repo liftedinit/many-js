@@ -1,6 +1,6 @@
 import { decodeFirstSync } from "cbor-web";
 import { CoseKey } from "../../message/encoding";
-import { makeRandomBytes } from "../../shared/utils";
+import { bytesToHex, makeRandomBytes } from "../../shared/utils";
 import { Identifier } from "../identifier";
 
 export class WebAuthn extends Identifier {
@@ -31,9 +31,7 @@ export class WebAuthn extends Identifier {
       const { signature } = response as AuthenticatorAssertionResponse;
       return signature;
     }
-    throw new Error(
-      `Could not sign data: ${Buffer.from(data).toString("hex")}`,
-    );
+    throw new Error(`Could not sign data: ${bytesToHex(new Uint8Array(data))}`);
   }
 
   toCoseKey(): CoseKey {

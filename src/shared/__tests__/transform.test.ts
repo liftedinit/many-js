@@ -1,5 +1,5 @@
 import { mapToObj, objToMap, Transform } from "../transform";
-import { cborDataFromString, cborDataToString } from "../../message/encoding";
+import { bytesToHex, hexToBytes } from "../utils";
 
 type Simple = { name: string };
 type List = { names: Simple[] };
@@ -14,10 +14,10 @@ const mapped: Transform = {
   0: ["names", { type: "map", transform: { 0: "age" } }],
 };
 const decode: Transform = {
-  0: ["number", { fn: (value: string) => parseInt(value) }],
+  0: ["number", { fn: parseInt }],
 };
 const encode: Transform = {
-  0: ["number", { fn: (value: string) => cborDataFromString(value, "hex") }],
+  0: ["number", { fn: hexToBytes }],
 };
 
 describe("Transform", () => {
@@ -90,9 +90,10 @@ describe("Transform", () => {
     it("should apply a transform function", () => {
       const obj = { number: "ba5eba11" };
       const map = objToMap(obj, encode);
+      const value = map.get(0);
 
-      expect(map.get(0) instanceof Uint8Array).toBe(true);
-      expect(cborDataToString(map.get(0), "hex")).toBe("ba5eba11");
+      expect(value instanceof Uint8Array).toBe(true);
+      expect(bytesToHex(value)).toBe("ba5eba11");
     });
   });
 });

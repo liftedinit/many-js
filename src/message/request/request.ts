@@ -1,9 +1,8 @@
-import { encode, decodeAllSync, Tagged } from "cbor-web";
+import { encodeCanonical as encode, decodeAllSync, Tagged } from "cbor-web";
 import { mapToObj, objToMap, Transform } from "../../shared/transform";
 import { Message } from "../message";
-import { CborData, cborDataToString, CoseSign1 } from "../encoding";
-import { makeRandomBytes } from "../../shared/utils";
-import { Identifier } from "../../id";
+import { CborData, CoseSign1 } from "../encoding";
+import { bytesToHex } from "../../shared/utils";
 
 export interface RequestArgs {
   version?: number;
@@ -24,9 +23,7 @@ const requestArgMap: Transform = {
   3: "method",
   4: [
     "data",
-    {
-      fn: (value?: CborData) => (value ? decodeAllSync(value) : undefined),
-    },
+    { fn: (value?: CborData) => (value ? decodeAllSync(value) : undefined) },
   ],
   5: [
     "timestamp",
@@ -36,7 +33,7 @@ const requestArgMap: Transform = {
     },
   ],
   6: "id",
-  7: ["nonce", { fn: (value: CborData) => cborDataToString(value, "hex") }],
+  7: ["nonce", { fn: bytesToHex }],
   8: "attrs",
 };
 
@@ -46,12 +43,7 @@ const requestMap: Transform = {
   2: "to",
   3: "method",
   4: ["data", { fn: (value?: any) => (value ? encode(value) : undefined) }],
-  5: [
-    "timestamp",
-    {
-      fn: (value: number) => new Tagged(1, value),
-    },
-  ],
+  5: ["timestamp", { fn: (value: number) => new Tagged(1, value) }],
   6: "id",
   // 7: ["nonce", { fn: (value: string) => cbor.encode(value) }],
   8: "attrs",
@@ -67,9 +59,7 @@ export class Request extends Message {
       throw new Error("Property 'method' is required.");
     }
     const defaults = {
-      // version: 1,
       timestamp: Math.floor(Date.now() / 1000),
-      // nonce: makeRandomBytes(16),
     };
     return new Request(objToMap({ ...defaults, ...obj }, requestMap));
   }
