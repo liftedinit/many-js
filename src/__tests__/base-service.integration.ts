@@ -44,7 +44,7 @@ describe("BaseService", () => {
     server = new BaseService(SERVERS.LEDGER);
     const status = await server.status();
 
-    expect(status).toBeDefined();
+    expect(status).toHaveProperty("serverName");
   });
   it("should call a method non-anonymously", async () => {
     server = new BaseService(SERVERS.LEDGER, ID1);

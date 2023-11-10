@@ -15,9 +15,10 @@ export function strToBuffer(str: string): ArrayBuffer {
 // From Hex String
 
 export function hexToBytes(hex: string): Uint8Array {
-  return Uint8Array.from(
-    hex.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)),
-  );
+  const match = hex.match(/.{1,2}/g);
+  return match
+    ? Uint8Array.from(match.map((byte) => parseInt(byte, 16)))
+    : new Uint8Array();
 }
 
 export function hexToBuffer(hex: string): ArrayBuffer {

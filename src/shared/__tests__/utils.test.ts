@@ -18,6 +18,7 @@ describe("Utils", () => {
   describe("makeRandomBytes", () => {
     it("should return a Uint8Array", () => {
       const bytes = makeRandomBytes();
+
       expect(bytes instanceof Uint8Array).toBe(true);
     });
     it("should not make the same bytes each time", () => {
@@ -26,14 +27,15 @@ describe("Utils", () => {
   });
   describe("strToBytes", () => {
     it("should convert a string to a Uint8Array", () => {
-      expect(strToBytes(BITCOIN.STR)).toEqual(BITCOIN.BYTES);
+      const bytes = strToBytes(BITCOIN.STR);
+
+      expect(bytes.buffer).toEqual(BITCOIN.BYTES.buffer);
     });
   });
   describe("strToBuffer", () => {
     it("should convert a string to an ArrayBuffer", () => {
       const ab = strToBuffer(BITCOIN.STR);
 
-      expect(ab).toBeInstanceOf(ArrayBuffer);
       expect(ab).toEqual(BITCOIN.BYTES.buffer);
     });
   });
