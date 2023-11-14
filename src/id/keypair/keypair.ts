@@ -7,6 +7,7 @@ ed.etc.sha512Sync = (...m) => sha512(ed.etc.concatBytes(...m));
 
 import { CoseKey } from "../../message/encoding";
 import { Identifier } from "../identifier";
+import { bytesToBuffer } from "../../shared/utils";
 
 const Ed25519 = pki.ed25519;
 
@@ -19,6 +20,9 @@ export class KeyPair extends Identifier {
     if (new Uint8Array(privateKey).length !== 32) {
       throw new Error("Private key must have 32 bytes");
     }
+    if (publicKey instanceof Uint8Array) {
+      this.publicKey = bytesToBuffer(publicKey);
+    }
   }
 
   async sign(data: ArrayBuffer): Promise<ArrayBuffer> {
@@ -28,7 +32,7 @@ export class KeyPair extends Identifier {
 
   toString(): string {
     const coseKey = this.toCoseKey();
-    return new Identifier(coseKey.keyId.buffer).toString();
+    return new Identifier(coseKey.keyId).toString();
   }
 
   // @TODO: Use objToMap?

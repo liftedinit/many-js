@@ -20,6 +20,7 @@ export abstract class Server {
   }
 
   async sendEncoded(encoded: CborData): Promise<CborData> {
+    console.log("sendEncoded", bytesToHex(encoded));
     const httpRes = await fetch(this.url, {
       method: "POST",
       headers: { "Content-Type": "application/cbor" },

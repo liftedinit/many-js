@@ -88,7 +88,9 @@ describe("KeyPair", () => {
       );
       const coseKey = keypair.toCoseKey();
 
-      expect(coseKey.publicKey).toStrictEqual(keypair.publicKey);
+      expect(new Uint8Array(coseKey.publicKey)).toStrictEqual(
+        new Uint8Array(keypair.publicKey),
+      );
     });
   });
   describe("fromString", () => {
@@ -111,7 +113,9 @@ describe("KeyPair", () => {
       const keypair1 = KeyPair.fromMnemonic(seedWords1);
       const keypair2 = KeyPair.fromMnemonic(seedWords2);
 
-      expect(keypair1.publicKey).not.toEqual(keypair2.publicKey);
+      expect(new Uint8Array(keypair1.publicKey)).not.toStrictEqual(
+        new Uint8Array(keypair2.publicKey),
+      );
     });
     it("should return the expected Many address", () => {
       const keypair = KeyPair.fromMnemonic(IDS.CHARLIE.MNEMONIC);

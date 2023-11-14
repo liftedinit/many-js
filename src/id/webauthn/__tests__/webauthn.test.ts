@@ -8,13 +8,14 @@ const globalNavigator = global.navigator;
 
 describe("WebAuthn", () => {
   beforeAll(() => {
-    global.navigator = {
-      //@ts-ignore
-      credentials: {
-        get: jest.fn().mockImplementation(makeMockPublicKeyCredential),
-        create: jest.fn().mockResolvedValue(mockPublicKeyCredential),
-      },
-    };
+    //@ts-ignore
+    global.navigator.credentials.get.mockImplementation(
+      makeMockPublicKeyCredential,
+    );
+    //@ts-ignore
+    global.navigator.credentials.create.mockResolvedValue(
+      mockPublicKeyCredential,
+    );
   });
   afterAll(() => {
     global.navigator = globalNavigator;

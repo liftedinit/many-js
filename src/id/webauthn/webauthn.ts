@@ -4,7 +4,7 @@ import { bytesToHex, makeRandomBytes } from "../../shared/utils";
 import { Identifier } from "../identifier";
 
 export class WebAuthn extends Identifier {
-  readonly publicKey: Uint8Array;
+  readonly publicKey: ArrayBuffer;
 
   constructor(readonly credential: PublicKeyCredential) {
     super();
