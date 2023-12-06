@@ -48,6 +48,12 @@
     "preset": "ts-jest",
     "testMatch": [
       "**/?(*.)+(spec|test).[jt]s?(x)"
+    ],
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "transformIgnorePatterns": [
+      "/node_modules/(?!@noble)"
     ]
   }
 }
