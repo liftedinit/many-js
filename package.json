@@ -44,6 +44,9 @@
     "test:jsdom": "jest --env jsdom --setupFilesAfterEnv ./setupTests.jsdom.ts",
     "coverage:jsdom": "c8 -o ./coverage/jsdom npm run test:jsdom"
   },
+  "c8": {
+    "reporter": ["text", "lcov"]
+  },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser"
   },
