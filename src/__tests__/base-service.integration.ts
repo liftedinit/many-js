@@ -1,5 +1,6 @@
 import { BaseService, Request } from "..";
 import { CborData } from "../message/encoding";
+import { hexToBytes } from "../shared/utils";
 import { ID1, SERVERS } from "./data";
 
 describe("BaseService", () => {
@@ -10,7 +11,7 @@ describe("BaseService", () => {
   beforeAll(() => {
     const timestamp = Math.floor(Date.now() / 1000).toString(16);
     HEX = `d28440a053d92711a2036673746174757305c11a${timestamp}40`;
-    CBOR_DATA = Buffer.from(HEX, "hex");
+    CBOR_DATA = hexToBytes(HEX);
   });
 
   it("should send encoded bytes", async () => {
@@ -43,11 +44,17 @@ describe("BaseService", () => {
     server = new BaseService(SERVERS.LEDGER);
     const status = await server.status();
 
-    expect(status).toBeDefined();
+    expect(status).toHaveProperty("serverName");
   });
   it("should call a method non-anonymously", async () => {
     server = new BaseService(SERVERS.LEDGER, ID1);
     const status = await server.status();
+
+    expect(status).toBeDefined();
+  });
+  it("should attach an identity to an existing server", async () => {
+    server = new BaseService(SERVERS.LEDGER);
+    const status = await server.as(ID1).status();
 
     expect(status).toBeDefined();
   });

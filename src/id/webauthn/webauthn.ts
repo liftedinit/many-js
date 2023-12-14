@@ -1,10 +1,10 @@
-import cbor from "cbor";
+import { decodeFirstSync } from "cbor-web";
 import { CoseKey } from "../../message/encoding";
-import { makeRandomBytes } from "../../shared/utils";
+import { bytesToHex, makeRandomBytes } from "../../shared/utils";
 import { Identifier } from "../identifier";
 
 export class WebAuthn extends Identifier {
-  readonly publicKey: Uint8Array;
+  readonly publicKey: ArrayBuffer;
 
   constructor(readonly credential: PublicKeyCredential) {
     super();
@@ -31,15 +31,13 @@ export class WebAuthn extends Identifier {
       const { signature } = response as AuthenticatorAssertionResponse;
       return signature;
     }
-    throw new Error(
-      `Could not sign data: ${Buffer.from(data).toString("hex")}`,
-    );
+    throw new Error(`Could not sign data: ${bytesToHex(new Uint8Array(data))}`);
   }
 
   toCoseKey(): CoseKey {
     const { attestationObject } = this.credential
       .response as AuthenticatorAttestationResponse;
-    const { authData } = cbor.decodeFirstSync(attestationObject);
+    const { authData } = decodeFirstSync(attestationObject);
 
     const dataView = new DataView(new ArrayBuffer(2));
     const idLenBytes = authData.slice(53, 55);
@@ -48,7 +46,7 @@ export class WebAuthn extends Identifier {
     const credentialIdLength = dataView.getUint16(0);
     const publicKeyBytes = authData.slice(55 + credentialIdLength);
 
-    return new CoseKey(cbor.decodeFirstSync(publicKeyBytes));
+    return new CoseKey(decodeFirstSync(publicKeyBytes));
   }
 
   static async create(): Promise<WebAuthn> {

@@ -1,13 +1,13 @@
 import { Server } from "../server";
 import { mapToObj, Transform } from "../../shared/transform";
-import { CborData } from "../../message/encoding";
+import { bytesToHex } from "../../shared/utils";
 
 export interface KeyValueInfo {
   hash: string;
 }
 
 const infoMap: Transform = {
-  0: ["hash", { fn: (hash: CborData) => hash.toString("hex") }],
+  0: ["hash", { fn: bytesToHex }],
 };
 
 export async function info(server: Server): Promise<KeyValueInfo> {

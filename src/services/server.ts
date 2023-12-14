@@ -1,29 +1,37 @@
 import { Anonymous, Identifier } from "../id";
 import { Request, Response } from "../message";
 import { CborData, CborMap } from "../message/encoding";
+import { bytesToHex } from "../shared/utils";
 
 const INITIAL_SLEEP = 500;
 const sleep = async (t: number) => new Promise((r) => setTimeout(r, t));
 
 export abstract class Server {
-  constructor(public url: string, public id: Identifier = new Anonymous()) {}
+  constructor(
+    public url: string,
+    public id: Identifier = new Anonymous(),
+  ) { }
 
-  async send(req: Request): Promise<Response> {
-    const encoded = await req.toCborData(this.id);
+  async send(message: Request): Promise<Response> {
+    const encoded = await message.toCborData(this.id);
     const cborData = await this.sendEncoded(encoded);
     // @TODO: Verify response
     return Response.fromCborData(cborData);
   }
 
-  async sendEncoded(encoded: CborData) {
+  async sendEncoded(encoded: CborData): Promise<CborData> {
     const httpRes = await fetch(this.url, {
       method: "POST",
       headers: { "Content-Type": "application/cbor" },
-      mode: "no-cors",
+      mode: "cors",
       body: encoded,
     });
-    const arrayBuffer = await httpRes.arrayBuffer();
-    return Buffer.from(arrayBuffer);
+    if (httpRes.ok) {
+      const arrayBuffer = await httpRes.arrayBuffer();
+      return new Uint8Array(arrayBuffer);
+    } else {
+      throw new Error(httpRes.statusText);
+    }
   }
 
   async call(method: string, data?: any, options = {}) {
@@ -47,9 +55,7 @@ export abstract class Server {
       const [status, value] = (result.value as CborMap).values();
       switch (status) {
         case 0: // Unknown
-          throw new Error(
-            `Unknown request token: ${Buffer.from(token).toString("hex")}`,
-          );
+          throw new Error(`Unknown request token: ${bytesToHex(token)}`);
         case 1: // Queued
         case 2: // Processing
           await sleep(ms);

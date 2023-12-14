@@ -3,7 +3,7 @@ import { Identifier } from "../identifier";
 
 export class Anonymous extends Identifier {
   async sign(_: ArrayBuffer): Promise<ArrayBuffer> {
-    return new Uint8Array();
+    return new ArrayBuffer(0);
   }
 
   toString(): string {

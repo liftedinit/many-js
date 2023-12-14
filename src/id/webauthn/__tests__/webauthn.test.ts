@@ -2,18 +2,20 @@ import { Identifier } from "../../identifier";
 import { WebAuthn } from "../webauthn";
 import { CoseKey } from "../../../message/encoding";
 import { makeMockPublicKeyCredential, mockPublicKeyCredential } from "./data";
+import { strToBytes } from "../../../shared/utils";
 
 const globalNavigator = global.navigator;
 
 describe("WebAuthn", () => {
   beforeAll(() => {
-    global.navigator = {
-      //@ts-ignore
-      credentials: {
-        get: jest.fn().mockImplementation(makeMockPublicKeyCredential),
-        create: jest.fn().mockResolvedValue(mockPublicKeyCredential),
-      },
-    };
+    //@ts-ignore
+    global.navigator.credentials.get.mockImplementation(
+      makeMockPublicKeyCredential,
+    );
+    //@ts-ignore
+    global.navigator.credentials.create.mockResolvedValue(
+      mockPublicKeyCredential,
+    );
   });
   afterAll(() => {
     global.navigator = globalNavigator;
@@ -36,8 +38,8 @@ describe("WebAuthn", () => {
     it("should return a signature", async () => {
       const webauthn = new WebAuthn(mockPublicKeyCredential);
 
-      const sig1 = await webauthn.sign(Buffer.from("foo"));
-      const sig2 = await webauthn.sign(Buffer.from("bar"));
+      const sig1 = await webauthn.sign(strToBytes("foo"));
+      const sig2 = await webauthn.sign(strToBytes("bar"));
 
       expect(sig1).not.toStrictEqual(sig2);
     });
@@ -73,14 +75,14 @@ describe("WebAuthn", () => {
   });
   describe("get", () => {
     it("should return a webauthn identifier", async () => {
-      const rawId = Buffer.from("2d8b2fa74fc479768b6c68dec22ab6ef0f9cee6e");
+      const rawId = strToBytes("2d8b2fa74fc479768b6c68dec22ab6ef0f9cee6e");
       const webauthn = await WebAuthn.get(rawId);
 
       expect(webauthn instanceof WebAuthn).toBe(true);
       expect(webauthn instanceof Identifier).toBe(true);
     });
     it("should have a matching credential ID", async () => {
-      const rawId = Buffer.from("2d8b2fa74fc479768b6c68dec22ab6ef0f9cee6e");
+      const rawId = strToBytes("2d8b2fa74fc479768b6c68dec22ab6ef0f9cee6e");
       const webauthn = await WebAuthn.get(rawId);
 
       expect(webauthn.credential.rawId).toStrictEqual(rawId);

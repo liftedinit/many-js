@@ -1,11 +1,10 @@
-import cbor from "cbor";
+import { decodeFirstSync, Tagged } from "cbor-web";
 import { mapToObj, Transform } from "../../shared/transform";
 import { Result, Ok, Err } from "../../shared/result";
 import { CborData, CborMap, CoseSign1 } from "../encoding";
 import { ManyError } from "../error";
 import { Message } from "../message";
-import Tagged from "cbor/types/lib/tagged";
-import { Identifier } from "../../id";
+import { bytesToHex, bytesToStr } from "../../shared/utils";
 
 type AsyncAttr = [1, CborData];
 
@@ -22,30 +21,30 @@ interface ResponseObj {
 
 const responseMap: Transform = {
   0: "version",
-  1: ["from", { fn: (value: Identifier) => value.toString() }],
+  1: ["from", { fn: bytesToStr }],
   2: [
     "to",
-    { fn: (value?: CborData) => (value ? value.toString() : undefined) },
+    { fn: (value?: CborData) => (value ? bytesToStr(value) : undefined) },
   ],
   4: [
     "result",
     {
       fn: (value: any) =>
-        typeof value === "object" && !(value instanceof Buffer)
+        typeof value === "object" && !(value instanceof Uint8Array)
           ? Err(new ManyError(Object.fromEntries(value)))
-          : Ok(cbor.decode(value, decoders)),
+          : Ok(decodeFirstSync(value)),
     },
   ],
   5: ["timestamp", { fn: (value: Tagged) => value.value }],
   6: "id",
-  7: ["nonce", { fn: (value: CborData) => value.toString("hex") }],
+  7: ["nonce", { fn: bytesToHex }],
   8: "attrs",
 };
 
 const decoders = {
   tags: {
     10000: (value: CborData) => value,
-    1: (value: number) => new cbor.Tagged(1, value),
+    1: (value: number) => new Tagged(1, value),
   },
 };
 

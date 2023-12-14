@@ -1,25 +1,26 @@
 import base32Decode from "base32-decode";
 import base32Encode from "base32-encode";
 import crc from "crc";
-import { CoseKey } from "../message/encoding";
+import { CoseKey } from "../../message/encoding";
+import { compareBytes } from "../../shared/utils";
 
 export class Identifier {
-  constructor(public publicKey: Uint8Array = new Uint8Array([0x00])) {}
+  constructor(public publicKey: ArrayBuffer = new ArrayBuffer(0)) { }
 
   async sign(_: ArrayBuffer): Promise<ArrayBuffer> {
     throw new Error("Generic identifier cannot sign");
   }
 
   toString(): string {
-    const address = new Uint8Array([...this.publicKey]);
-    const checksum16 = new Uint16Array([crc.crc16(address)]);
-    const checksum = new Uint8Array(checksum16.buffer).reverse();
+    const address = new Uint8Array(this.publicKey);
+    const check16 = new Uint16Array([crc.crc16(address)]);
+    const check = new Uint8Array(check16.buffer).reverse();
 
     const leader = "m";
     const base32Address = base32Encode(address, "RFC4648", {
       padding: false,
     });
-    const base32Checksum = base32Encode(checksum, "RFC4648").slice(0, 2);
+    const base32Checksum = base32Encode(check, "RFC4648").slice(0, 2);
     return (leader + base32Address + base32Checksum).toLowerCase();
   }
 
@@ -50,10 +51,10 @@ export class Identifier {
     const check16 = new Uint16Array([crc.crc16(address)]);
     const check = new Uint8Array(check16.buffer).reverse();
 
-    if (Buffer.compare(check, Buffer.from(checksum)) !== 0) {
+    if (!compareBytes(check.slice(0, 1), new Uint8Array(checksum))) {
       throw new Error(`Invalid checksum: ${checksum}`);
     }
 
-    return new Identifier(new Uint8Array(address));
+    return new Identifier(address);
   }
 }

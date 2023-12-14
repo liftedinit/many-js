@@ -1,5 +1,6 @@
 import { Server } from "../server";
 import { objToMap, Transform } from "../../shared/transform";
+import { strToBuffer } from "../../shared/utils";
 
 export interface KeyValuePutArgs {
   key: string;
@@ -8,8 +9,8 @@ export interface KeyValuePutArgs {
 }
 
 const putArgsMap: Transform = {
-  0: ["key", { fn: (key: string) => Buffer.from(key) }],
-  1: ["value", { fn: (value: string) => Buffer.from(value) }],
+  0: ["key", { fn: strToBuffer }],
+  1: ["value", { fn: strToBuffer }],
   2: "owner",
 };
 

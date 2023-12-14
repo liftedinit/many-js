@@ -1,22 +1,22 @@
-import cbor from "cbor";
+import { encodeCanonical as encode, decodeAllSync, Tagged } from "cbor-web";
 import { Anonymous, Identifier, KeyPair, WebAuthn } from "../id";
 import { CborData, CborMap, CoseSign1 } from "./encoding";
 const sha512 = require("js-sha512");
 
 export abstract class Message {
-  constructor(public content: CborMap) {}
+  constructor(public content: CborMap) { }
 
   async toCoseSign1(id: Identifier): Promise<CoseSign1> {
     const protectedHeader = this.getProtectedHeader(id);
-    const cborProtectedHeader = cbor.encodeCanonical(protectedHeader);
+    const cborProtectedHeader = encode(protectedHeader);
 
     const payload = this.content;
-    const cborPayload = cbor.encode(new cbor.Tagged(10001, payload));
+    const cborPayload = encode(new Tagged(10001, payload));
 
-    const toBeSigned = cbor.encodeCanonical([
+    const toBeSigned = encode([
       "Signature1",
       cborProtectedHeader,
-      Buffer.alloc(0),
+      new ArrayBuffer(0),
       cborPayload,
     ]);
 
@@ -68,7 +68,7 @@ export abstract class Message {
         [0, cborProtectedHeader],
         [1, Buffer.from(sha512.arrayBuffer(toBeSigned)).toString("base64")],
       ]);
-      const sig = await id.sign(cbor.encodeCanonical(data));
+      const sig = await id.sign(encode(data));
       const res = id.credential.response as AuthenticatorAssertionResponse;
 
       unprotectedHeader.set("authData", res.authenticatorData);
@@ -89,7 +89,7 @@ export abstract class Message {
     return new ArrayBuffer(0);
   }
 
-  async toCborData(id: Identifier = new Anonymous()) {
+  async toCborData(id: Identifier = new Anonymous()): Promise<CborData> {
     const cose = await this.toCoseSign1(id);
     return cose.toCborData();
   }

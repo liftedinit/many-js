@@ -1,5 +1,7 @@
-import cbor from "cbor";
+import { encode } from "cbor-web";
+
 import { CoseKey } from "../../../message/encoding";
+import { h, strToBytes } from "../../../shared/utils";
 import { Identifier } from "../../identifier";
 import { KeyPair } from "../keypair";
 import { IDS } from "./data";
@@ -33,31 +35,25 @@ describe("KeyPair", () => {
         new Uint8Array(new Array(32).fill(2)),
       );
 
-      const sig1 = await keypair.sign(Buffer.from("foo"));
-      const sig2 = await keypair.sign(Buffer.from("bar"));
+      const sig1 = await keypair.sign(strToBytes("foo"));
+      const sig2 = await keypair.sign(strToBytes("bar"));
 
       expect(sig1).not.toStrictEqual(sig2);
     });
     it("should return the correct signature", async () => {
       const keypair = KeyPair.fromPem(IDS.ALICE.PEM);
-      const toBeSigned = cbor.encodeCanonical([
+      const toBeSigned = encode([
         "Signature1",
-        Buffer.from(
-          "A3012704581D0158DFA1E41AA0547281EDFCAFDF0405075A9174D4EA491666D9FE0D8F666B6579736574584E81A6010102581D0158DFA1E41AA0547281EDFCAFDF0405075A9174D4EA491666D9FE0D8F032704810220062158208245075673CEAADBEE59214EA777E604A507B4A9D5704D0DE3DF602E1C0452D9",
-          "hex",
-        ),
-        Buffer.alloc(0),
-        Buffer.from(
-          "D92711A301D92710581D0158DFA1E41AA0547281EDFCAFDF0405075A9174D4EA491666D9FE0D8F036673746174757305C11A6425D329",
-          "hex",
-        ),
+        h`A3012704581D0158DFA1E41AA0547281EDFCAFDF0405075A9174D4EA491666D9FE0D8F666B6579736574584E81A6010102581D0158DFA1E41AA0547281EDFCAFDF0405075A9174D4EA491666D9FE0D8F032704810220062158208245075673CEAADBEE59214EA777E604A507B4A9D5704D0DE3DF602E1C0452D9`
+          .buffer,
+        new ArrayBuffer(0),
+        h`D92711A301D92710581D0158DFA1E41AA0547281EDFCAFDF0405075A9174D4EA491666D9FE0D8F036968656172746265617405C11A64DE836B`
+          .buffer,
       ]);
-      const expectedSig =
-        "5867D485C8996EF3DBC3C28F967DA0265A1444735054D1F6E17ACB86F656552FB5AFE09DAD2083398D06F5373A569B875F688B0FBD896FE1FA16B6D4EB7D360B";
-
+      const expectedSig = h`6550A9F70F97CE9560D71E9A622BEA2BCE0C920B25D63C8D5B8BBC517FD567612AF9A658AF51FD3CE474A4DA3F4FF74AB47BA1430792BFFC94DF488701B07A0F`;
       const sig = await keypair.sign(toBeSigned);
 
-      expect(sig).toStrictEqual(Buffer.from(expectedSig, "hex"));
+      expect(sig).toEqual(expectedSig);
     });
   });
   describe("toString", () => {
@@ -73,11 +69,6 @@ describe("KeyPair", () => {
       const keypair = KeyPair.fromPem(IDS.ALICE.PEM);
 
       expect(keypair.toString()).toBe(IDS.ALICE.ADDRESS);
-    });
-    it("should return the expected Many address", () => {
-      const keypair = KeyPair.fromMnemonic(IDS.CHARLIE.MNEMONIC);
-
-      expect(keypair.toString()).toBe(IDS.CHARLIE.ADDRESS);
     });
   });
   describe("toCoseKey", () => {
@@ -97,7 +88,9 @@ describe("KeyPair", () => {
       );
       const coseKey = keypair.toCoseKey();
 
-      expect(coseKey.publicKey).toStrictEqual(keypair.publicKey);
+      expect(new Uint8Array(coseKey.publicKey)).toStrictEqual(
+        new Uint8Array(keypair.publicKey),
+      );
     });
   });
   describe("fromString", () => {
@@ -113,18 +106,6 @@ describe("KeyPair", () => {
     });
   });
   describe("fromMnemonic", () => {
-    it("should return a keypair identifier", () => {
-      const seedWords = KeyPair.getMnemonic();
-      const keypair = KeyPair.fromMnemonic(seedWords);
-
-      expect(keypair instanceof KeyPair).toBe(true);
-      expect(keypair instanceof Identifier).toBe(true);
-    });
-    it("should throw on a bad mnemonic", () => {
-      const seedWords = "abandon abandon abandon";
-
-      expect(() => KeyPair.fromMnemonic(seedWords)).toThrow();
-    });
     it("should return a unique keypair", () => {
       const seedWords1 = KeyPair.getMnemonic();
       const seedWords2 = KeyPair.getMnemonic();
@@ -132,15 +113,26 @@ describe("KeyPair", () => {
       const keypair1 = KeyPair.fromMnemonic(seedWords1);
       const keypair2 = KeyPair.fromMnemonic(seedWords2);
 
-      expect(keypair1.toString()).not.toBe(keypair2.toString());
+      expect(new Uint8Array(keypair1.publicKey)).not.toStrictEqual(
+        new Uint8Array(keypair2.publicKey),
+      );
+    });
+    it("should return the expected Many address", () => {
+      const keypair = KeyPair.fromMnemonic(IDS.CHARLIE.MNEMONIC);
+
+      expect(keypair.toString()).toBe(IDS.CHARLIE.ADDRESS);
+    });
+    it("should throw on a bad mnemonic", () => {
+      const seedWords = "abandon abandon abandon";
+
+      expect(() => KeyPair.fromMnemonic(seedWords)).toThrow();
     });
   });
   describe("fromPem", () => {
-    it("should return a keypair identifier", () => {
+    it("should return the expected Many address", () => {
       const keypair = KeyPair.fromPem(IDS.ALICE.PEM);
 
-      expect(keypair instanceof KeyPair).toBe(true);
-      expect(keypair instanceof Identifier).toBe(true);
+      expect(keypair.toString()).toBe(IDS.ALICE.ADDRESS);
     });
     it("should throw on a bad PEM", () => {
       const pem = `
