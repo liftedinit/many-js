@@ -4,6 +4,7 @@ version: 2.1
 
 orbs:
   node: circleci/node@5.1.0
+  codecov: codecov/codecov@3.3.0
 
 jobs:
   test-build:
@@ -27,6 +28,19 @@ jobs:
       - run:
           name: Build app
           command: npm run build
+
+  coverage:
+    parameters:
+      node_version:
+        type: string
+    executor:
+      name: node/default
+      tag: << parameters.node_version >>
+    steps:
+      - run:
+          name: Run coverage
+          command: npm run test -- --coverage
+      - codecov/upload
 
   publish-github:
     parameters:
@@ -102,6 +116,11 @@ workflows:
                 - 'current'
                 - '20.10.0'
                 - '16.20.2'
+      - coverage:
+          matrix:
+            parameters:
+              node_version:
+                - '20.10.0'
       - create:
           release_id: "${CIRCLE_PR_NUMBER}"
 

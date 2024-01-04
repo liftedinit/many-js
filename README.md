@@ -1,3 +1,6 @@
+[![ci](https://img.shields.io/circleci/build/gh/liftedinit/many-js)](https://app.circleci.com/pipelines/gh/liftedinit/many-js)
+[![coverage](https://img.shields.io/codecov/c/gh/liftedinit/many-js)](https://app.codecov.io/gh/liftedinit/many-js)
+
 # Many Library
 
 This library can be used by JavaScript applications to connect to networks that
