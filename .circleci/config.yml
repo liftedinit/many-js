@@ -37,6 +37,7 @@ jobs:
       name: node/default
       tag: << parameters.node_version >>
     steps:
+      - setup
       - run:
           name: Run coverage
           command: npm run test -- --coverage
