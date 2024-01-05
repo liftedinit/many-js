@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2024-01-05
+
+### Miscellaneous Tasks
+
+- Update packages ([#122](https://github.com/liftedinit/many-js/issues/122))
+
 ## [0.1.1] - 2023-10-13
 
 ### Features
