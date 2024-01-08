@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2024-01-08
+
+### Bug Fixes
+
+- Workaround webpack 5 polyfill migration ([#123](https://github.com/liftedinit/many-js/issues/123))
+
 ## [0.2.0] - 2024-01-05
 
 ### Miscellaneous Tasks
