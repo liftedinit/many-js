@@ -24,13 +24,13 @@ export class CoseMessage {
   protectedHeader: CborMap
   unprotectedHeader: CborMap
   content: CborMap
-  signature: ArrayBuffer
+  signature: Buffer
 
   constructor(
     protectedHeader: CborMap,
     unprotectedHeader: CborMap,
     content: CborMap,
-    signature: ArrayBuffer,
+    signature: Buffer, // WARN: Buffer required to avoid array tagging by cbor library.
   ) {
     this.protectedHeader = protectedHeader
     this.unprotectedHeader = unprotectedHeader
@@ -81,7 +81,7 @@ export class CoseMessage {
       protectedHeader,
       unprotectedHeader,
       content,
-      signature,
+      Buffer.from(signature), // WARN: Buffer required to avoid array tagging by cbor library.
     )
   }
 

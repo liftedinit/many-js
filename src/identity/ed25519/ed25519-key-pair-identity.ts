@@ -67,7 +67,9 @@ export class Ed25519KeyPairIdentity extends PublicKeyIdentity {
     c.set(3, -8) // alg: EdDSA
     c.set(-1, 6) // crv: Ed25519
     c.set(4, [2]) // key_ops: [verify]
-    c.set(-2, this.publicKey) // x: publicKey
+
+    // WARN: Buffer.from is required here to avoid array tagging by the cbor library
+    c.set(-2, Buffer.from(this.publicKey)) // x: publicKey
     return new CoseKey(c)
   }
 
