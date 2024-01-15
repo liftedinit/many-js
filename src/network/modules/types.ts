@@ -14,6 +14,7 @@ export type LedgerSendParam = {
   to: string
   amount: bigint
   symbol: string
+  memo?: Memo
 }
 
 export type EventTypeIndices = [number, number | EventTypeIndices]
