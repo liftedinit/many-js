@@ -34,6 +34,7 @@ export interface SendEvent extends BaseEvent {
   from: string
   to: string
   symbolAddress: string
+  memo?: Memo
 }
 
 export interface CreateAccountEvent extends BaseEvent {
