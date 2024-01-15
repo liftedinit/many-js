@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2] - 2024-01-15
+
+### Bug Fixes
+
+- Add memo support to ledger.send ([#124](https://github.com/liftedinit/many-js/issues/124))
+
 ## [0.2.1] - 2024-01-08
 
 ### Bug Fixes
