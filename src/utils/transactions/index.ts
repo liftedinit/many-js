@@ -28,9 +28,11 @@ export function makeLedgerSendParam({
   to,
   symbol,
   amount,
+  memo,
 }: LedgerSendParam) {
   const m = new Map()
   from && m.set(0, from)
+  memo && m.set(4, memo)
   return m.set(1, to).set(2, amount).set(3, symbol)
 }
 
