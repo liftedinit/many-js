@@ -269,6 +269,7 @@ async function makeSendEventData(
       to: (eventData.get(1) as Address)?.toString()!,
       symbolAddress: (eventData.get(3) as Address)?.toString()!,
       amount: BigInt(eventData.get(2) as number),
+      memo: eventData.get(4) as Memo,
     }
   }
   return {
@@ -277,6 +278,7 @@ async function makeSendEventData(
     to: (eventData.get(2) as Address)?.toString()!,
     symbolAddress: (eventData.get(3) as Address)?.toString()!,
     amount: BigInt(eventData.get(4) as number),
+    memo: eventData.get(5) as Memo,
   }
 }
 
