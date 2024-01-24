@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2024-01-24
+
+### Bug Fixes
+
+- Add ledger.send memo to event ([#125](https://github.com/liftedinit/many-js/issues/125))
+
+### Features
+
+- Partial blockchain module ([#126](https://github.com/liftedinit/many-js/issues/126))
+
 ## [0.2.2] - 2024-01-15
 
 ### Bug Fixes
